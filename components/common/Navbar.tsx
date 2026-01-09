@@ -41,8 +41,8 @@ const Navbar = () => {
 
           <div className="flex items-center gap-6">
             <nav className="hidden md:flex items-center gap-6">
-              <Link className="text-sm font-medium hover:text-primary transition-colors" href="#">Home</Link>
-              <Link className="text-sm font-medium text-primary" href="#">Rentals</Link>
+              <Link className="text-sm font-medium hover:text-primary transition-colors" href="/">Home</Link>
+              <Link className="text-sm font-medium text-primary" href="/rentals">Rentals</Link>
               <Link className="text-sm font-medium hover:text-primary transition-colors" href="#">Short Stays</Link>
             </nav>
 
@@ -75,8 +75,8 @@ const Navbar = () => {
         {/* Mobile menu */}
         {mobileOpen && (
           <div className="md:hidden mt-4 px-4 space-y-3">
-            <Link href={'/home'} className="block text-sm font-medium">Home</Link>
-            <Link  href={'/find-a-place'} className="block text-sm font-medium text-primary">Rentals</Link>
+            <Link href={'/'} className="block text-sm font-medium">Home</Link>
+            <Link  href={'/rentals'} className="block text-sm font-medium text-primary">Rentals</Link>
             <Link  href={'/list'}className="block text-sm font-medium">Short Stays</Link>
             <button className="w-full h-10 rounded-lg bg-primary text-background-dark font-bold">
               List Property
@@ -104,8 +104,8 @@ const Navbar = () => {
           </Link>
 
           <nav className="hidden md:flex items-center gap-6">
-            <Link href={'/home'}  className="text-sm font-medium hover:text-primary transition-colors" >Home</Link>
-            <Link  className="text-sm font-medium hover:text-primary transition-colors" href="#">Find a Place</Link>
+            <Link href={'/'}  className="text-sm font-medium hover:text-primary transition-colors" >Home</Link>
+            <Link  className="text-sm font-medium hover:text-primary transition-colors" href="/rentals">Find a Place</Link>
             <Link className="text-sm font-medium hover:text-primary transition-colors" href="#">List Property</Link>
           </nav>
         </div>
@@ -142,8 +142,8 @@ const Navbar = () => {
       {/* ✅ MOBILE MENU FOR NON-LOGGED USERS */}
       {mobileOpen && (
         <div className="md:hidden px-4 pb-4 space-y-3">
-          <Link href={'/home'}  className="block text-sm font-medium">Home</Link>
-          <Link href={'/find-a-place'} className="block text-sm font-medium">Find a Place</Link>
+          <Link href={'/'}  className="block text-sm font-medium">Home</Link>
+          <Link href={'/rentals'} className="block text-sm font-medium">Find a Place</Link>
           <Link href={'/list'} className="block text-sm font-medium">List Property</Link>
 
           <button className="w-full h-9 rounded-lg border text-sm font-semibold">
