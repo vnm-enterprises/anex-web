@@ -5,10 +5,12 @@ import Image from "next/image";
 import React, { useState } from "react";
 import { useAuthStore } from "@/store/auth";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 const Navbar = () => {
   const isLogged = useAuthStore((s) => s.isAuthenticated);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const router = useRouter()
 
   /* ===========================
      LOGGED-IN NAVBAR
@@ -23,7 +25,7 @@ const Navbar = () => {
                 <Home />
               </div>
               <h2 className="text-xl font-bold tracking-tight group-hover:text-primary transition-colors">
-                annex.lk
+                anex.lk
               </h2>
             </Link>
 
@@ -91,7 +93,7 @@ const Navbar = () => {
      NON-LOGGED NAVBAR
   =========================== */
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-[#e7f3ed] bg-background-light/80 backdrop-blur-md dark:bg-background-dark/80 dark:border-white/10">
+    <header className="z-50 sticky top-0 z-50 w-full border-b border-[#e7f3ed] bg-background-light/80 backdrop-blur-md dark:bg-background-dark/80 dark:border-white/10">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <div className="flex items-center gap-8">
           <Link className="flex items-center gap-2 transition-opacity hover:opacity-80" href="#">
@@ -106,7 +108,7 @@ const Navbar = () => {
           <nav className="hidden md:flex items-center gap-6">
             <Link href={'/'}  className="text-sm font-medium hover:text-primary transition-colors" >Home</Link>
             <Link  className="text-sm font-medium hover:text-primary transition-colors" href="/rentals">Find a Place</Link>
-            <Link className="text-sm font-medium hover:text-primary transition-colors" href="#">List Property</Link>
+            <Link className="text-sm font-medium hover:text-primary transition-colors" href="/auth/login">List Property</Link>
           </nav>
         </div>
 
@@ -122,10 +124,10 @@ const Navbar = () => {
           </div>
 
           <div className="flex items-center gap-2">
-            <button className="hidden sm:block h-9 px-4 text-sm font-semibold">
+            <button className="hidden sm:block h-9 px-4 text-sm font-semibold cursor-pointer" onClick={() => router.push('/auth/login')}>
               Log In
             </button>
-            <button className="h-9 px-4 rounded-lg bg-primary text-sm font-bold text-black">
+            <button className="h-9 px-4 rounded-lg bg-primary text-sm font-bold text-black cursor-pointer" onClick={() => router.push('/auth/signup')}>
               Sign Up
             </button>
 
