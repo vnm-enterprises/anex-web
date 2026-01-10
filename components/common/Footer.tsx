@@ -17,18 +17,18 @@ export default function Footer() {
             <Link
               href="#"
               className="mb-6 inline-flex items-center gap-2 rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-              aria-label="annex.lk home"
+              aria-label="anex.lk home"
             >
               <div className="flex size-8 items-center justify-center rounded-lg bg-primary text-background-dark">
                 <Home size={18} />
               </div>
               <span className="text-xl font-bold tracking-tight text-text-main dark:text-white">
-                annex.lk
+                anex.lk
               </span>
             </Link>
 
             <p className="mx-auto sm:mx-0 max-w-xs text-sm leading-relaxed text-gray-500 dark:text-gray-400">
-              Sri Lanka&apos;s #1 platform for finding rental annexes, rooms, and
+              Sri Lanka&apos;s #1 platform for finding rental anexes, rooms, and
               houses. Simple, fast, and reliable.
             </p>
           </div>
