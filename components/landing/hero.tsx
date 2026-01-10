@@ -34,7 +34,7 @@ export default function HeroSection() {
 
         {/* Subtitle */}
         <p className="mx-auto mt-4 max-w-2xl text-sm text-white/80 sm:text-base">
-          Discover verified annexes, rooms, and houses for rent across Sri Lanka
+          Discover verified anexes, rooms, and houses for rent across Sri Lanka
           directly from owners.
         </p>
 
