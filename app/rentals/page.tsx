@@ -1,4 +1,4 @@
-'use client'
+"use client";
 import FiltersSidebar from "@/components/filters/FiltersSidebar";
 import PropertyGrid from "@/components/listings/PropertyGrid";
 import Pagination from "@/components/listings/Pagination";
@@ -10,6 +10,7 @@ import { useState } from "react";
 import ListingToolbar from "@/components/listings/ListingsToolbar";
 import PropertyList from "@/components/listings/PropertyList";
 import MapView from "@/components/listings/MapView";
+import AdsCarousel from "@/components/listings/AdsCarousel";
 
 export default function RentalsPage() {
   const [view, setView] = useState<ListingView>("grid");
@@ -22,11 +23,11 @@ export default function RentalsPage() {
         </aside>
         <div className="flex-1">
           <Breadcrumbs />
+          <AdsCarousel />
           <ListingToolbar view={view} onViewChange={setView} />
-          {/* View Renderer */}
-        {view === "grid" && <PropertyGrid />}
-        {view === "list" && <PropertyList />}
-        {view === "map" && <MapView />}
+          {view === "grid" && <PropertyGrid />}
+          {view === "list" && <PropertyList />}
+          {view === "map" && <MapView />}
           <Pagination />
         </div>
       </main>
