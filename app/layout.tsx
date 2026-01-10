@@ -14,18 +14,18 @@ export const metadata: Metadata = {
     template: "%s | anex.lk",
   },
   description:
-    "Find annexes, rooms, houses and short stays for rent across Sri Lanka. Search by city, town or property ID on anex.lk.",
+    "Find anexes, rooms, houses and short stays for rent across Sri Lanka. Search by city, town or property ID on anex.lk.",
 
   applicationName: "anex.lk",
 
   keywords: [
     "anex.lk",
-    "annex for rent Sri Lanka",
+    "anex for rent Sri Lanka",
     "rooms for rent Sri Lanka",
     "houses for rent Sri Lanka",
     "short stays Sri Lanka",
     "boarding places Sri Lanka",
-    "rent annex",
+    "rent anex",
     "property rental Sri Lanka",
   ],
 
@@ -54,7 +54,7 @@ export const metadata: Metadata = {
     url: "https://anex.lk",
     title: "anex.lk – Find your perfect home",
     description:
-      "Find annexes, rooms and houses for rent across Sri Lanka. Simple, fast and trusted.",
+      "Find anexes, rooms and houses for rent across Sri Lanka. Simple, fast and trusted.",
     siteName: "anex.lk",
     images: [
       {
@@ -70,7 +70,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "anex.lk – Find your perfect home",
     description:
-      "Find annexes, rooms and houses for rent across Sri Lanka.",
+      "Find anexes, rooms and houses for rent across Sri Lanka.",
     images: ["https://anex.lk/og-image.png"],
   },
 
