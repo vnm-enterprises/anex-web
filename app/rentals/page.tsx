@@ -17,18 +17,20 @@ export default function RentalsPage() {
   return (
     <>
       <Navbar />
-      <main className="flex flex-col w-full">
-        <aside className="w-full lg:w-1/4  shrink-0 max-w-7xl mx-auto px-4 md:px-10 py-6 flex flex-col lg:flex-row gap-8">
-          <FiltersSidebar />
-        </aside>
-        <div className="flex-1">
-          <Breadcrumbs />
-          <AdsCarousel />
-          <ListingToolbar view={view} onViewChange={setView} />
-          {view === "grid" && <PropertyGrid />}
-          {view === "list" && <PropertyList />}
-          {view === "map" && <MapView />}
-          <Pagination />
+      <main className="flex flex-col lg:flex-row justify-center mt-10 items-center w-full mb-5 ">
+        <div className="max-w-7xl flex flex-col lg:flex-row lg:items-start lg:justify-between w-full">
+          <aside className="w-full lg:w-1/4  shrink-0 mx-auto  flex flex-col lg:flex-row  ">
+            <FiltersSidebar />
+          </aside>
+          <div className="flex-1 flex-col">
+            <Breadcrumbs />
+            <AdsCarousel />
+            <ListingToolbar view={view} onViewChange={setView} />
+            {view === "grid" && <PropertyGrid />}
+            {view === "list" && <PropertyList />}
+            {view === "map" && <MapView />}
+            <Pagination />
+          </div>
         </div>
       </main>
       <Footer />
