@@ -79,7 +79,7 @@ export default function Navbar() {
             <div className="flex items-center gap-4">
               <button
                 onClick={() => router.push("/list")}
-                className="hidden sm:flex h-10 px-5 items-center justify-center rounded-lg bg-primary hover:bg-primary-dark text-background-dark text-sm font-bold transition-all shadow-sm hover:shadow-md"
+                className="hidden cursor-pointer sm:flex h-10 px-5 items-center justify-center rounded-lg bg-primary hover:bg-primary-dark text-background-dark text-sm font-bold transition-all shadow-sm hover:shadow-md"
               >
                 List Property
               </button>
@@ -96,7 +96,7 @@ export default function Navbar() {
 
               {/* Mobile Menu Toggle */}
               <button
-                className="md:hidden"
+                className="md:hidden cursor-pointer"
                 onClick={() => setMobileOpen((v) => !v)}
               >
                 <Menu />
@@ -119,7 +119,7 @@ export default function Navbar() {
             </Link>
             <button
               onClick={() => router.push("/list")}
-              className="w-full h-10 rounded-lg bg-primary text-background-dark font-bold"
+              className="w-full h-10 rounded-lg bg-primary text-background-dark font-bold cursor-pointer"
             >
               List Property
             </button>
@@ -169,20 +169,20 @@ export default function Navbar() {
 
           <button
             onClick={() => router.push("/auth/login")}
-            className="hidden sm:block h-9 px-4 text-sm font-semibold"
+            className="hidden sm:block h-9 px-4 text-sm font-semibold cursor-pointer"
           >
             Log In
           </button>
 
           <button
             onClick={() => router.push("/auth/signup")}
-            className="h-9 px-4 rounded-lg bg-primary text-sm font-bold text-black"
+            className="h-9 px-4 rounded-lg bg-primary text-sm font-bold text-black cursor-pointer"
           >
             Sign Up
           </button>
 
           <button
-            className="md:hidden"
+            className="md:hidden cursor-pointer"
             onClick={() => setMobileOpen((v) => !v)}
           >
             <Menu />
@@ -205,13 +205,13 @@ export default function Navbar() {
 
           <button
             onClick={() => router.push("/auth/login")}
-            className="w-full h-9 rounded-lg border text-sm font-semibold"
+            className="w-full h-9 rounded-lg border text-sm font-semibold cursor-pointer"
           >
             Log In
           </button>
           <button
             onClick={() => router.push("/auth/signup")}
-            className="w-full h-9 rounded-lg bg-primary text-sm font-bold text-black"
+            className="w-full h-9 rounded-lg bg-primary text-sm font-bold text-black cursor-pointer"
           >
             Sign Up
           </button>
