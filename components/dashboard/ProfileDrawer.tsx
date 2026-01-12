@@ -1,5 +1,7 @@
 "use client";
 
+import SessionsPage from "../auth/sessions";
+
 export default function ProfileDrawer({
   open,
   onClose,
@@ -88,6 +90,7 @@ export default function ProfileDrawer({
             Logout
           </button>
         </div>
+        <SessionsPage />
       </div>
     </>
   );
