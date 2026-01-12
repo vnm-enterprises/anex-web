@@ -2,13 +2,19 @@
 
 import { useEffect } from "react";
 import { useAuthStore } from "@/store/auth";
+import api from "@/lib/api";
 
 export default function AuthHydrator() {
-  const hydrate = useAuthStore((s) => s.hydrate);
+  const { token, fetchMe } = useAuthStore();
 
   useEffect(() => {
-    hydrate();
-  }, [hydrate]);
+    if (token) {
+      api.defaults.headers.common[
+        "Authorization"
+      ] = `Bearer ${token}`;
+      fetchMe();
+    }
+  }, [token, fetchMe]);
 
   return null;
 }

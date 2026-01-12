@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useState } from "react";
@@ -12,126 +13,223 @@ import {
   Phone,
   Building,
 } from "lucide-react";
-import AuthLogo from "./AuthLogo";
 import { FaGoogle } from "react-icons/fa";
+import api from "@/lib/api";
+import AuthHeader from "./AuthHeader";
+import GoogleButton from "./GoogleButton";
 
 type UserType = "rent" | "list";
 
 export default function RegisterForm() {
   const [userType, setUserType] = useState<UserType>("rent");
 
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    propertyName: "",
+    password: "",
+  });
+
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+
+  const handleChange = (key: string, value: string) => {
+    setForm((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const handleSubmit = async () => {
+    setError(null);
+    setSuccess(null);
+
+    if (!form.name || !form.email || !form.password) {
+      setError("Please fill all required fields.");
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      // ✅ ONLY send what backend expects
+      await api.post("/auth/signup", {
+        name: form.name,
+        email: form.email,
+        password: form.password,
+      });
+
+      // ✅ Store landlord intent for onboarding (future step)
+      if (userType === "list") {
+        localStorage.setItem(
+          "landlord_onboarding",
+          JSON.stringify({
+            phone: form.phone,
+            propertyName: form.propertyName,
+          })
+        );
+      }
+
+      setSuccess(
+        "Verification email sent. Please check your inbox before logging in."
+      );
+
+      setForm({
+        name: "",
+        email: "",
+        phone: "",
+        propertyName: "",
+        password: "",
+      });
+    } catch (err: any) {
+      setError(
+        err.response?.data?.error ||
+          "Signup failed. Please try again."
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <section className="w-full md:w-1/2 p-8 md:p-12 lg:p-16 flex flex-col justify-center">
-      {/* Mobile Logo */}
-      <div className="md:hidden mb-8 flex justify-center">
-        <AuthLogo />
-      </div>
+    <section className="w-full md:w-1/2 flex flex-col">
+      {/* ✅ Correct Header */}
+      <AuthHeader />
 
-      <div className="max-w-md mx-auto w-full">
-        <h1 className="text-3xl font-bold mb-2">Create an account</h1>
-        <p className="text-text-muted dark:text-gray-400 mb-8">
-          Join our community to start your journey.
-        </p>
+      <div className="flex-1 flex items-center justify-center px-8 md:px-12 py-12">
+        <div className="max-w-md w-full">
+          <h1 className="text-3xl font-bold mb-2">Create an account</h1>
+          <p className="text-text-muted mb-8">
+            Join our community to start your journey.
+          </p>
 
-        {/* User Type Selector */}
-        <div className="mb-8">
-          <label className="text-sm font-medium mb-2 block">I want to...</label>
-          <div className="grid grid-cols-2 gap-3 p-1 rounded-xl border border-gray-100 dark:border-gray-700">
-            <UserTypeOption
-              icon={<Search size={18} />}
-              label="Rent a place"
-              active={userType === "rent"}
-              onClick={() => setUserType("rent")}
-            />
-            <UserTypeOption
-              icon={<Home size={18} />}
-              label="List property"
-              active={userType === "list"}
-              onClick={() => setUserType("list")}
-            />
+          {/* User Type */}
+          <div className="mb-8">
+            <label className="text-sm font-medium mb-2 block">
+              I want to...
+            </label>
+            <div className="grid grid-cols-2 gap-3 p-1 rounded-xl border">
+              <UserTypeOption
+                icon={<Search size={18} />}
+                label="Rent a place"
+                active={userType === "rent"}
+                onClick={() => setUserType("rent")}
+              />
+              <UserTypeOption
+                icon={<Home size={18} />}
+                label="List property"
+                active={userType === "list"}
+                onClick={() => setUserType("list")}
+              />
+            </div>
           </div>
-        </div>
 
-        {/* Form */}
-        <form className="space-y-5">
-          {/* Common fields */}
-          <Input
-            label="Full Name"
-            placeholder="John Doe"
-            icon={<User size={18} />}
-          />
-
-          <Input
-            label="Email or Phone"
-            placeholder="name@example.com"
-            icon={<Mail size={18} />}
-          />
-
-          {/* Landlord-only fields */}
-          {userType === "list" && (
-            <>
-              <Input
-                label="Phone Number"
-                placeholder="+94 7X XXX XXXX"
-                icon={<Phone size={18} />}
-              />
-
-              <Input
-                label="Property Name (optional)"
-                placeholder="Sunrise Annex"
-                icon={<Building size={18} />}
-              />
-            </>
-          )}
-
-          <Input
-            label="Password"
-            placeholder="••••••••"
-            icon={<Lock size={18} />}
-            rightIcon={<Eye size={18} />}
-            type="password"
-          />
-
-          <button
-            type="button"
-            className="w-full bg-primary hover:bg-primary-dark text-background-dark font-bold py-3 rounded-lg shadow-lg shadow-primary/20 flex items-center justify-center gap-2"
+          {/* Form */}
+          <form
+            className="space-y-5"
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleSubmit();
+            }}
           >
-            {userType === "rent" ? "Create Account" : "Create Landlord Account"}
-            <ArrowRight size={18} />
-          </button>
-        </form>
+            <Input
+              label="Full Name"
+              placeholder="John Doe"
+              icon={<User size={18} />}
+              value={form.name}
+              onChange={(v) => handleChange("name", v)}
+            />
 
-        {/* Divider */}
-        <div className="my-8 flex items-center gap-4">
-          <div className="flex-1 h-px bg-gray-200 dark:bg-gray-700" />
-          <span className="text-xs text-gray-400">Or continue with</span>
-          <div className="flex-1 h-px bg-gray-200 dark:bg-gray-700" />
+            <Input
+              label="Email Address"
+              placeholder="name@example.com"
+              icon={<Mail size={18} />}
+              value={form.email}
+              onChange={(v) => handleChange("email", v)}
+            />
+
+            {/* {userType === "list" && (
+              <>
+                <Input
+                  label="Phone Number"
+                  placeholder="+94 7X XXX XXXX"
+                  icon={<Phone size={18} />}
+                  value={form.phone}
+                  onChange={(v) => handleChange("phone", v)}
+                />
+
+                <Input
+                  label="Property Name (optional)"
+                  placeholder="Sunrise Annex"
+                  icon={<Building size={18} />}
+                  value={form.propertyName}
+                  onChange={(v) =>
+                    handleChange("propertyName", v)
+                  }
+                />
+              </>
+            )} */}
+
+            <Input
+              label="Password"
+              placeholder="••••••••"
+              icon={<Lock size={18} />}
+              rightIcon={<Eye size={18} />}
+              type="password"
+              value={form.password}
+              onChange={(v) => handleChange("password", v)}
+            />
+
+            {error && (
+              <p className="text-sm text-red-500">{error}</p>
+            )}
+
+            {success && (
+              <p className="text-sm text-green-600">{success}</p>
+            )}
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-primary text-background-dark font-bold py-3 rounded-lg flex items-center justify-center gap-2 disabled:opacity-60 cursor-pointer"
+            >
+              {loading
+                ? "Creating account..."
+                : userType === "rent"
+                ? "Create Account"
+                : "Create Landlord Account"}
+              <ArrowRight size={18} />
+            </button>
+          </form>
+
+          {/* Divider */}
+          <div className="my-8 flex items-center gap-4">
+            <div className="flex-1 h-px bg-gray-200" />
+            <span className="text-xs text-gray-400">
+              Or continue with
+            </span>
+            <div className="flex-1 h-px bg-gray-200" />
+          </div>
+
+          {/* Google */}
+          <GoogleButton />
+
+          {/* Footer */}
+          <p className="mt-8 text-center text-sm text-gray-500">
+            Already have an account?{" "}
+            <a
+              href="/auth/login"
+              className="font-semibold text-primary"
+            >
+              Log in
+            </a>
+          </p>
         </div>
-
-        {/* Social */}
-        <div className="grid grid-cols-1 gap-4">
-          <SocialButton label="Google" />
-        </div>
-
-        {/* Footer */}
-        <p className="mt-8 text-center text-sm text-text-muted">
-          Already have an account?{" "}
-          <a className="font-semibold text-primary hover:underline" href="/login">
-            Log in
-          </a>
-        </p>
-
-        <p className="mt-6 text-center text-xs text-text-muted max-w-xs mx-auto">
-          By signing up, you agree to our{" "}
-          <a className="underline">Terms of Service</a> and{" "}
-          <a className="underline">Privacy Policy</a>.
-        </p>
       </div>
     </section>
   );
 }
 
-/* ----------------- helpers ----------------- */
+/* ---------- helpers ---------- */
 
 function UserTypeOption({
   icon,
@@ -148,12 +246,11 @@ function UserTypeOption({
     <button
       type="button"
       onClick={onClick}
-      className={`flex flex-col items-center justify-center py-3 rounded-lg cursor-pointer transition
-        ${
-          active
-            ? "bg-white dark:bg-gray-700 shadow-sm ring-1 ring-gray-200 dark:ring-gray-600"
-            : "hover:bg-gray-50 dark:hover:bg-gray-800/50"
-        }`}
+      className={` cursor-pointer flex flex-col items-center py-3 rounded-lg transition ${
+        active
+          ? "bg-white shadow ring-1 ring-gray-200"
+          : "hover:bg-gray-50"
+      }`}
     >
       <div className="text-primary mb-1">{icon}</div>
       <span className="text-sm font-semibold">{label}</span>
@@ -167,42 +264,39 @@ function Input({
   icon,
   rightIcon,
   type = "text",
+  value,
+  onChange,
 }: {
   label: string;
   placeholder: string;
   icon: React.ReactNode;
   rightIcon?: React.ReactNode;
   type?: string;
+  value: string;
+  onChange: (v: string) => void;
 }) {
   return (
     <div>
-      <label className="block text-sm font-medium mb-1.5">{label}</label>
+      <label className="block text-sm font-medium mb-1.5">
+        {label}
+      </label>
       <div className="relative">
         <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
           {icon}
         </div>
         <input
           type={type}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
-          className="w-full pl-10 pr-10 py-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary"
+          className="w-full pl-10 pr-10 py-3 border rounded-lg focus:ring-2 focus:ring-primary"
         />
         {rightIcon && (
-          <div className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 cursor-pointer">
+          <div className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
             {rightIcon}
           </div>
         )}
       </div>
     </div>
-  );
-}
-
-function SocialButton({ label }: { label: string }) {
-  return (
-    <button
-      type="button"
-      className="flex items-center justify-center gap-2 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition text-sm font-medium"
-    >
-      <FaGoogle />{label}
-    </button>
   );
 }

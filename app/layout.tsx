@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import AuthHydrator from "@/components/common/AuthHydrator";
+import QueryProvider from "@/providers/query-provider";
+import GoogleProviders from "@/providers/google-providers";
 
 const inter = Inter({
   variable: "--font-geist-sans",
@@ -88,7 +90,9 @@ export default function RootLayout({
         className={`${inter.variable} bg-[#f8fcfa] text-[#0d1b14] bg-background-light dark:bg-background-dark font-display text-text-main antialiased selection:bg-primary selection:text-black`}
       >
         <AuthHydrator />
-        {children}
+        <QueryProvider>
+          <GoogleProviders> {children} </GoogleProviders>
+        </QueryProvider>
       </body>
     </html>
   );

@@ -6,7 +6,7 @@ import {
 
 export default function FiltersSidebar() {
   return (
-    <aside className="w-full shrink-0 space-y-8 lg:w-1/4 lg:min-w-[280px]">
+    <aside className="w-full h-full shrink-0 space-y-8 lg:w-1/4 lg:min-w-[280px]">
       {/* Mobile Breadcrumbs */}
       <div className="mb-4 flex flex-wrap gap-2 lg:hidden">
         <a className="text-sm font-medium text-text-secondary hover:text-primary">

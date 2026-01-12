@@ -6,12 +6,13 @@ export default function RegisterImagePanel() {
       className="hidden md:flex md:w-1/2 relative flex-col justify-between p-12 text-white bg-cover bg-center"
       style={{
         backgroundImage:
-          "linear-gradient(rgba(13,27,20,.4), rgba(13,27,20,.7)), url('https://lh3.googleusercontent.com/aida-public/AB6AXuBeT4RH7u9xQqT54nPiFbkyBoMW1Nq0nToDyHEDlQDcHsyYrTQUwQ0JVfW1-2Wt-biROVbOjR5wjh4Hd23nFEPPfOf1cWCBG_d-pkoLUfzpolDM87OL7r_LG-TihyIjiy0oPdsyqEyzqlUiKUKaUU9gwadvLZkINP-Wjn7-mPF_0PBCgsKhpdguQL39Yg6CpmW5uwHjDbjPbLfXzw0h8Q4Ey2HOmgKgnjEKR2jaxaN4sc_41wBeKRUwioZZJpRH6s0dRVwDbe7lb1w')",
+          "  url('https://lh3.googleusercontent.com/aida-public/AB6AXuAIhmeVJkxbS9Hlw1U9MxT7m0ifFPxtfAvDfsO6q6BOiHmRE8ByPaAeRYb00PyFKf1qLVb5XNembjAb2e2cNYxE6wg12BeUsg2URYq_svlFS21LIw-6HHjCItkCJij4mZVv2dvScEuDM-Y49WBmg_xRow7TxZ0gaKQczib8bKacu08NNqXrzfRzgcMRxL_s5VCZZiMtHvoHa0YPq2F2SzNQJEd8zZ7kACfjfizYnwUM6_aF_tdFrLUpWUzVxqZHM-gpPznyy6gTAek')",
       }}
     >
-      <AuthLogo dark />
+      <div></div>
+      {/* <AuthLogo dark /> */}
 
-      <div className="max-w-md">
+      <div className="max-w-md absolute bottom-10 left-10 right-10 text-white p-6 backdrop-blur-sm bg-black/10 rounded-2xl border border-white/10">
         <h2 className="text-4xl font-bold leading-tight mb-4">
           Find your perfect space in Sri Lanka.
         </h2>
