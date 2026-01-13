@@ -17,7 +17,7 @@ export default function RegisterImagePanel() {
           Find your perfect space in Sri Lanka.
         </h2>
         <p className="text-lg text-gray-200">
-          Whether you&apos;re looking for a cozy anex in Colombo or renting out your
+          Whether you&apos;re looking for a cozy annex in Colombo or renting out your
           room in Kandy, we&apos;ve got you covered.
         </p>
 
