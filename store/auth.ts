@@ -21,8 +21,8 @@ type AuthState = {
   }) => Promise<void>;
 
   login: (email: string, password: string) => Promise<void>;
-  googleLogin: (idToken: string) => Promise<void>;
-  loginWithGoogle: (idToken: string) => Promise<void>; // alias
+  googleLogin?: (idToken: string) => Promise<void>;
+  loginWithGoogle: (idToken: string) => Promise<void>;
   fetchMe: () => Promise<void>;
   logout: () => Promise<void>;
   logoutAll: () => Promise<void>;
@@ -84,7 +84,7 @@ export const useAuthStore = create<AuthState>()(
       },
 
       /* ---------- GOOGLE LOGIN ---------- */
-      googleLogin: async (idToken) => {
+      loginWithGoogle: async (idToken) => {
         set({ loading: true, error: null });
         try {
           const { data } = await authApi.google(idToken);
@@ -100,9 +100,9 @@ export const useAuthStore = create<AuthState>()(
       },
 
       // Alias to match second snippet naming
-      loginWithGoogle: async (idToken) => {
-        return get().googleLogin(idToken);
-      },
+      // loginWithGoogle: async (idToken) => {
+      //   return get().googleLogin(idToken);
+      // },
 
       /* ---------- ME ---------- */
       fetchMe: async () => {
