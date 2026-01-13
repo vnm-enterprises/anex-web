@@ -15,7 +15,7 @@ export default function PropertyDetails() {
         <h3 className="text-xl font-bold mb-4">About this place</h3>
         <div className="space-y-4 text-gray-600 dark:text-gray-300 leading-relaxed">
           <p>
-            Discover this newly built, spacious upstairs anex located in a highly
+            Discover this newly built, spacious upstairs annex located in a highly
             residential and safe neighborhood in Nugegoda. Just 200m from High
             Level Road.
           </p>
