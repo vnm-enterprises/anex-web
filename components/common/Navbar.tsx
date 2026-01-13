@@ -45,7 +45,7 @@ export default function Navbar() {
                 <Home size={18} />
               </div>
               <h2 className="text-xl font-bold tracking-tight group-hover:text-primary transition-colors">
-                anex.lk
+                annex.lk
               </h2>
             </Link>
 
@@ -141,7 +141,7 @@ export default function Navbar() {
               <Home size={18} />
             </div>
             <span className="text-xl font-bold tracking-tight">
-              anex.lk
+              annex.lk
             </span>
           </Link>
 
