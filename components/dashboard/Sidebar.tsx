@@ -14,7 +14,7 @@ export default function Sidebar({ onProfile }: { onProfile: () => void }) {
             <span className="material-symbols-outlined"><HomeIcon /></span>
           </div>
           <div>
-            <h1 className="font-bold">anex.lk</h1>
+            <h1 className="font-bold">annex.lk</h1>
             <p className="text-xs text-gray-500">Owner Panel</p>
           </div>
         </div>
