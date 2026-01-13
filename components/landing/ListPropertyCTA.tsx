@@ -14,7 +14,7 @@ export default function ListPropertyCTA() {
             </h2>
 
             <p className="mx-auto mb-10 max-w-2xl text-lg text-gray-300">
-              Join thousands of landlords who trust anex.lk to find reliable
+              Join thousands of landlords who trust annex.lk to find reliable
               tenants quickly and easily.
             </p>
 
