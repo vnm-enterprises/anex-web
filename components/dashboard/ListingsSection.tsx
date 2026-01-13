@@ -31,7 +31,7 @@ const LISTINGS: Listing[] = [
     location: "Nugegoda",
     price: 35000,
     description:
-      "Spacious upstairs anex with separate entrance, fully tiled, parking available. Walking distance to High Level road.",
+      "Spacious upstairs annex with separate entrance, fully tiled, parking available. Walking distance to High Level road.",
     views: 1240,
     status: "active",
     image:
