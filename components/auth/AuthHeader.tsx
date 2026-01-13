@@ -8,7 +8,7 @@ export default function AuthHeader() {
         <div className="size-8 bg-primary rounded-lg flex items-center justify-center shadow-lg shadow-primary/20">
           <Home size={18} className="text-background-dark" />
         </div>
-        <h2 className="text-xl font-bold tracking-tight">anex.lk</h2>
+        <h2 className="text-xl font-bold tracking-tight">annex.lk</h2>
       </div>
 
       <Link
