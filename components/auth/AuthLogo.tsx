@@ -11,7 +11,7 @@ export default function AuthLogo({ dark = false }: { dark?: boolean }) {
           dark ? "text-white" : "text-text-main dark:text-white"
         }`}
       >
-        anex.lk
+        annex.lk
       </span>
     </div>
   );
