@@ -13,13 +13,8 @@ type AuthState = {
   error: string | null;
   isAuthenticated: boolean;
 
-  /* actions */
-  signup: (data: {
-    email: string;
-    password: string;
-    name?: string;
-  }) => Promise<void>;
-
+  
+  signup: (data: { email: string; password: string; name?: string; }) => Promise<void>;
   login: (email: string, password: string) => Promise<void>;
   googleLogin?: (idToken: string) => Promise<void>;
   loginWithGoogle: (idToken: string) => Promise<void>;
@@ -28,11 +23,7 @@ type AuthState = {
   logoutAll: () => Promise<void>;
   fetchSessions: () => Promise<void>;
   updateProfile: (data: Partial<User>) => Promise<void>;
-  changePassword: (
-    currentPassword: string,
-    newPassword: string
-  ) => Promise<void>;
-
+  changePassword: (currentPassword: string, newPassword: string ) => Promise<void>;
   hydrateAuth: () => void;
 };
 
