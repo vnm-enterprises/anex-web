@@ -1,6 +1,6 @@
 "use client";
 
-import { Home, Menu, Search } from "lucide-react";
+import { Home, Menu, Search, X } from "lucide-react";
 import Image from "next/image";
 import React, { useState } from "react";
 import { useAuthStore } from "@/store/auth";
@@ -10,12 +10,12 @@ import { usePathname, useRouter } from "next/navigation";
 export default function Navbar() {
   const isLogged = useAuthStore((s) => s.isAuthenticated);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [searchFocused, setSearchFocused] = useState(false);
+
   const router = useRouter();
   const pathname = usePathname();
 
-  /* --------------------------------
-     ACTIVE ROUTE HELPERS
-  -------------------------------- */
   const isActive = (href: string) => {
     if (href === "/") return pathname === "/";
     return pathname.startsWith(href);
@@ -24,24 +24,40 @@ export default function Navbar() {
   const navLinkClass = (href: string) =>
     `text-sm font-medium transition-colors ${
       isActive(href)
-        ? "text-primary"
-        : "text-text-main dark:text-white hover:text-primary"
+        ? "text-black dark:text-white underline decoration-primary underline-offset-4"
+        : "text-text-main dark:text-text-main-dark hover:text-primary"
     }`;
 
-  /* ===========================
-     LOGGED-IN NAVBAR
-  =========================== */
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!searchTerm.trim()) return;
+    router.push(`/rentals?search=${encodeURIComponent(searchTerm.trim())}`);
+    setSearchTerm("");
+    setSearchFocused(false);
+    setMobileOpen(false);
+  };
+
+  // Common logo component
+  const Logo = () => (
+    <Link href="/" className="flex items-center gap-2 group">
+      <div className="size-8 bg-primary rounded-lg flex items-center justify-center text-background-dark">
+        <Home size={18} />
+      </div>
+      <h2 className="text-xl font-bold tracking-tight group-hover:text-primary transition-colors">
+        annex.lk
+      </h2>
+    </Link>
+  );
+
+  // Authenticated Navbar
   if (isLogged) {
     return (
-      <header className="sticky top-0 z-50 bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-sm border-b border-border-color dark:border-white/10 px-4 md:px-10 py-3">
+      <header className="sticky top-0 z-50 bg-background-light/95 backdrop-blur-sm border-b border-border-color px-4 md:px-6 py-3">
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
-          {/* Left */}
-          <div className="flex items-center gap-8">
-            <Link
-              href="/"
-              className="flex items-center gap-2 group"
-            >
-              <div className="size-8 bg-primary rounded-lg flex items-center justify-center text-background-dark">
+          {/* Left: Logo + Search */}
+          <div className="flex items-center gap-6">
+            <Link href="/" className="flex items-center gap-2 group">
+              <div className="size-8 bg-primary rounded-full flex items-center justify-center text-background-dark">
                 <Home size={18} />
               </div>
               <h2 className="text-xl font-bold tracking-tight group-hover:text-primary transition-colors">
@@ -49,20 +65,32 @@ export default function Navbar() {
               </h2>
             </Link>
 
+
             {/* Desktop Search */}
-            <div className="hidden lg:flex items-center bg-white dark:bg-surface-dark border border-border-color dark:border-white/10 rounded-lg h-10 min-w-[320px] focus-within:ring-2 focus-within:ring-primary/50 transition-shadow">
-              <div className="pl-3 pr-2 text-text-secondary">
-                <Search size={18} />
-              </div>
+            <form
+              onSubmit={handleSearchSubmit}
+              className="hidden lg:flex items-center h-10 bg-white dark:bg-surface-dark border border-border-color dark:border-white/10 rounded-full pl-3 pr-2 transition-all duration-300 focus-within:ring-2 focus-within:ring-primary/50"
+              style={{ width: searchFocused ? "520px" : "320px" }}
+            >
+              <Search size={18} className="text-text-secondary flex-shrink-0" />
               <input
-                className="w-full bg-transparent border-none focus:ring-0 text-sm placeholder:text-text-secondary text-text-main dark:text-white"
-                placeholder="Search by city, town or ID..."
+                type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                onFocus={() => setSearchFocused(true)}
+                onBlur={() => setSearchFocused(false)}
+                placeholder={
+                  searchFocused
+                    ? "Search by city, area, property ID, or keyword"
+                    : "Search..."
+                }
+                className="w-full ml-2 bg-transparent border-none outline-none text-sm placeholder:text-text-secondary text-text-main dark:text-white"
               />
-            </div>
+            </form>
           </div>
 
-          {/* Right */}
-          <div className="flex items-center gap-6">
+          {/* Right: Nav + Actions */}
+          <div className="flex items-center gap-4">
             {/* Desktop Nav */}
             <nav className="hidden md:flex items-center gap-6">
               <Link href="/" className={navLinkClass("/")}>
@@ -76,10 +104,10 @@ export default function Navbar() {
               </Link>
             </nav>
 
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3">
               <button
                 onClick={() => router.push("/list")}
-                className="hidden cursor-pointer sm:flex h-10 px-5 items-center justify-center rounded-lg bg-primary hover:bg-primary-dark text-background-dark text-sm font-bold transition-all shadow-sm hover:shadow-md"
+                className="hidden sm:flex h-10 px-5 items-center justify-center rounded-full bg-primary hover:bg-primary-dark text-background-dark text-sm font-bold transition-all shadow-sm hover:shadow-md"
               >
                 List Property
               </button>
@@ -96,10 +124,11 @@ export default function Navbar() {
 
               {/* Mobile Menu Toggle */}
               <button
-                className="md:hidden cursor-pointer"
+                className="md:hidden text-text-main dark:text-white"
                 onClick={() => setMobileOpen((v) => !v)}
+                aria-label="Toggle menu"
               >
-                <Menu />
+                {mobileOpen ? <X size={24} /> : <Menu size={24} />}
               </button>
             </div>
           </div>
@@ -107,44 +136,75 @@ export default function Navbar() {
 
         {/* Mobile Menu */}
         {mobileOpen && (
-          <div className="md:hidden mt-4 px-4 space-y-3">
-            <Link href="/" className={navLinkClass("/")}>
+          <div className="md:hidden mt-4 pb-4 px-4 space-y-3 animate-fadeIn">
+            <Link
+              href="/"
+              className={navLinkClass("/")}
+              onClick={() => setMobileOpen(false)}
+            >
               Home
             </Link>
-            <Link href="/rentals" className={navLinkClass("/rentals")}>
+            <Link
+              href="/rentals"
+              className={navLinkClass("/rentals")}
+              onClick={() => setMobileOpen(false)}
+            >
               Rentals
             </Link>
-            <Link href="/short-stays" className={navLinkClass("/short-stays")}>
+            <Link
+              href="/short-stays"
+              className={navLinkClass("/short-stays")}
+              onClick={() => setMobileOpen(false)}
+            >
               Short Stays
             </Link>
             <button
-              onClick={() => router.push("/list")}
-              className="w-full h-10 rounded-lg bg-primary text-background-dark font-bold cursor-pointer"
+              onClick={() => {
+                router.push("/list");
+                setMobileOpen(false);
+              }}
+              className="w-full h-10 rounded-full bg-primary text-background-dark font-bold"
             >
               List Property
             </button>
+          </div>
+        )}
+
+        {/* Mobile Search (below navbar on small screens) */}
+        {mobileOpen && (
+          <div className="lg:hidden px-4 pb-4">
+            <form onSubmit={handleSearchSubmit} className="flex items-center h-10 bg-white dark:bg-surface-dark border border-border-color dark:border-white/10 rounded-full pl-3 pr-2">
+              <Search size={18} className="text-text-secondary flex-shrink-0" />
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Search rentals..."
+                className="w-full ml-2 bg-transparent border-none outline-none text-sm placeholder:text-text-secondary text-text-main dark:text-white"
+              />
+            </form>
           </div>
         )}
       </header>
     );
   }
 
-  /* ===========================
-     NON-LOGGED NAVBAR
-  =========================== */
+  // Guest Navbar
   return (
     <header className="sticky top-0 z-50 w-full border-b border-[#e7f3ed] bg-background-light/80 backdrop-blur-md dark:bg-background-dark/80 dark:border-white/10">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center gap-8">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="size-8 rounded-lg bg-primary text-black flex items-center justify-center">
-              <Home size={18} />
-            </div>
-            <span className="text-xl font-bold tracking-tight">
-              annex.lk
-            </span>
-          </Link>
+        <div className="flex items-center gap-6">
+          <Link href="/" className="flex items-center gap-2 group">
+              <div className="size-8 bg-primary rounded-full flex items-center justify-center text-background-dark">
+                <Home size={18} />
+              </div>
+              <h2 className="text-xl font-bold tracking-tight group-hover:text-primary transition-colors">
+                annex.lk
+              </h2>
+            </Link>
 
+
+          {/* Desktop Nav (Guest) */}
           <nav className="hidden md:flex items-center gap-6">
             <Link href="/" className={navLinkClass("/")}>
               Home
@@ -158,63 +218,114 @@ export default function Navbar() {
           </nav>
         </div>
 
-        <div className="flex items-center gap-4">
-          <div className="hidden lg:flex relative">
-            <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary" />
+        <div className="flex items-center gap-3">
+          {/* Desktop Search (Guest) */}
+          <form
+            onSubmit={handleSearchSubmit}
+            className="hidden lg:flex items-center h-10 bg-white dark:bg-surface-dark border border-border-color dark:border-white/10 rounded-full pl-3 pr-2 transition-all duration-300 focus-within:ring-2 focus-within:ring-primary/50"
+            style={{ width: searchFocused ? "520px" : "320px" }}
+          >
+            <Search size={18} className="text-text-secondary flex-shrink-0" />
             <input
-              className="h-9 w-64 rounded-full border border-gray-200 bg-white pl-10 pr-4 text-sm"
-              placeholder="Quick search..."
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              onFocus={() => setSearchFocused(true)}
+              onBlur={() => setSearchFocused(false)}
+              placeholder={
+                searchFocused
+                  ? "Search by city, area, property ID, or keyword"
+                  : "Search..."
+              }
+              className="w-full ml-2 bg-transparent border-none outline-none text-sm placeholder:text-text-secondary text-text-main dark:text-white"
             />
+          </form>
+
+          <div className="hidden sm:flex items-center gap-2">
+            <button
+              onClick={() => router.push("/auth/login")}
+              className="h-9 px-4 text-sm font-semibold text-text-main dark:text-white hover:text-primary transition-colors"
+            >
+              Log In
+            </button>
+            <button
+              onClick={() => router.push("/auth/signup")}
+              className="h-9 px-4 rounded-full bg-primary text-sm font-bold text-black hover:bg-primary-dark transition-colors"
+            >
+              Sign Up
+            </button>
           </div>
 
+          {/* Mobile Menu Toggle */}
           <button
-            onClick={() => router.push("/auth/login")}
-            className="hidden sm:block h-9 px-4 text-sm font-semibold cursor-pointer"
-          >
-            Log In
-          </button>
-
-          <button
-            onClick={() => router.push("/auth/signup")}
-            className="h-9 px-4 rounded-lg bg-primary text-sm font-bold text-black cursor-pointer"
-          >
-            Sign Up
-          </button>
-
-          <button
-            className="md:hidden cursor-pointer"
+            className="md:hidden text-text-main dark:text-white"
             onClick={() => setMobileOpen((v) => !v)}
+            aria-label="Toggle menu"
           >
-            <Menu />
+            {mobileOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
         </div>
       </div>
 
-      {/* Mobile Menu */}
+      {/* Mobile Menu (Guest) */}
       {mobileOpen && (
-        <div className="md:hidden px-4 pb-4 space-y-3">
-          <Link href="/" className={navLinkClass("/")}>
+        <div className="md:hidden px-4 pb-4 space-y-3 animate-fadeIn">
+          <Link
+            href="/"
+            className={navLinkClass("/")}
+            onClick={() => setMobileOpen(false)}
+          >
             Home
           </Link>
-          <Link href="/rentals" className={navLinkClass("/rentals")}>
+          <Link
+            href="/rentals"
+            className={navLinkClass("/rentals")}
+            onClick={() => setMobileOpen(false)}
+          >
             Find a Place
           </Link>
-          <Link href="/auth/login" className={navLinkClass("/auth/login")}>
+          <Link
+            href="/auth/login"
+            className={navLinkClass("/auth/login")}
+            onClick={() => setMobileOpen(false)}
+          >
             List Property
           </Link>
 
-          <button
-            onClick={() => router.push("/auth/login")}
-            className="w-full h-9 rounded-lg border text-sm font-semibold cursor-pointer"
-          >
-            Log In
-          </button>
-          <button
-            onClick={() => router.push("/auth/signup")}
-            className="w-full h-9 rounded-lg bg-primary text-sm font-bold text-black cursor-pointer"
-          >
-            Sign Up
-          </button>
+          <div className="flex flex-col gap-2 pt-2">
+            <button
+              onClick={() => {
+                router.push("/auth/login");
+                setMobileOpen(false);
+              }}
+              className="w-full h-9 rounded-full border border-border-color text-sm font-semibold text-text-main dark:text-white"
+            >
+              Log In
+            </button>
+            <button
+              onClick={() => {
+                router.push("/auth/signup");
+                setMobileOpen(false);
+              }}
+              className="w-full h-9 rounded-full bg-primary text-sm font-bold text-black"
+            >
+              Sign Up
+            </button>
+          </div>
+
+          {/* Mobile Search */}
+          <form onSubmit={handleSearchSubmit} className="pt-2">
+            <div className="flex items-center h-10 bg-white dark:bg-surface-dark border border-border-color dark:border-white/10 rounded-full pl-3 pr-2">
+              <Search size={18} className="text-text-secondary flex-shrink-0" />
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Search rentals..."
+                className="w-full ml-2 bg-transparent border-none outline-none text-sm placeholder:text-text-secondary text-text-main dark:text-white"
+              />
+            </div>
+          </form>
         </div>
       )}
     </header>
