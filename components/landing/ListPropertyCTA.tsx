@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function ListPropertyCTA() {
   return (
     <section className="py-16">
@@ -19,13 +21,21 @@ export default function ListPropertyCTA() {
             </p>
 
             <div className="flex flex-col justify-center gap-4 sm:flex-row">
-              <button className="flex h-12 items-center justify-center rounded-xl bg-primary px-8 text-base font-bold text-black transition-transform hover:scale-105 hover:bg-primary-dark">
+              {/* Primary CTA */}
+              <Link
+                href="/list"
+                className="flex h-12 items-center justify-center rounded-xl bg-primary px-8 text-base font-bold text-black transition-transform hover:scale-105 hover:bg-primary-dark"
+              >
                 List Your Property
-              </button>
+              </Link>
 
-              <button className="flex h-12 items-center justify-center rounded-xl bg-white/10 px-8 text-base font-bold text-white backdrop-blur-sm transition-colors hover:bg-white/20">
+              {/* Secondary CTA */}
+              <Link
+                href="/how-it-works"
+                className="flex h-12 items-center justify-center rounded-xl bg-white/10 px-8 text-base font-bold text-white backdrop-blur-sm transition-colors hover:bg-white/20"
+              >
                 Learn More
-              </button>
+              </Link>
             </div>
           </div>
         </div>
