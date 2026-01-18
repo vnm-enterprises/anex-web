@@ -13,6 +13,7 @@ type Props = {
   price: string;
   image: string;
   badge?: string;
+  id: string;
 };
 
 export default function PropertyCard({
@@ -21,6 +22,7 @@ export default function PropertyCard({
   price,
   image,
   badge,
+  id,
 }: Props) {
   return (
     <div className="group flex flex-col overflow-hidden rounded-xl border border-border-color bg-surface-light transition-all duration-300 hover:shadow-lg dark:border-white/10 dark:bg-surface-dark">
