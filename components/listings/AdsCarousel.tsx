@@ -1,9 +1,15 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+// components/listings/AdsCarousel.tsx
 "use client";
 
 import { useEffect, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
-const ads = [
+// Feature Flag: Use dummy data or fetch from API
+const USE_DUMMY_DATA = false;
+
+// Dummy Data (fallback)
+const DUMMY_ADS = [
   {
     id: 1,
     title: "Premium Annexes in Nugegoda",
@@ -23,16 +29,55 @@ const ads = [
 ];
 
 export default function AdsCarousel() {
+  const [ads, setAds] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const [index, setIndex] = useState(0);
+
+  useEffect(() => {
+    const fetchAds = async () => {
+      if (USE_DUMMY_DATA) {
+        setAds(DUMMY_ADS);
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const res = await fetch("http://localhost:4000/ads");
+        if (!res.ok) throw new Error("Failed to fetch ads");
+        const data = await res.json();
+        setAds(data.ads || DUMMY_ADS);
+      } catch (err) {
+        console.error("Error fetching ads:", err);
+        setAds(DUMMY_ADS);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAds();
+  }, []);
 
   // Auto slide
   useEffect(() => {
+    if (ads.length === 0) return;
     const timer = setInterval(() => {
       setIndex((prev) => (prev + 1) % ads.length);
     }, 6000);
 
     return () => clearInterval(timer);
-  }, []);
+  }, [ads]);
+
+  if (loading) {
+    return (
+      <section className="mb-6">
+        <div className="h-[220px] rounded-xl bg-surface-light animate-pulse dark:bg-surface-dark"></div>
+      </section>
+    );
+  }
+
+  if (ads.length === 0) {
+    return null; // or show placeholder
+  }
 
   return (
     <section className="mb-6">
@@ -43,10 +88,7 @@ export default function AdsCarousel() {
           style={{ transform: `translateX(-${index * 100}%)` }}
         >
           {ads.map((ad) => (
-            <div
-              key={ad.id}
-              className="relative h-[180px] min-w-full md:h-[220px]"
-            >
+            <div key={ad.id} className="relative h-[180px] min-w-full md:h-[220px]">
               {/* Image */}
               <img
                 src={ad.image}
