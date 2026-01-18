@@ -1,228 +1,225 @@
-import { ArrowBigRight, LocateIcon } from "lucide-react";
+"use client";
+
+import axios from "axios";
+import {
+  ArrowRight,
+  BedDouble,
+  Heart,
+  MapPin,
+  BadgeCheck,
+} from "lucide-react";
 import Link from "next/link";
+import { useEffect, useState } from "react";
+
+/* =========================
+   FEATURE FLAG
+========================= */
+const USE_FEATURED_API = false;
+
+/* =========================
+   TYPES
+========================= */
+type Listing = {
+  id: string;
+  title: string;
+  price: number;
+  beds: number;
+  type: "ANNEX" | "ROOM" | "HOUSE";
+  verified: boolean;
+  city: string;
+  image: string;
+};
+
+/* =========================
+   FALLBACK DATA
+========================= */
+const FALLBACK_LISTINGS: Listing[] = [
+  {
+    id: "1",
+    title: "Luxury Annex in Nugegoda",
+    price: 35000,
+    beds: 2,
+    type: "ANNEX",
+    verified: true,
+    city: "Nugegoda, Colombo",
+    image:
+      "https://images.unsplash.com/photo-1505691938895-1758d7feb511?q=80&w=1200  ",
+  },
+  {
+    id: "2",
+    title: "Cozy Room near University",
+    price: 15000,
+    beds: 1,
+    type: "ROOM",
+    verified: false,
+    city: "Maharagama, Colombo",
+    image:
+      "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?q=80&w=1200  ",
+  },
+  {
+    id: "3",
+    title: "Fully Furnished House",
+    price: 65000,
+    beds: 3,
+    type: "HOUSE",
+    verified: true,
+    city: "Battaramulla, Colombo",
+    image:
+      "https://images.unsplash.com/photo-1568605114967-8130f3a36994?q=80&w=1200  ",
+  },
+];
 
 export default function FeaturedListings() {
+  const [listings, setListings] = useState<Listing[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchListings = async () => {
+      try {
+        if (!USE_FEATURED_API) {
+          setListings(FALLBACK_LISTINGS);
+          return;
+        }
+
+        const res = await axios.get<Listing[]>("/api/listings/featured");
+
+        if (!res.data || res.data.length === 0) {
+          setListings(FALLBACK_LISTINGS);
+        } else {
+          setListings(res.data);
+        }
+      } catch (err) {
+        setListings(FALLBACK_LISTINGS);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchListings();
+  }, []);
+
   return (
-    <section className="py-16 md:py-24">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <section className="relative py-16 md:py-24">
+        {/* Decorative gradient blobs */}
+          <div className="absolute bottom-0 right-0 translate-x-1/2 translate-y-1/2 h-64 w-64 rounded-full bg-primary/30 blur-3xl" />
+
+      <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="mb-10 flex items-end justify-between">
+        <div className="mb-12 flex items-end justify-between">
           <div>
             <h2 className="text-3xl font-bold tracking-tight text-text-main dark:text-white sm:text-4xl">
               Featured Listings
             </h2>
             <p className="mt-2 text-lg text-text-secondary dark:text-gray-400">
-              Handpicked properties for you today.
+              Handpicked properties curated for you.
             </p>
           </div>
 
           <Link
-            href="#"
-            className="hidden sm:flex items-center gap-1 text-sm font-bold text-primary hover:text-primary-dark transition-colors"
+            href="/rentals"
+            className="hidden sm:flex items-center gap-2 text-sm font-bold text-text-primary hover:text-primary-dark transition-colors"
           >
-            View All Listings
-            <span className="material-symbols-outlined text-[18px]">
-              arrow_forward
-            </span>
+            View All
+            <ArrowRight size={18} />
           </Link>
         </div>
 
+        {/* Loading Skeleton */}
+        {loading && (
+          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+            {[...Array(3)].map((_, i) => (
+              <div
+                key={i}
+                className="h-[360px] rounded-2xl bg-background-light dark:bg-surface-dark animate-pulse border border-border-color dark:border-white/10"
+              />
+            ))}
+          </div>
+        )}
+
         {/* Cards */}
-        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-          {/* Card 1 */}
-          <div className="group relative flex flex-col overflow-hidden rounded-2xl bg-white shadow-sm transition-all hover:-translate-y-1 hover:shadow-xl dark:bg-[#1a2c24]">
-            <div className="relative aspect-4/3 overflow-hidden">
-              <img
-                src="https://lh3.googleusercontent.com/aida-public/AB6AXuAkci7WV76y4h2dG7EaHGZPVTj8kw3EPXvWo5DQh6_FRfjUu-HUz0SHKgXcSFPUWjaoTxRxZzcx_k0Ha70wlnEVfjqCBvghK_I9d1U9vxs1Bzu4xaGHvZwgDzzSlPyMAL221tG5Row0S0kJdkYHCJGIBgyi2C3EbNgKazb0qFqlSr4_bwoiGE071t4gtJLxRa5qmBxv1F6ejh7WeQ04RftTP3YaOEQncg05zKlQQ4cJx60pNelrB6lTK-690ajqqg0KphUnxcd2Q4U"
-                alt="Luxury Annex in Nugegoda"
-                className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
-              />
+        {!loading && (
+          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+            {listings.map((item) => (
+              <div
+                key={item.id}
+                className="group relative flex flex-col overflow-hidden rounded-2xl bg-white shadow-sm transition-all hover:-translate-y-1 hover:shadow-xl dark:bg-[#1a2c24] border border-border-color dark:border-white/10"
+              >
+                {/* Image */}
+                <div className="relative aspect-[4/3] overflow-hidden">
+                  <img
+                    src={item.image}
+                    alt={item.title}
+                    className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  />
 
-              <div className="absolute left-3 top-3 flex gap-2">
-                <span className="inline-flex items-center rounded-md bg-white/90 px-2 py-1 text-xs font-bold text-text-main backdrop-blur-sm shadow-sm">
-                  ANNEX
-                </span>
-                <span className="inline-flex items-center gap-1 rounded-md bg-primary/90 px-2 py-1 text-xs font-bold text-black backdrop-blur-sm shadow-sm">
-                  <span className="material-symbols-outlined text-[14px] filled">
-                    verified
-                  </span>
-                  VERIFIED
-                </span>
-              </div>
+                  {/* Overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
 
-              <button className="absolute right-3 top-3 rounded-full bg-black/20 p-2 text-white hover:bg-black/40 backdrop-blur-sm transition-colors">
-                <span className="material-symbols-outlined text-[20px]">
-                  favorite
-                </span>
-              </button>
-            </div>
+                  {/* Badges */}
+                  <div className="absolute left-3 top-3 flex gap-2">
+                    <span className="rounded-md bg-white/90 px-2 py-1 text-xs font-bold text-text-main dark:text-black">
+                      {item.type}
+                    </span>
 
-            <div className="flex flex-1 flex-col p-5">
-              <div className="mb-2 flex items-center justify-between">
-                <p className="text-xl font-bold text-primary">
-                  Rs. 35,000
-                  <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                    /mo
-                  </span>
-                </p>
-                <div className="flex items-center text-xs text-gray-500 dark:text-gray-400">
-                  <span className="material-symbols-outlined mr-1 text-[16px]">
-                    bed
-                  </span>
-                  2 Beds
+                    {item.verified && (
+                      <span className="flex items-center gap-1 rounded-md bg-primary/90 px-2 py-1 text-xs font-bold text-black">
+                        <BadgeCheck size={14} />
+                        VERIFIED
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Wishlist */}
+                  <button className="absolute right-3 top-3 rounded-full bg-black/30 p-2 text-white backdrop-blur-sm hover:bg-black/50 transition-colors">
+                    <Heart size={18} />
+                  </button>
+                </div>
+
+                {/* Content */}
+                <div className="flex flex-1 flex-col p-5">
+                  <div className="mb-2 flex items-center justify-between">
+                    <p className="text-xl font-bold text-primary">
+                      Rs. {item.price.toLocaleString()}
+                      <span className="text-sm text-gray-500"> /mo</span>
+                    </p>
+
+                    <div className="flex items-center gap-1 text-sm text-gray-500">
+                      <BedDouble size={16} />
+                      {item.beds}
+                    </div>
+                  </div>
+
+                  <h3 className="mb-1 text-lg font-bold text-text-main dark:text-white line-clamp-1 group-hover:text-primary transition-colors">
+                    {item.title}
+                  </h3>
+
+                  <p className="mb-4 flex items-center gap-1 text-sm text-gray-500">
+                    <MapPin size={14} />
+                    {item.city}
+                  </p>
+
+                  <div className="mt-auto pt-4 border-t border-border-color dark:border-white/10">
+                    <Link
+                      href={`/rentals/${item.id}`}
+                      className="block w-full rounded-lg bg-background-light py-2 text-center text-sm font-bold hover:bg-gray-100 dark:bg-white/5 dark:hover:bg-white/10 transition-colors"
+                    >
+                      View Details
+                    </Link>
+                  </div>
                 </div>
               </div>
-
-              <h3 className="mb-1 text-lg font-bold text-text-main dark:text-white line-clamp-1">
-                Luxury Annex in Nugegoda
-              </h3>
-
-              <p className="mb-4 flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400">
-                <span className="material-symbols-outlined text-[16px]">
-                  location <LocateIcon />
-                </span>
-                Nugegoda, Colombo
-              </p>
-
-              <div className="mt-auto border-t border-gray-100 pt-4 dark:border-white/10">
-                <button className="w-full rounded-lg bg-background-light py-2 text-sm font-bold text-text-main hover:bg-gray-200 dark:bg-white/5 dark:text-white dark:hover:bg-white/10 transition-colors">
-                  View Details
-                </button>
-              </div>
-            </div>
+            ))}
           </div>
-
-          {/* Card 2 */}
-          <div className="group relative flex flex-col overflow-hidden rounded-2xl bg-white shadow-sm transition-all hover:-translate-y-1 hover:shadow-xl dark:bg-[#1a2c24]">
-            <div className="relative aspect-4/3 overflow-hidden">
-              <img
-                src="https://lh3.googleusercontent.com/aida-public/AB6AXuDYyKluTgHskLjzYC_jpLmFkcTRmjyPjv-uAyeW2rdbB2gRkfw-a-KQwJ28P-A6DwmJCUnkSa_zoEyXXrDSAdcj-nDjiMF6iaHiteh1d0Dil-yN-AU3FGe0HH5lhCJxtOoQVtUeQolrlkVmHRA0vQ6IO2si3wIxkLQ3Qz5MoPxgyPDoP7ziNGr3j_M7CfWvw_dU2Wk1EG_Xt4vEJilCNTHe0xB9bWtg34rgtmwAWYivo9K9EC-6JLUIY713-uGXX_nnmoClfigzrCk"
-                alt="Cozy Room near University"
-                className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
-              />
-
-              <div className="absolute left-3 top-3 flex gap-2">
-                <span className="inline-flex items-center rounded-md bg-white/90 px-2 py-1 text-xs font-bold text-text-main backdrop-blur-sm shadow-sm">
-                  ROOM
-                </span>
-              </div>
-
-              <button className="absolute right-3 top-3 rounded-full bg-black/20 p-2 text-white hover:bg-black/40 backdrop-blur-sm transition-colors">
-                <span className="material-symbols-outlined text-[20px]">
-                  favorite
-                </span>
-              </button>
-            </div>
-
-            <div className="flex flex-1 flex-col p-5">
-              <div className="mb-2 flex items-center justify-between">
-                <p className="text-xl font-bold text-primary">
-                  Rs. 15,000
-                  <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                    /mo
-                  </span>
-                </p>
-                <div className="flex items-center text-xs text-gray-500 dark:text-gray-400">
-                  <span className="material-symbols-outlined mr-1 text-[16px]">
-                    bed
-                  </span>
-                  1 Bed
-                </div>
-              </div>
-
-              <h3 className="mb-1 text-lg font-bold text-text-main dark:text-white line-clamp-1">
-                Cozy Room near University
-              </h3>
-
-              <p className="mb-4 flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400">
-                <span className="material-symbols-outlined text-[16px]">
-                  location <LocateIcon />
-                </span>
-                Maharagama, Colombo
-              </p>
-
-              <div className="mt-auto border-t border-gray-100 pt-4 dark:border-white/10">
-                <button className="w-full rounded-lg bg-background-light py-2 text-sm font-bold text-text-main hover:bg-gray-200 dark:bg-white/5 dark:text-white dark:hover:bg-white/10 transition-colors">
-                  View Details
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* Card 3 */}
-          <div className="group relative flex flex-col overflow-hidden rounded-2xl bg-white shadow-sm transition-all hover:-translate-y-1 hover:shadow-xl dark:bg-[#1a2c24]">
-            <div className="relative aspect-4/3 overflow-hidden">
-              <img
-                src="https://lh3.googleusercontent.com/aida-public/AB6AXuC68PK8fodk5hiFTUsPkRNKDkvkKCT24a7hn0rvoYHcOJpYJh65XfACFd4E9nUrkvfFCtCbA-7UoBdufVIijTVAzAqJsjEMMLlUYFoNTG2k-Q7eF56y6TUiWZIgaYpjK00cPVzTkRTmydwTEFdupKjo4QUMf2uADa_2LatEwwaZKFCVoqTv2knPyCKzQCsrPXAp_FctdRtK3Knfm3PM6eE6pOPq8yV8lJRkwxls9qqxA9zn2d934iCQY5xttbmxcKi8tQ1cmVcKHmI"
-                alt="Fully Furnished House"
-                className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
-              />
-
-              <div className="absolute left-3 top-3 flex gap-2">
-                <span className="inline-flex items-center rounded-md bg-white/90 px-2 py-1 text-xs font-bold text-text-main backdrop-blur-sm shadow-sm">
-                  HOUSE
-                </span>
-                <span className="inline-flex items-center gap-1 rounded-md bg-primary/90 px-2 py-1 text-xs font-bold text-black backdrop-blur-sm shadow-sm">
-                  <span className="material-symbols-outlined text-[14px] filled">
-                    verified
-                  </span>
-                  VERIFIED
-                </span>
-              </div>
-
-              <button className="absolute right-3 top-3 rounded-full bg-black/20 p-2 text-white hover:bg-black/40 backdrop-blur-sm transition-colors">
-                <span className="material-symbols-outlined text-[20px]">
-                  favorite
-                </span>
-              </button>
-            </div>
-
-            <div className="flex flex-1 flex-col p-5">
-              <div className="mb-2 flex items-center justify-between">
-                <p className="text-xl font-bold text-primary">
-                  Rs. 65,000
-                  <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                    /mo
-                  </span>
-                </p>
-                <div className="flex items-center text-xs text-gray-500 dark:text-gray-400">
-                  <span className="material-symbols-outlined mr-1 text-[16px]">
-                    bed
-                  </span>
-                  3 Beds
-                </div>
-              </div>
-
-              <h3 className="mb-1 text-lg font-bold text-text-main dark:text-white line-clamp-1">
-                Fully Furnished House
-              </h3>
-
-              <p className="mb-4 flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400">
-                <span className="material-symbols-outlined text-[16px]">
-                  location <LocateIcon />
-                </span>
-                Battaramulla, Colombo
-              </p>
-
-              <div className="mt-auto border-t border-gray-100 pt-4 dark:border-white/10">
-                <button className="w-full rounded-lg bg-background-light py-2 text-sm font-bold text-text-main hover:bg-gray-200 dark:bg-white/5 dark:text-white dark:hover:bg-white/10 transition-colors">
-                  View Details
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+        )}
 
         {/* Mobile CTA */}
-        <div className="mt-8 flex justify-center sm:hidden">
+        <div className="mt-10 flex justify-center sm:hidden">
           <Link
-            href="#"
-            className="flex w-full items-center justify-center gap-1 rounded-lg border border-gray-200 bg-white py-3 text-sm font-bold text-text-main shadow-sm dark:border-white/10 dark:bg-white/5 dark:text-white"
+            href="/rentals"
+            className="flex w-full items-center justify-center gap-2 rounded-lg border border-border-color dark:border-white/10 bg-white py-3 text-sm font-bold shadow-sm hover:bg-gray-50 dark:bg-surface-dark dark:hover:bg-white/5 transition-colors"
           >
             View All Listings
-            <span className="material-symbols-outlined text-[18px]">
-              <ArrowBigRight />
-            </span>
+            <ArrowRight size={18} />
           </Link>
         </div>
       </div>
