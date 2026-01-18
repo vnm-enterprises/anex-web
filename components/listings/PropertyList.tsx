@@ -1,15 +1,15 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+// components/listings/PropertyList.tsx
 "use client";
 
-import {
-  Bed,
-  Bath,
-  MapPin,
-  Wifi,
-  Car,
-  Heart,
-} from "lucide-react";
+import { useEffect, useState } from "react";
+import { Bed, Bath, MapPin, Wifi, Heart } from "lucide-react";
 
-const properties = [
+// Feature Flag: Use dummy data or fetch from API
+const USE_DUMMY_DATA = false;
+
+// Dummy Data
+const DUMMY_PROPERTIES = [
   {
     id: 1,
     title: "Modern Annex for Rent",
@@ -34,10 +34,72 @@ const properties = [
   },
 ];
 
-export default function PropertyList() {
+type Listing = {
+  id: string;
+  title: string;
+  location: string;
+  price: number;
+  beds: number | string;
+  baths: number | string;
+  extra: string;
+  image: string;
+};
+
+export default function PropertyList({ listings }: { listings: Listing[] }) {
+  // If no listings passed (from parent), use dummy or fetch
+  const [localListings, setLocalListings] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (listings && listings.length > 0) {
+      setLocalListings(listings);
+      return;
+    }
+
+    const fetchProperties = async () => {
+      if (USE_DUMMY_DATA) {
+        setLocalListings(DUMMY_PROPERTIES);
+        return;
+      }
+
+      setLoading(true);
+      try {
+        const res = await fetch("http://localhost:4000/rentals?limit=6");
+        if (!res.ok) throw new Error("Failed to fetch properties");
+        const data = await res.json();
+        setLocalListings(data.data || DUMMY_PROPERTIES);
+      } catch (err) {
+        console.error("Error fetching properties:", err);
+        setLocalListings(DUMMY_PROPERTIES);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProperties();
+  }, [listings]);
+
+  if (loading) {
+    return (
+      <div className="space-y-4">
+        {[...Array(2)].map((_, i) => (
+          <div key={i} className="h-52 animate-pulse rounded-xl bg-gray-200 dark:bg-gray-700" />
+        ))}
+      </div>
+    );
+  }
+
+  if (localListings.length === 0) {
+    return (
+      <div className="py-12 text-center">
+        <p className="text-text-secondary">No properties available.</p>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4">
-      {properties.map((property) => (
+      {localListings.map((property) => (
         <article
           key={property.id}
           className="group flex flex-col overflow-hidden rounded-xl border border-border-color bg-surface-light shadow-sm transition hover:shadow-md dark:border-white/10 dark:bg-surface-dark sm:flex-row"
