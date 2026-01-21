@@ -3,6 +3,9 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import AuthHydrator from "@/components/common/AuthHydrator";
 import GoogleProviders from "@/providers/google-providers";
+import Script from "next/script";
+import "leaflet/dist/leaflet.css";
+
 
 const inter = Inter({
   variable: "--font-geist-sans",
@@ -70,8 +73,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "annex.lk – Find your perfect home",
-    description:
-      "Find annexes, rooms and houses for rent across Sri Lanka.",
+    description: "Find annexes, rooms and houses for rent across Sri Lanka.",
     images: ["https://annex.lk/og-image.png"],
   },
 
@@ -89,7 +91,7 @@ export default function RootLayout({
         className={`${inter.variable} bg-[#f8fcfa] text-[#0d1b14] bg-background-light dark:bg-background-dark font-display text-text-main antialiased selection:bg-primary selection:text-black`}
       >
         <AuthHydrator />
-          <GoogleProviders> {children} </GoogleProviders>
+        <GoogleProviders> {children} </GoogleProviders>
       </body>
     </html>
   );
