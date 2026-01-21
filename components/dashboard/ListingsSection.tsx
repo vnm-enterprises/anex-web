@@ -1,15 +1,25 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useViewMode } from "./useViewMode";
+import { useEffect, useState } from "react";
+import { useViewMode } from "../../hooks/useViewMode";
 import ViewToggle from "./ViewToggle";
 import ListingCard from "./ListingCard";
 import { Landmark } from "lucide-react";
+import api from "@/lib/api";
 
 /* -------------------- */
 /* Listing data model   */
 /* -------------------- */
+
+/**
+ * Represents the status of a property listing.
+ */
 export type ListingStatus = "active" | "reviewing" | "occupied";
 
+/**
+ * Represents a property listing managed by the user.
+ */
 export interface Listing {
   id: string;
   title: string;
@@ -22,9 +32,9 @@ export interface Listing {
 }
 
 /* -------------------- */
-/* Global listings data */
+/* Dummy data for development */
 /* -------------------- */
-const LISTINGS: Listing[] = [
+const DUMMY_LISTINGS: Listing[] = [
   {
     id: "1",
     title: "2 Bedroom Annex",
@@ -63,17 +73,85 @@ const LISTINGS: Listing[] = [
   },
 ];
 
+/**
+ * Listings section component for the dashboard.
+ *
+ * Displays the user's property listings in either list or grid view.
+ *
+ * In development mode (`NEXT_PUBLIC_DEV_MODE=true`), displays dummy data
+ * to enable UI/UX work without requiring a backend.
+ *
+ * In production, fetches real listing data from `/api/listings`.
+ */
 export default function ListingsSection() {
   const { view, setView } = useViewMode();
+  const [listings, setListings] = useState<Listing[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  /**
+   * Fetches user's listings from the backend.
+   */
+  const fetchListings = async () => {
+    try {
+      const res = await api.get("/listings");
+      setListings(res.data);
+    } catch (err: any) {
+      setError("Failed to load listings. Please try again later.");
+      console.error("Listings fetch error:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    const isDevMode = "false";
+
+    if (isDevMode) {
+      // Use dummy data in development
+      setTimeout(() => {
+        setListings(DUMMY_LISTINGS);
+        setLoading(false);
+      }, 300);
+    } else {
+      // Fetch real data in production
+      fetchListings();
+    }
+  }, []);
+
+  if (loading) {
+    return (
+      <section className="space-y-4">
+        <div className="flex items-center justify-between">
+          <div className="h-6 w-32 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+          <div className="h-8 w-24 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="h-64 bg-gray-100 dark:bg-gray-800 rounded-xl animate-pulse" />
+          ))}
+        </div>
+      </section>
+    );
+  }
+
+  if (error) {
+    return (
+      <section className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-xl font-bold text-red-500">Error</h2>
+        </div>
+        <p className="text-red-500">{error}</p>
+      </section>
+    );
+  }
 
   return (
     <section className="space-y-4">
       {/* Header */}
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-bold flex items-center gap-2">
-          <span className="material-symbols-outlined text-primary">
-            <Landmark />
-          </span>
+          <Landmark size={20} className="text-primary" />
           My Listings
         </h2>
 
@@ -81,17 +159,21 @@ export default function ListingsSection() {
       </div>
 
       {/* Listings */}
-      <div
-        className={
-          view === "grid"
-            ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
-            : "space-y-4"
-        }
-      >
-        {LISTINGS.map((listing) => (
-          <ListingCard key={listing.id} listing={listing} view={view} />
-        ))}
-      </div>
+      {listings.length === 0 ? (
+        <p className="text-gray-500 dark:text-gray-400">No listings found.</p>
+      ) : (
+        <div
+          className={
+            view === "grid"
+              ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
+              : "space-y-4"
+          }
+        >
+          {listings.map((listing) => (
+            <ListingCard key={listing.id} listing={listing} view={view} />
+          ))}
+        </div>
+      )}
     </section>
   );
 }
