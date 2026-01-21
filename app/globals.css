@@ -1,5 +1,9 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+/* Leaflet styles */
+@import 'leaflet/dist/leaflet.css';
+
+
 
 @custom-variant dark (&:is(.dark *));
 
@@ -176,4 +180,44 @@
   50% {
     opacity: 0.5;
   }
+}
+
+
+/* Fix marker icon path for Next.js */
+.leaflet-container {
+  z-index: 0;
+}
+
+/* app/globals.css */
+
+#property-map {
+  height: 256px;
+  width: 100%;
+  min-height: 256px;
+  background: #f5f5f5;
+  border: 2px dashed #e5e5e5;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  position: relative;
+}
+
+#property-map::before {
+  content: "Loading map...";
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #999;
+  font-size: 14px;
+  z-index: 10;
+}
+
+#property-map .leaflet-container {
+  z-index: 0;
+}
+
+/* Show error if tiles fail */
+#property-map.error::before {
+  content: "Map failed to load. Please try again.";
+  color: #dc2626;
 }
