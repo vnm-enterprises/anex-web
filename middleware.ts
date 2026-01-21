@@ -4,7 +4,7 @@ import type { NextRequest } from "next/server";
 export function middleware(req: NextRequest) {
   const token = req.cookies.get("auth-storage")?.value;
 
-  const protectedRoutes = ["/dashboard", "/list", "/settings"];
+  const protectedRoutes = ["/dashboards", "/lists", "/settingss"];
 
   if (
     protectedRoutes.some((path) =>
