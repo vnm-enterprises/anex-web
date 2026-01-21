@@ -6,7 +6,7 @@ export default function RegisterImagePanel() {
       className="hidden md:flex md:w-1/2 relative flex-col justify-between p-12 text-white bg-cover bg-center"
       style={{
         backgroundImage:
-          "  url('https://lh3.googleusercontent.com/aida-public/AB6AXuAIhmeVJkxbS9Hlw1U9MxT7m0ifFPxtfAvDfsO6q6BOiHmRE8ByPaAeRYb00PyFKf1qLVb5XNembjAb2e2cNYxE6wg12BeUsg2URYq_svlFS21LIw-6HHjCItkCJij4mZVv2dvScEuDM-Y49WBmg_xRow7TxZ0gaKQczib8bKacu08NNqXrzfRzgcMRxL_s5VCZZiMtHvoHa0YPq2F2SzNQJEd8zZ7kACfjfizYnwUM6_aF_tdFrLUpWUzVxqZHM-gpPznyy6gTAek')",
+          "  url('/register.png')",
       }}
     >
       <div></div>
