@@ -1,165 +1,99 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { create } from "zustand";
-import { persist } from "zustand/middleware";
-import api from "@/lib/api";
-import { authApi } from "@/api/auth";
-import { User, Session } from "@/types/auth";
+/**
+ * Authentication state management using Zustand.
+ *
+ * Manages global user session state, including:
+ * - Current user profile data
+ * - Authentication status (`isAuthenticated`)
+ * - Loading state during hydration
+ *
+ * The store automatically syncs with the backend via:
+ * - `hydrateUser()`: fetches user data on app load
+ * - `logout()`: invalidates session on both client and server
+ *
+ * UI components (e.g., Navbar) consume `isAuthenticated` to render conditionally.
+ */
 
-type AuthState = {
-  user: User | null;
-  token: string | null;
-  sessions: Session[];
-  loading: boolean;
-  error: string | null;
+import { create } from "zustand";
+import api from "@/lib/api";
+
+/**
+ * Represents the shape of authenticated user data.
+ */
+interface AuthUser {
+  id: string;
+  email: string;
+  phone: string;
+  name: string | null;
+  emailVerified: boolean;
+  avatar: string | null;
+}
+
+/**
+ * Zustand store interface for authentication state.
+ */
+interface AuthState {
+  /**
+   * Currently authenticated user data, or `null` if not logged in.
+   */
+  user: AuthUser | null;
+
+  /**
+   * Indicates whether the user has an active, verified session.
+   */
   isAuthenticated: boolean;
 
-  
-  signup: (data: { email: string; password: string; name?: string; }) => Promise<void>;
-  login: (email: string, password: string) => Promise<void>;
-  googleLogin?: (idToken: string) => Promise<void>;
-  loginWithGoogle: (idToken: string) => Promise<void>;
-  fetchMe: () => Promise<void>;
+  /**
+   * Indicates whether the initial authentication state is being loaded.
+   * Set to `false` once hydration completes (successfully or not).
+   */
+  loading: boolean;
+
+  /**
+   * Fetches current user data from `/auth/me` and updates store state.
+   * Called on app initialization to restore session from HTTP-only cookie.
+   * On failure (e.g., expired session), sets `isAuthenticated = false`.
+   */
+  hydrateUser: () => Promise<void>;
+
+  /**
+   * Logs the user out by:
+   * 1. Calling `/auth/logout` to invalidate the server session
+   * 2. Clearing local authentication state
+   *
+   * Safe to call even if already logged out.
+   */
   logout: () => Promise<void>;
-  logoutAll: () => Promise<void>;
-  fetchSessions: () => Promise<void>;
-  updateProfile: (data: Partial<User>) => Promise<void>;
-  changePassword: (currentPassword: string, newPassword: string ) => Promise<void>;
-  hydrateAuth: () => void;
-};
+}
 
-export const useAuthStore = create<AuthState>()(
-  persist(
-    (set, get) => ({
-      user: null,
-      token: null,
-      sessions: [],
-      loading: false,
-      error: null,
-      isAuthenticated: false,
+export const useAuthStore = create<AuthState>((set) => ({
+  user: null,
+  isAuthenticated: false,
+  loading: true,
 
-      /* ---------- HYDRATION ---------- */
-      hydrateAuth: () => {
-        const token = get().token;
-        if (token) {
-          api.defaults.headers.common.Authorization = `Bearer ${token}`;
-        }
-      },
-
-      /* ---------- SIGNUP ---------- */
-      signup: async (data) => {
-        set({ loading: true, error: null });
-        try {
-          await authApi.signup(data);
-        } catch (e: any) {
-          set({ error: e.response?.data?.error || "Signup failed" });
-          throw e;
-        } finally {
-          set({ loading: false });
-        }
-      },
-
-      /* ---------- LOGIN ---------- */
-      login: async (email, password) => {
-        set({ loading: true, error: null });
-        try {
-          const { data } = await authApi.login(email, password);
-          api.defaults.headers.common.Authorization = `Bearer ${data.token}`;
-          set({ token: data.token, isAuthenticated: true });
-          await get().fetchMe();
-        } catch (e: any) {
-          set({ error: e.response?.data?.error || "Login failed" });
-          throw e;
-        } finally {
-          set({ loading: false });
-        }
-      },
-
-      /* ---------- GOOGLE LOGIN ---------- */
-      loginWithGoogle: async (idToken) => {
-        set({ loading: true, error: null });
-        try {
-          const { data } = await authApi.google(idToken);
-          api.defaults.headers.common.Authorization = `Bearer ${data.token}`;
-          set({ token: data.token, isAuthenticated: true });
-          await get().fetchMe();
-        } catch (e: any) {
-          set({ error: e.response?.data?.error || "Google login failed" });
-          throw e;
-        } finally {
-          set({ loading: false });
-        }
-      },
-
-      // Alias to match second snippet naming
-      // loginWithGoogle: async (idToken) => {
-      //   return get().googleLogin(idToken);
-      // },
-
-      /* ---------- ME ---------- */
-      fetchMe: async () => {
-        try {
-          const { data } = await authApi.me();
-          set({ user: data });
-        } catch {
-          delete api.defaults.headers.common.Authorization;
-          set({
-            user: null,
-            token: null,
-            isAuthenticated: false,
-          });
-        }
-      },
-
-      /* ---------- PROFILE ---------- */
-      updateProfile: async (payload) => {
-        const { data } = await authApi.updateProfile(payload);
-        set({ user: data });
-      },
-
-      changePassword: async (current, next) => {
-        await authApi.changePassword(current, next);
-      },
-
-      /* ---------- SESSIONS ---------- */
-      fetchSessions: async () => {
-        const { data } = await authApi.sessions();
-        set({ sessions: data });
-      },
-
-      /* ---------- LOGOUT ---------- */
-      logout: async () => {
-        try {
-          await authApi.logout();
-        } finally {
-          delete api.defaults.headers.common.Authorization;
-          set({
-            user: null,
-            token: null,
-            isAuthenticated: false,
-          });
-        }
-      },
-
-      logoutAll: async () => {
-        try {
-          await authApi.logoutAll();
-        } finally {
-          delete api.defaults.headers.common.Authorization;
-          set({
-            user: null,
-            token: null,
-            isAuthenticated: false,
-            sessions: [],
-          });
-        }
-      },
-    }),
-    {
-      name: "auth-storage",
-      partialize: (s) => ({
-        token: s.token,
-        isAuthenticated: s.isAuthenticated,
-      }),
+  hydrateUser: async () => {
+    try {
+      const res = await api.get("/auth/me");
+      set({
+        user: res.data,
+        isAuthenticated: true,
+        loading: false,
+      });
+    } catch (error) {
+      set({
+        user: null,
+        isAuthenticated: false,
+        loading: false,
+      });
     }
-  )
-);
+  },
+
+  logout: async () => {
+    try {
+      await api.post("/auth/logout");
+    } catch (error) {
+      console.warn("Logout API call failed (safe to ignore):", error);
+    } finally {
+      set({ user: null, isAuthenticated: false });
+    }
+  },
+}));
