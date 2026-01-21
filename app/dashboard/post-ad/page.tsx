@@ -271,20 +271,19 @@ export default function AddPropertyPage() {
             <h2 className="text-xl font-bold">Location</h2>
 
             <label className="block text-sm font-medium mb-2">
-  Full Address (optional)
-</label>
+              Full Address (optional)
+            </label>
 
-<input
-  value={formData.location}
-  onChange={(e) => updateField("location", e.target.value)}
-  placeholder="e.g., 123 Main St, Nugegoda"
-  className="w-full px-4 py-3 rounded-lg border"
-/>
+            <input
+              value={formData.location}
+              onChange={(e) => updateField("location", e.target.value)}
+              placeholder="e.g., 123 Main St, Nugegoda"
+              className="w-full px-4 py-3 rounded-lg border"
+            />
 
-<p className="text-xs text-gray-500 mt-1">
-  Shown only after contacting the owner
-</p>
-
+            <p className="text-xs text-gray-500 mt-1">
+              Shown only after contacting the owner
+            </p>
 
             {/* Clear button */}
             {(formData.location || formData.latitude || formData.longitude) && (
