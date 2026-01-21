@@ -11,15 +11,24 @@ import {
   Eye,
   ArrowRight,
   Phone,
-  Building,
+  RotateCcw,
 } from "lucide-react";
-import { FaGoogle } from "react-icons/fa";
 import api from "@/lib/api";
 import AuthHeader from "./AuthHeader";
 import GoogleButton from "./GoogleButton";
 
 type UserType = "rent" | "list";
 
+/**
+ * Register form component for new user sign-up.
+ * Allows users to choose between renting or listing property,
+ * collects name, email, phone, and password, and submits to the auth API.
+ *
+ * After successful registration, displays a success message and provides
+ * an option to resend the verification email if needed.
+ *
+ * Integrates Google OAuth via `GoogleButton`.
+ */
 export default function RegisterForm() {
   const [userType, setUserType] = useState<UserType>("rent");
 
@@ -27,7 +36,6 @@ export default function RegisterForm() {
     name: "",
     email: "",
     phone: "",
-    propertyName: "",
     password: "",
   });
 
@@ -35,15 +43,27 @@ export default function RegisterForm() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
+  /**
+   * Updates a single field in the form state.
+   *
+   * @param {string} key - The form field name (e.g., "name", "email").
+   * @param {string} value - The new value for the field.
+   */
   const handleChange = (key: string, value: string) => {
     setForm((prev) => ({ ...prev, [key]: value }));
   };
 
+  /**
+   * Handles form submission:
+   * - Validates required fields.
+   * - Sends signup request to `/auth/signup`.
+   * - Shows success message and clears form on success.
+   */
   const handleSubmit = async () => {
     setError(null);
     setSuccess(null);
 
-    if (!form.name || !form.email || !form.password) {
+    if (!form.name || !form.email || !form.password || !form.phone) {
       setError("Please fill all required fields.");
       return;
     }
@@ -51,40 +71,41 @@ export default function RegisterForm() {
     try {
       setLoading(true);
 
-      // ✅ ONLY send what backend expects
       await api.post("/auth/signup", {
         name: form.name,
         email: form.email,
         password: form.password,
+        phone: form.phone,
       });
-
-      // ✅ Store landlord intent for onboarding (future step)
-      if (userType === "list") {
-        localStorage.setItem(
-          "landlord_onboarding",
-          JSON.stringify({
-            phone: form.phone,
-            propertyName: form.propertyName,
-          })
-        );
-      }
 
       setSuccess(
-        "Verification email sent. Please check your inbox before logging in."
+        "Verification email sent. Please check your inbox before logging in.",
       );
 
-      setForm({
-        name: "",
-        email: "",
-        phone: "",
-        propertyName: "",
-        password: "",
-      });
+      // Keep email in form for potential resend
     } catch (err: any) {
-      setError(
-        err.response?.data?.error ||
-          "Signup failed. Please try again."
-      );
+      setError(err.response?.data?.error || "Signup failed. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  /**
+   * Resends the email verification link to the user's email.
+   * Uses the email from the current form state.
+   */
+  const handleResendVerification = async () => {
+    if (!form.email) {
+      setError("Email is required to resend verification.");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      await api.post("/auth/resend-verification", { email: form.email });
+      setSuccess("Verification email resent. Please check your inbox.");
+    } catch (err: any) {
+      setError(err.response?.data?.error || "Failed to resend verification email.");
     } finally {
       setLoading(false);
     }
@@ -92,7 +113,6 @@ export default function RegisterForm() {
 
   return (
     <section className="w-full md:w-1/2 flex flex-col">
-      {/* ✅ Correct Header */}
       <AuthHeader />
 
       <div className="flex-1 flex items-center justify-center px-8 md:px-12 py-12">
@@ -102,7 +122,6 @@ export default function RegisterForm() {
             Join our community to start your journey.
           </p>
 
-          {/* User Type */}
           <div className="mb-8">
             <label className="text-sm font-medium mb-2 block">
               I want to...
@@ -123,7 +142,6 @@ export default function RegisterForm() {
             </div>
           </div>
 
-          {/* Form */}
           <form
             className="space-y-5"
             onSubmit={(e) => {
@@ -147,27 +165,13 @@ export default function RegisterForm() {
               onChange={(v) => handleChange("email", v)}
             />
 
-            {/* {userType === "list" && (
-              <>
-                <Input
-                  label="Phone Number"
-                  placeholder="+94 7X XXX XXXX"
-                  icon={<Phone size={18} />}
-                  value={form.phone}
-                  onChange={(v) => handleChange("phone", v)}
-                />
-
-                <Input
-                  label="Property Name (optional)"
-                  placeholder="Sunrise Annex"
-                  icon={<Building size={18} />}
-                  value={form.propertyName}
-                  onChange={(v) =>
-                    handleChange("propertyName", v)
-                  }
-                />
-              </>
-            )} */}
+            <Input
+              label="Phone Number"
+              placeholder="074 123 4567"
+              icon={<Phone size={18} />}
+              value={form.phone}
+              onChange={(v) => handleChange("phone", v)}
+            />
 
             <Input
               label="Password"
@@ -179,12 +183,21 @@ export default function RegisterForm() {
               onChange={(v) => handleChange("password", v)}
             />
 
-            {error && (
-              <p className="text-sm text-red-500">{error}</p>
-            )}
+            {error && <p className="text-sm text-red-500">{error}</p>}
 
             {success && (
-              <p className="text-sm text-green-600">{success}</p>
+              <div className="space-y-2">
+                <p className="text-sm text-green-600">{success}</p>
+                <button
+                  type="button"
+                  onClick={handleResendVerification}
+                  disabled={loading}
+                  className="text-sm text-primary hover:underline flex items-center gap-1 disabled:opacity-60"
+                >
+                  <RotateCcw size={14} />
+                  Resend verification email
+                </button>
+              </div>
             )}
 
             <button
@@ -195,31 +208,23 @@ export default function RegisterForm() {
               {loading
                 ? "Creating account..."
                 : userType === "rent"
-                ? "Create Account"
-                : "Create Landlord Account"}
+                  ? "Create Account"
+                  : "Create Landlord Account"}
               <ArrowRight size={18} />
             </button>
           </form>
 
-          {/* Divider */}
           <div className="my-8 flex items-center gap-4">
             <div className="flex-1 h-px bg-gray-200" />
-            <span className="text-xs text-gray-400">
-              Or continue with
-            </span>
+            <span className="text-xs text-gray-400">Or continue with</span>
             <div className="flex-1 h-px bg-gray-200" />
           </div>
 
-          {/* Google */}
           <GoogleButton />
 
-          {/* Footer */}
           <p className="mt-8 text-center text-sm text-gray-500">
             Already have an account?{" "}
-            <a
-              href="/auth/login"
-              className="font-semibold text-primary"
-            >
+            <a href="/auth/login" className="font-semibold text-primary">
               Log in
             </a>
           </p>
@@ -229,8 +234,15 @@ export default function RegisterForm() {
   );
 }
 
-/* ---------- helpers ---------- */
-
+/**
+ * Renders a toggleable option for user intent (rent vs. list).
+ *
+ * @param {Object} props - Component props.
+ * @param {React.ReactNode} props.icon - Icon to display above the label.
+ * @param {string} props.label - Descriptive text for the option.
+ * @param {boolean} props.active - Whether this option is currently selected.
+ * @param {() => void} props.onClick - Callback when the option is clicked.
+ */
 function UserTypeOption({
   icon,
   label,
@@ -246,10 +258,8 @@ function UserTypeOption({
     <button
       type="button"
       onClick={onClick}
-      className={` cursor-pointer flex flex-col items-center py-3 rounded-lg transition ${
-        active
-          ? "bg-white shadow ring-1 ring-gray-200"
-          : "hover:bg-gray-50"
+      className={`cursor-pointer flex flex-col items-center py-3 rounded-lg transition ${
+        active ? "bg-white shadow ring-1 ring-gray-200" : "hover:bg-gray-50"
       }`}
     >
       <div className="text-primary mb-1">{icon}</div>
@@ -258,6 +268,18 @@ function UserTypeOption({
   );
 }
 
+/**
+ * Reusable input field with left/right icons and label.
+ *
+ * @param {Object} props - Component props.
+ * @param {string} props.label - Input label shown above the field.
+ * @param {string} props.placeholder - Placeholder text inside the input.
+ * @param {React.ReactNode} props.icon - Icon displayed on the left side.
+ * @param {React.ReactNode} [props.rightIcon] - Optional icon on the right (e.g., visibility toggle).
+ * @param {string} [props.type="text"] - Input type (e.g., "text", "password").
+ * @param {string} props.value - Current value of the input.
+ * @param {(value: string) => void} props.onChange - Callback when input value changes.
+ */
 function Input({
   label,
   placeholder,
@@ -277,9 +299,7 @@ function Input({
 }) {
   return (
     <div>
-      <label className="block text-sm font-medium mb-1.5">
-        {label}
-      </label>
+      <label className="block text-sm font-medium mb-1.5">{label}</label>
       <div className="relative">
         <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
           {icon}
