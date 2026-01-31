@@ -47,7 +47,7 @@ api.interceptors.response.use(
     if (error.response?.status === 401) {
       // Clear authenticated state globally
       const auth = useAuthStore.getState();
-      auth.logout();
+      //auth.logout();
     }
     // Re-throw error for component-level handling (e.g., showing toast)
     return Promise.reject(error);
