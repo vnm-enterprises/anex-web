@@ -1,5 +1,5 @@
 import { ID } from "./common";
-import { Property } from "./property";
+import { Property } from "./propertys";
 
 export type SavedListing = {
   id: ID;
