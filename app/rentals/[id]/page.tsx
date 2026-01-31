@@ -1,42 +1,80 @@
-import Footer from "@/components/common/Footer";
+// app/rentals/[id]/page.tsx
+import { Metadata } from "next";
+import { notFound } from "next/navigation";
 import Navbar from "@/components/common/Navbar";
-import Amenities from "@/components/single-items/Amenities";
-import Gallery from "@/components/single-items/Gallery";
-import LocationMap from "@/components/single-items/LocationMap";
-import OwnerCard from "@/components/single-items/OwnerCard";
-import PricingCard from "@/components/single-items/PricingCard";
-import PropertyDetails from "@/components/single-items/PropertyDetails";
-import PropertyHeader from "@/components/single-items/PropertyHeader";
-import Reviews from "@/components/single-items/Reviews";
-import { SimilarProperties } from "@/components/single-items/SimilarProperties";
+import Footer from "@/components/common/Footer";
+import ClientWrapper from "./ClientWrapper";
 
-export default function ListingPage() {
+/* -------------------------------------------------------------------------- */
+/*                              DATA FETCHING                                 */
+/* -------------------------------------------------------------------------- */
+
+async function getSingleProperty(id: string) {
+  const API_BASE_URL =
+    process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000";
+
+  const res = await fetch(`${API_BASE_URL}/properties/${id}`, {
+    cache: "no-store",
+  });
+
+  if (!res.ok) return null;
+  return res.json();
+}
+
+/* -------------------------------------------------------------------------- */
+/*                                 METADATA                                   */
+/* -------------------------------------------------------------------------- */
+
+export async function generateMetadata(
+  props: { params: Promise<{ id: string }> }
+): Promise<Metadata> {
+  const { id } = await props.params;
+
+  const property = await getSingleProperty(id);
+
+  if (!property) {
+    return {
+      title: "Property Not Found | Anex Rentals",
+      description: "The requested rental property could not be found.",
+    };
+  }
+
+  const image =
+    Array.isArray(property.propertyImages) && property.propertyImages.length > 0
+      ? property.propertyImages[0]
+      : "/placeholder.jpg";
+
+  return {
+    title: `${property.title} – Rs. ${property.price} | Anex`,
+    description: property.description?.slice(0, 160),
+    openGraph: {
+      images: [{ url: image }],
+    },
+  };
+}
+
+/* -------------------------------------------------------------------------- */
+/*                                   PAGE                                     */
+/* -------------------------------------------------------------------------- */
+
+export default async function RentalPage(
+  props: { params: Promise<{ id: string }> }
+) {
+  const { id } = await props.params;
+
+  const property = await getSingleProperty(id);
+
+  if (!property || !property.isActive) {
+    notFound();
+  }
+
   return (
     <>
-      <Navbar />
-      <main className="bg-background-light dark:bg-background-dark pt-10">
-        <Gallery />
-
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
-          <div className="flex flex-col lg:flex-row gap-8 xl:gap-16">
-            {/* LEFT */}
-            <div className="flex-1">
-              <PropertyHeader />
-              <PropertyDetails />
-              <Amenities />
-              <LocationMap />
-              <Reviews />
-            </div>
-
-            {/* RIGHT */}
-            <div className="lg:w-[380px] flex-shrink-0 space-y-6">
-              <PricingCard />
-              <OwnerCard />
-            </div>
-          </div>
-          <SimilarProperties />
-        </div>
-
+      <div className=" w-full">
+        <Navbar />
+      </div>
+      <main className="bg-background-light pt-10">
+        <ClientWrapper property={property} />
       </main>
       <Footer />
     </>
