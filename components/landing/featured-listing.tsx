@@ -99,9 +99,9 @@ export default function FeaturedListings() {
   }, []);
 
   return (
-    <section className="relative py-16 md:py-24">
+    <section className="relative py-10 md:py-10">
         {/* Decorative gradient blobs */}
-          <div className="absolute bottom-0 right-0 translate-x-1/2 translate-y-1/2 h-64 w-64 rounded-full bg-primary/30 blur-3xl" />
+          {/* <div className="absolute bottom-0 right-0 translate-x-1/2 translate-y-1/2 h-64 w-64 rounded-full bg-primary/30 blur-3xl" /> */}
 
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Header */}
