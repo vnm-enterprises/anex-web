@@ -4,21 +4,39 @@ import { useAuthStore } from "@/store";
 import SessionsPage from "../auth/sessions";
 import { useState } from "react";
 import api from "@/lib/api";
-import { Edit3, Key, LogOut, Mail, Monitor, Phone, RotateCcw, ShieldCheck, User } from "lucide-react";
+import {
+  Edit3,
+  Key,
+  LogOut,
+  Mail,
+  Monitor,
+  Phone,
+  RotateCcw,
+  ShieldCheck,
+  User,
+} from "lucide-react";
+import EditProfileModal from "./EditProfileModal";
+import ChangePasswordModal from "./ChangePasswordModal";
 
 export default function ProfileDrawer({
   open,
   onClose,
+  edit,
+  change
 }: {
   open: boolean;
   onClose: () => void;
+  edit: (v: boolean) => void;
+  change: (v: boolean) => void
 }) {
-
-  const { user, logout }= useAuthStore();
+  const { user, logout } = useAuthStore();
   const [activeTab, setActiveTab] = useState<"profile" | "security">("profile");
   const [isLoggingOut, setIsLogginOut] = useState(false);
+  const hydrateUser = useAuthStore((s) => s.hydrateUser);
 
-     /**
+
+
+  /**
    * Handle logout from all devices.
    */
   const handleLogoutAll = async () => {
@@ -26,6 +44,7 @@ export default function ProfileDrawer({
       await api.post("/auth/logout-all");
       logout();
       onClose();
+      hydrateUser();
     } catch (error) {
       console.error("Logout all failed:", error);
       logout();
@@ -33,7 +52,7 @@ export default function ProfileDrawer({
     }
   };
 
-   /**
+  /**
    * Handle single session logout (not implemented here — optional future enhancement).
    */
   const handleLogoutCurrent = async () => {
@@ -41,6 +60,7 @@ export default function ProfileDrawer({
       await api.post("/auth/logout");
       logout();
       onClose();
+      hydrateUser();
     } catch (error) {
       console.error("Logout failed:", error);
       logout();
@@ -48,14 +68,19 @@ export default function ProfileDrawer({
     }
   };
 
+  const setIsEditProfileOpen = (val: boolean)  =>{
+    edit(val);
+  }
+
+  const setIsChangePasswordOpen = (val: boolean) => {
+    change(val);
+  }
+
   return (
     <>
       {/* Backdrop (important for mobile UX) */}
       {open && (
-        <div
-          onClick={onClose}
-          className="fixed inset-0 bg-black/40 z-40"
-        />
+        <div onClick={onClose} className="fixed inset-0 bg-black/40 z-40" />
       )}
 
       {/* Drawer */}
@@ -108,7 +133,7 @@ export default function ProfileDrawer({
           </div>
         </div>
 
-                {/* Content */}
+        {/* Content */}
         <div className="flex-1 overflow-y-auto p-5">
           {activeTab === "profile" ? (
             <div className="space-y-6">
@@ -170,7 +195,10 @@ export default function ProfileDrawer({
               {/* Actions */}
               <div className="space-y-3 pt-4 border-t border-gray-100 dark:border-gray-800">
                 <button
-                  onClick={() => alert("Edit profile form not implemented yet")}
+                  onClick={() => {
+                    onClose();
+                    setIsEditProfileOpen(true)
+                  }}
                   className="w-full flex items-center gap-2 py-2.5 px-3 rounded-lg bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 text-left transition"
                 >
                   <Edit3 size={16} />
@@ -180,7 +208,7 @@ export default function ProfileDrawer({
                 </button>
 
                 <button
-                  onClick={() => alert("Change password flow not implemented yet")}
+                  onClick={() => setIsChangePasswordOpen(true)}
                   className="w-full flex items-center gap-2 py-2.5 px-3 rounded-lg bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 text-left transition"
                 >
                   <Key size={16} />
@@ -213,7 +241,7 @@ export default function ProfileDrawer({
         </div>
 
         {/* Actions */}
-       <div className="p-5 border-t border-gray-100 dark:border-gray-800">
+        <div className="p-5 border-t border-gray-100 dark:border-gray-800">
           <button
             onClick={handleLogoutCurrent}
             disabled={isLoggingOut}
@@ -223,8 +251,9 @@ export default function ProfileDrawer({
             {isLoggingOut ? "Logging out..." : "Log out"}
           </button>
         </div>
-
       </div>
+
+
     </>
   );
 }
