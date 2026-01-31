@@ -15,7 +15,7 @@ import { useEffect, useState } from "react";
 import { useAuthStore } from "@/store/auth";
 import api from "@/lib/api";
 
-    const isDevMode =  "false";
+    const isDevMode =  "true";
 
 /**
  * Represents an active user session.
@@ -34,23 +34,23 @@ interface Session {
  * - Automatically redirects to login if user is not authenticated (in production)
  */
 export default function SessionsPage() {
-  const { isAuthenticated, loading: authLoading, logout } = useAuthStore();
+  const { isAuthenticated, loading: authLoading } = useAuthStore();
   const [sessions, setSessions] = useState<Session[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   // Dummy data for development
   const dummySessions: Session[] = [
-    {
-      id: "sess_1",
-      createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-      expires: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString(),
-    },
-    {
-      id: "sess_2",
-      createdAt: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(),
-      expires: new Date(Date.now() + 6 * 24 * 60 * 60 * 1000).toISOString(),
-    },
+    // {
+    //   id: "sess_1",
+    //   createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+    //   expires: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString(),
+    // },
+    // {
+    //   id: "sess_2",
+    //   createdAt: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(),
+    //   expires: new Date(Date.now() + 6 * 24 * 60 * 60 * 1000).toISOString(),
+    // },
   ];
 
   /**
@@ -68,22 +68,9 @@ export default function SessionsPage() {
     }
   };
 
-  /**
-   * Logs the user out from all devices by invalidating all sessions.
-   */
-  const handleLogoutAll = async () => {
-    try {
-      await api.post("/auth/logout-all");
-      logout(); // Clear local state and redirect
-    } catch (err: any) {
-      setError("Failed to log out all sessions. Please try again.");
-      console.error("Logout all error:", err);
-    }
-  };
+
 
   useEffect(() => {
-
-
 
     if (isDevMode) {
       setTimeout(() => {
@@ -93,7 +80,7 @@ export default function SessionsPage() {
     } else {
       fetchSessions();
     }
-  }, [isAuthenticated, authLoading]);
+  }, [authLoading]);
 
   if (authLoading && process.env.NEXT_PUBLIC_DEV_MODE !== "true") {
     return <div className="p-6">Loading...</div>;
