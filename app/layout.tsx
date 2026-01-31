@@ -5,6 +5,7 @@ import AuthHydrator from "@/components/common/AuthHydrator";
 import GoogleProviders from "@/providers/google-providers";
 import Script from "next/script";
 import "leaflet/dist/leaflet.css";
+import ScrollToTopButton from "@/components/common/AccessNavBar";
 
 
 const inter = Inter({
@@ -91,7 +92,9 @@ export default function RootLayout({
         className={`${inter.variable} bg-[#f8fcfa] text-[#0d1b14] bg-background-light dark:bg-background-dark font-display text-text-main antialiased selection:bg-primary selection:text-black`}
       >
         <AuthHydrator />
-        <GoogleProviders> {children} </GoogleProviders>
+        <GoogleProviders> {children}
+            <ScrollToTopButton />
+           </GoogleProviders>
       </body>
     </html>
   );
