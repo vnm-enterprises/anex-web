@@ -122,25 +122,6 @@ export default function RegisterForm() {
             Join our community to start your journey.
           </p>
 
-          <div className="mb-8">
-            <label className="text-sm font-medium mb-2 block">
-              I want to...
-            </label>
-            <div className="grid grid-cols-2 gap-3 p-1 rounded-xl border">
-              <UserTypeOption
-                icon={<Search size={18} />}
-                label="Rent a place"
-                active={userType === "rent"}
-                onClick={() => setUserType("rent")}
-              />
-              <UserTypeOption
-                icon={<Home size={18} />}
-                label="List property"
-                active={userType === "list"}
-                onClick={() => setUserType("list")}
-              />
-            </div>
-          </div>
 
           <form
             className="space-y-5"
