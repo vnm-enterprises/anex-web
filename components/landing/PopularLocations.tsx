@@ -91,8 +91,8 @@ export default function PopularLocations() {
     <section className="py-16 bg-white dark:bg-white/5">
 
         {/* Decorative gradient blobs */}
-          <div className="absolute bottom-0 left-0 -translate-x-1/2 -translate-y-1/2 h-64 w-64 rounded-full bg-primary/20 blur-3xl" />
-          <div className="absolute top-0 right-0 translate-x-1/2 translate-y-1/2 h-64 w-64 rounded-full bg-primary/20 blur-3xl" />
+          {/* <div className="absolute bottom-0 left-0 -translate-x-1/2 -translate-y-1/2 h-64 w-64 rounded-full bg-primary/20 blur-3xl" />
+          <div className="absolute top-0 right-0 translate-x-1/2 translate-y-1/2 h-64 w-64 rounded-full bg-primary/20 blur-3xl" /> */}
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Header */}
