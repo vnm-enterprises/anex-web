@@ -8,6 +8,7 @@ import AuthHeader from "./AuthHeader";
 import { useRouter, useSearchParams } from "next/navigation";
 import api from "@/lib/api";
 import Link from "next/link";
+import { useAuthStore } from "@/store";
 
 /**
  * Login form component for email/password authentication.
@@ -30,6 +31,8 @@ export default function LoginForm() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
+    const hydrateUser = useAuthStore((s) => s.hydrateUser);
+
   /**
    * Handles form submission for email/password login.
    *
@@ -48,6 +51,7 @@ export default function LoginForm() {
     try {
       const res = await api.post("/auth/login", { email, password });
       if (res.status === 200) {
+        await hydrateUser();
         router.push("/");
       }
     } catch (err: any) {
