@@ -1,86 +1,99 @@
-import {
-  Bed,
-  Bath,
-  Wifi,
-  Car,
-  Heart,
-  MapPin,
-} from "lucide-react";
+import { Bed, Bath, MapPin, Wifi, Star } from "lucide-react";
+import Link from "next/link";
+import { Property } from "@/types/Property";
 
-type Props = {
-  title: string;
-  location: string;
-  price: string;
-  image: string;
-  badge?: string;
-  id: string;
-};
+const CARD_AMENITIES = [
+  { id: "wifi", label: "Wi-Fi", icon: Wifi },
+  { id: "ac", label: "AC", icon: Star },
+  { id: "parking", label: "Parking", icon: Star },
+];
 
-export default function PropertyCard({
-  title,
-  location,
-  price,
-  image,
-  badge,
-  id,
-}: Props) {
+export default function PropertyCard({ property }: { property: Property }) {
+  const image = property.propertyImages?.[0] || "/placeholder.jpg";
+
+  const badge =
+    property.isFeatured
+      ? "FEATURED"
+      : property.isBoosted
+      ? "BOOSTED"
+      : property.isVerified
+      ? "VERIFIED"
+      : null;
+
+  const amenityIds = property.amenities.map((a) => a.name);
+
+  const visibleAmenities = CARD_AMENITIES.filter((a) =>
+    amenityIds.includes(a.id)
+  );
+
+  const extraCount =
+    property.amenities.length - visibleAmenities.length;
+
   return (
-    <div className="group flex flex-col overflow-hidden rounded-xl border border-border-color bg-surface-light transition-all duration-300 hover:shadow-lg dark:border-white/10 dark:bg-surface-dark">
+    <Link href={`/rentals/${property.id}`}>
+      <div className="rounded-2xl overflow-hidden border border-gray-200 bg-white hover:shadow-lg transition dark:bg-surface-dark">
       {/* Image */}
-      <div className="relative aspect-[4/3] overflow-hidden">
+      <div className="relative h-48">
         <img
           src={image}
-          alt={title}
-          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+          alt={property.title}
+          className="w-full h-full object-cover"
         />
 
         {badge && (
-          <span className="absolute left-3 top-3 rounded bg-primary px-2 py-1 text-xs font-bold text-background-dark shadow-sm">
+          <span className="absolute top-3 left-3 rounded-full bg-primary px-3 py-1 text-xs font-bold text-black">
             {badge}
           </span>
         )}
-
-        <button className="absolute right-3 top-3 rounded-full bg-black/20 p-1.5 text-white backdrop-blur-md hover:bg-black/40">
-          <Heart size={16} />
-        </button>
       </div>
 
       {/* Content */}
-      <div className="flex flex-1 flex-col p-4">
-        <h3 className="text-lg font-bold leading-tight text-text-main transition-colors group-hover:text-primary dark:text-white">
-          {title}
-        </h3>
+      <div className="p-4">
+          <h3 className="font-bold text-lg leading-snug hover:text-primary transition">
+            {property.title}
+          </h3>
 
-        <p className="mt-1 flex items-center gap-1 text-sm text-text-secondary">
+        <p className="mt-1 text-sm flex items-center gap-1 text-gray-500">
           <MapPin size={14} />
-          {location}
+          {property.location}
         </p>
 
-        {/* Features */}
-        <div className="my-3 flex gap-4 border-y border-border-color py-3 text-sm dark:border-white/10">
+        {/* Beds / Baths */}
+        <div className="mt-3 flex gap-4 text-sm text-gray-700">
           <span className="flex items-center gap-1">
-            <Bed size={16} /> 1 Bed
+            <Bed size={14} /> {property.bedrooms}
           </span>
           <span className="flex items-center gap-1">
-            <Bath size={16} /> 1 Bath
-          </span>
-          <span className="flex items-center gap-1">
-            <Wifi size={16} /> WiFi
+            <Bath size={14} /> {property.bathrooms}
           </span>
         </div>
 
-        {/* Footer */}
-        <div className="mt-auto flex items-center justify-between">
-          <div>
-            <p className="text-xs text-text-secondary">Monthly Rent</p>
-            <p className="text-xl font-bold text-primary">{price}</p>
-          </div>
+        {/* Amenities */}
+        {visibleAmenities.length > 0 && (
+          <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-gray-600">
+            {visibleAmenities.map((a) => {
+              const Icon = a.icon;
+              return (
+                <span key={a.id} className="flex items-center gap-1">
+                  <Icon size={14} /> {a.label}
+                </span>
+              );
+            })}
 
-          <button className="rounded-lg bg-primary/10 px-4 py-2 text-sm font-semibold text-primary transition hover:bg-primary hover:text-background-dark">
-            View Details
-          </button>
+            {extraCount > 0 && (
+              <span className="text-gray-400">
+                +{extraCount} more
+              </span>
+            )}
+          </div>
+        )}
+
+        {/* Price */}
+        <div className="mt-4 text-lg font-bold text-primary">
+          LKR {property.price.toLocaleString()}
         </div>
       </div>
     </div>
+    </Link>
   );
 }
