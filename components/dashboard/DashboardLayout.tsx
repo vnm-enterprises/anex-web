@@ -4,6 +4,10 @@
 import { useState } from "react";
 import Sidebar from "./Sidebar";
 import ProfileDrawer from "./ProfileDrawer";
+import EditProfileModal from "./EditProfileModal";
+import ChangePasswordModal from "./ChangePasswordModal";
+import { useSearchParams } from "next/navigation";
+import ListingSuccessPopup from "./ListingSuccessPopup";
 
 /**
  * Dashboard layout component.
@@ -25,6 +29,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
    * Toggled by clicking the profile button in the sidebar.
    */
   const [profileOpen, setProfileOpen] = useState(false);
+    const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
+  const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
+  const searchParams = useSearchParams();
+  const listingId = searchParams.get("listingId");
 
   return (
     <div className="min-h-screen">
@@ -41,8 +49,27 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <ProfileDrawer
           open={profileOpen}
           onClose={() => setProfileOpen(false)}
+          edit={setIsEditProfileOpen}
+          change={setIsChangePasswordOpen}
         />
       </div>
+
+            {isEditProfileOpen && (
+              <EditProfileModal
+                isOpen={isEditProfileOpen}
+                onClose={() => setIsEditProfileOpen(false)}
+              />
+            )}
+
+            {isChangePasswordOpen && (
+              <ChangePasswordModal
+                isOpen={isChangePasswordOpen}
+                onClose={() => setIsChangePasswordOpen(false)}
+              />
+            )}
+
+            {/* Success popup */}
+      <ListingSuccessPopup listingId={listingId || undefined} />
     </div>
   );
 }
