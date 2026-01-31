@@ -221,3 +221,13 @@
   content: "Map failed to load. Please try again.";
   color: #dc2626;
 }
+
+body{
+  min-height: 100vh;
+  /* background: linear-gradient(
+    to bottom,
+    rgba(16, 185, 129, 0.08), /* emerald-500 but VERY soft 
+    #ffffff 35%,
+    #ffffff 100%
+  ); */
+}
