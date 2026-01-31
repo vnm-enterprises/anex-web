@@ -6,7 +6,7 @@ export default function Footer() {
 
   return (
     <footer
-      className="border-t border-[#e7f3ed] bg-white pt-16 pb-8 dark:border-white/10 dark:bg-background-dark"
+      className="border-t border-[#e7f3ed] bg-[#10b98107] pt-16 pb-8 dark:border-white/10 dark:bg-background-dark"
       role="contentinfo"
     >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
