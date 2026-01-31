@@ -22,18 +22,15 @@ export default function HeroSection() {
   };
 
   return (
-    <section className="relative flex min-h-[750px] flex-col justify-center overflow-hidden bg-background-light dark:bg-background-dark">
+    <section className=" flex min-h-[80vh] items-center justify-center overflow-hidden bg-background-light dark:bg-background-dark">
       {/* Background */}
-      <div className="absolute inset-0 z-0">
+      <div className="absolute inset-0 z-0 max-h-[80vh]">
         <img
-          src="/anex-hero.png"
+          src="https://ychef.files.bbci.co.uk/1280x720/p0h9k5dl.jpg"
           alt="Modern apartment interior"
           className="h-full w-full object-cover"
         />
-
-        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-transparent" />
-{/* 
-        <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-t from-background-light via-background-light/80 to-transparent dark:from-background-dark dark:via-background-dark/80" /> */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/75 via-black/55 to-black/30" />
       </div>
 
       {/* Content */}
@@ -45,23 +42,34 @@ export default function HeroSection() {
         </div>
 
         {/* Heading */}
-        <h1 className="text-4xl font-extrabold leading-tight text-white sm:text-5xl md:text-6xl">
+        <h1 className="text-3xl font-extrabold leading-tight text-white sm:text-5xl md:text-6xl">
           Find your perfect home
           <br />
           <span className="text-primary">without the hassle.</span>
         </h1>
 
         {/* Subtitle */}
-        <p className="mx-auto mt-4 max-w-2xl text-sm text-white/80 sm:text-base">
+        <p className="mx-auto mt-4 max-w-2xl text-sm text-white/85 sm:text-base">
           Discover verified annexes, rooms, and houses for rent across Sri Lanka
           directly from owners.
         </p>
 
         {/* 🔍 Search Bar */}
-        <div className="mx-auto mt-10 flex w-full max-w-4xl flex-col rounded-full bg-white shadow-lg sm:flex-row overflow-hidden">
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleSearch();
+          }}
+          className="
+            mx-auto mt-10 w-full max-w-4xl
+            rounded-2xl bg-white shadow-xl
+            flex flex-col overflow-hidden
+            sm:flex-row sm:rounded-full
+          "
+        >
           {/* City */}
           <div className="flex flex-1 items-center gap-2 px-4 py-3">
-            <MapPin size={18} className="text-gray-400" />
+            <MapPin size={18} className="text-gray-400 shrink-0" />
             <input
               value={city}
               onChange={(e) => setCity(e.target.value)}
@@ -73,24 +81,27 @@ export default function HeroSection() {
           <div className="hidden sm:block w-px bg-gray-200" />
 
           {/* Type */}
-          <div className="flex items-center gap-2 px-4 py-3">
-            <Home size={18} className="text-gray-400" />
-            <select
-              value={type}
-              onChange={(e) => setType(e.target.value)}
-              className="bg-transparent text-sm outline-none cursor-pointer"
-            >
-              <option value="">Any Type</option>
-              <option value="annex">Annex</option>
-              <option value="room">Room</option>
-              <option value="house">House</option>
-            </select>
-          </div>
+      <div className="flex items-center gap-2 px-4 py-3">
+  <Home size={18} className="text-gray-400 shrink-0" />
+
+  <select
+    value={type}
+    onChange={(e) => setType(e.target.value)}
+    className="bg-transparent text-sm outline-none cursor-pointer"
+  >
+    <option value="">Any Type</option>
+    <option value="APARTMENT">Apartment</option>
+    <option value="HOUSE">House</option>
+    <option value="ANNEX">Annex</option>
+    <option value="BOARDING">Boarding</option>
+  </select>
+</div>
+
 
           <div className="hidden sm:block w-px bg-gray-200" />
 
           {/* Budget Slider */}
-          <div className="flex flex-col justify-center gap-1 px-4 py-2 min-w-[180px]">
+          <div className="flex flex-col justify-center gap-1 px-4 py-2 sm:min-w-[200px]">
             <div className="flex items-center gap-2">
               <Wallet size={16} className="text-gray-400" />
               <span className="text-xs text-gray-500">
@@ -111,15 +122,22 @@ export default function HeroSection() {
 
           {/* Search Button */}
           <button
-            onClick={handleSearch}
-            className="m-2 flex items-center justify-center rounded-full bg-primary px-5 py-3 text-sm font-bold text-black hover:bg-primary-dark transition"
+            type="submit"
+            className="
+              m-2 flex items-center justify-center gap-2
+              rounded-xl bg-primary px-6 py-3
+              text-sm font-bold text-black
+              hover:bg-primary-dark transition
+              sm:rounded-full sm:px-5
+            "
           >
             <Search size={18} />
+            <span className="sm:hidden">Search</span>
           </button>
-        </div>
+        </form>
 
         {/* Popular */}
-        <p className="mt-4 text-xs text-black/80">
+        <p className="mt-4 text-xs text-white/80">
           Popular: Nugegoda · Maharagama · Dehiwala · Battaramulla
         </p>
       </div>
