@@ -1,8 +1,7 @@
 "use client";
 
 import { Home, Menu, Search, X } from "lucide-react";
-import Image from "next/image";
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useAuthStore } from "@/store/auth";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -17,10 +16,27 @@ export default function Navbar() {
 
   const router = useRouter();
   const pathname = usePathname();
+  const mobileNavReferance = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        mobileNavReferance.current &&
+        !mobileNavReferance.current.contains(event.target as Node)
+      )
+        setMobileOpen(false);
+
+      if (mobileOpen)
+        document.addEventListener("mousedown", handleClickOutside);
+
+      return () =>
+        document.removeEventListener("mousedown", handleClickOutside);
+    }
+  }, [mobileOpen]);
 
   const navbarColor = () => {
-    if (pathname !== '/') return true;
-  }
+    if (pathname !== "/") return true;
+  };
 
   if (loading) {
     return null;
@@ -30,16 +46,15 @@ export default function Navbar() {
     return pathname.startsWith(href);
   };
 
-const navLinkClass = (href: string) =>
-  `
+  const navLinkClass = (href: string) =>
+    `
     text-sm font-medium transition-all
     ${
       isActive(href)
         ? "text-primary underline decoration-primary underline-offset-4"
-        : `${navbarColor() ? "text-black" : "text-white"} hover:underline decoration-primary underline-offset-4`
+        : `${navbarColor() ? "text-white" : "text-white"} hover:underline decoration-primary underline-offset-4`
     }
   `;
-
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -55,16 +70,22 @@ const navLinkClass = (href: string) =>
   =========================== */
   if (isLogged) {
     return (
-      <header className={`top-0 left-0 right-0 bg-[#10b98107] z-50 ${navbarColor() ? '' : 'fixed'}`}>
+      <header
+        className={`top-0 left-0 right-0 bg-[#10b98107] z-50 ${navbarColor() ? "" : "fixed"}`}
+      >
         <div className="mx-auto max-w-7xl px-4 md:px-6 py-3 ">
           <div className="flex items-center justify-between">
             {/* Left */}
             <div className="flex items-center gap-5">
               <Link href="/" className="flex items-center gap-2 group">
-                <div className={`size-9 bg-primary rounded-full flex items-center justify-center text-black shadow-md ${navbarColor() ? '' : ''}`}>
+                <div
+                  className={`size-9 bg-primary rounded-full flex items-center justify-center text-black shadow-md ${navbarColor() ? "" : ""}`}
+                >
                   <Home size={18} />
                 </div>
-                <h2 className={`text-xl font-bold  tracking-tight group-hover:text-primary transition-colors ${navbarColor() ? 'text-black' : 'text-white'}`} >
+                <h2
+                  className={`text-xl font-bold  tracking-tight group-hover:text-primary transition-colors ${navbarColor() ? "text-black" : "text-white"}`}
+                >
                   annex.lk
                 </h2>
               </Link>
@@ -74,7 +95,10 @@ const navLinkClass = (href: string) =>
             <div className="flex items-center gap-4">
               {/* Desktop Nav */}
               <nav className="hidden md:flex items-center gap-6">
-                <Link href="/" className={`${navLinkClass("/")} ${navbarColor() ? 'text-black' : 'text-white'}`}>
+                <Link
+                  href="/"
+                  className={`${navLinkClass("/")} ${navbarColor() ? "text-black" : "text-white"}`}
+                >
                   Home
                 </Link>
                 <Link href="/rentals" className={navLinkClass("/rentals")}>
@@ -86,7 +110,7 @@ const navLinkClass = (href: string) =>
               <div className="flex items-center gap-3">
                 <button
                   onClick={() => router.push("/dashboard")}
-                  className={`hidden sm:flex h-10 px-4 items-center justify-center rounded-full ${navbarColor() ? 'text-black' : 'text-white'} text-sm font-semibold hover:text-primary transition cursor-pointer`}
+                  className={`hidden sm:flex h-10 px-4 items-center justify-center rounded-full ${navbarColor() ? "text-black" : "text-white"} text-sm font-semibold hover:text-primary transition cursor-pointer`}
                 >
                   Dashboard
                 </button>
@@ -171,7 +195,7 @@ const navLinkClass = (href: string) =>
      GUEST NAVBAR
   =========================== */
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-black">
+    <header className="relative z-50 ">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         {/* Left */}
         <div className="flex items-center gap-6">
@@ -179,47 +203,32 @@ const navLinkClass = (href: string) =>
             <div className="size-9 bg-primary rounded-full flex items-center justify-center text-black shadow-md">
               <Home size={18} />
             </div>
-            <h2 className="text-xl font-bold text-white tracking-tight">
+            <h2
+              className={`text-xl font-bold  tracking-tight ${pathname !== "/" ? "text-[#000000]" : "text-white"}`}
+            >
               annex.lk
             </h2>
           </Link>
         </div>
 
         <nav className="hidden md:flex items-center gap-6">
-          <Link href="/" className={navLinkClass("/")}>
+          <Link href="/" className={ `${pathname !== '/' ? 'text-white' : 'text-black'}` + navLinkClass("/")}>
             Home
           </Link>
-          <Link href="/rentals" className={navLinkClass("/rentals")}>
+          <Link href="/rentals" className={`${pathname !== '/' ? 'text-white' : 'text-black'}` + navLinkClass("/rentals") }>
             Find a Place
           </Link>
-          <Link href="/auth/login" className={navLinkClass("/auth/login")}>
+          <Link href="/auth/login" className={`${pathname !== '/' ? 'text-white' : 'text-black'}` + navLinkClass("/auth/login")}>
             List Property
           </Link>
         </nav>
 
         {/* Right */}
         <div className="flex items-center gap-3">
-          {/* Desktop Search */}
-          {/* <form
-            onSubmit={handleSearchSubmit}
-            className="hidden lg:flex items-center h-10 bg-white rounded-full px-3 transition-all duration-300"
-            style={{ width: searchFocused ? "520px" : "320px" }}
-          >
-            <Search size={18} className="text-gray-400" />
-            <input
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              onFocus={() => setSearchFocused(true)}
-              onBlur={() => setSearchFocused(false)}
-              placeholder={searchFocused ? "Search by city, area, keyword..." : "Search..."}
-              className="w-full ml-2 bg-transparent border-none outline-none text-sm text-black"
-            />
-          </form> */}
-
           <div className="hidden sm:flex gap-2">
             <button
               onClick={() => router.push("/auth/login")}
-              className="h-9 px-4 rounded-full border border-white text-white text-sm font-semibold hover:border-primary transition"
+              className={`h-9 px-4 rounded-full border  text-sm font-semibold hover:border-primary transition ${pathname !== "/" ? "border-black text-black" : "border-white text-white "}`}
             >
               Log In
             </button>
@@ -233,7 +242,7 @@ const navLinkClass = (href: string) =>
 
           {/* Mobile Toggle */}
           <button
-            className="md:hidden text-white"
+            className={`md:hidden z-50 ${pathname !== '/' ? 'text-black' : 'text-white'} `}
             onClick={() => setMobileOpen((v) => !v)}
           >
             {mobileOpen ? <X size={26} /> : <Menu size={26} />}
@@ -243,48 +252,52 @@ const navLinkClass = (href: string) =>
 
       {/* Guest Mobile Panel */}
       {mobileOpen && (
-        <div className="md:hidden mx-4 mt-2 rounded-2xl bg-transparent border border-white backdrop-blur-xl p-4 space-y-4 animate-fadeIn">
-          <nav className="flex flex-col gap-3">
-            <Link
-              href="/"
-              onClick={() => setMobileOpen(false)}
-              className={navLinkClass("/")}
-            >
-              Home
-            </Link>
-            <Link
-              href="/rentals"
-              onClick={() => setMobileOpen(false)}
-              className={navLinkClass("/rentals")}
-            >
-              Find a Place
-            </Link>
-            <Link
-              href="/auth/login"
-              onClick={() => setMobileOpen(false)}
-              className={navLinkClass("/auth/login")}
-            >
-              List Property
-            </Link>
-          </nav>
 
-          <div className="flex flex-col gap-2">
-            <button
-              onClick={() => router.push("/auth/login")}
-              className="w-full h-10 rounded-full border border-white text-white text-sm font-semibold"
-            >
-              Log In
-            </button>
-            <button
-              onClick={() => router.push("/auth/signup")}
-              className="w-full h-10 rounded-full bg-primary text-sm font-bold text-black"
-            >
-              Sign Up
-            </button>
-          </div>
+          <div
+            ref={mobileNavReferance}
+            className={`md:hidden mx-4  rounded-2xl my-10 right-0  border border-white backdrop-blur-xl p-4 space-y-4 animate-fadeIn ${pathname !== '/' ? 'bg-black text-white' : 'bg-transparent'}`}
+          >
+            <nav className="flex flex-col gap-3">
+              <Link
+                href="/"
+                onClick={() => setMobileOpen(false)}
+                className={navLinkClass("/")}
+              >
+                Home
+              </Link>
+              <Link
+                href="/rentals"
+                onClick={() => setMobileOpen(false)}
+                className={navLinkClass("/rentals")}
+              >
+                Find a Place
+              </Link>
+              <Link
+                href="/auth/login"
+                onClick={() => setMobileOpen(false)}
+                className={navLinkClass("/auth/login")}
+              >
+                List Property
+              </Link>
+            </nav>
 
-          {/* Mobile Search */}
-          {/* <form onSubmit={handleSearchSubmit}>
+            <div className="flex flex-col gap-2">
+              <button
+                onClick={() => router.push("/auth/login")}
+                className="w-full h-10 rounded-full border border-white text-white text-sm font-semibold"
+              >
+                Log In
+              </button>
+              <button
+                onClick={() => router.push("/auth/signup")}
+                className="w-full h-10 rounded-full bg-primary text-sm font-bold text-black"
+              >
+                Sign Up
+              </button>
+            </div>
+
+            {/* Mobile Search */}
+            {/* <form onSubmit={handleSearchSubmit}>
             <div className="flex items-center h-11 bg-white rounded-full px-3">
               <Search size={18} className="text-gray-400" />
               <input
@@ -295,7 +308,8 @@ const navLinkClass = (href: string) =>
               />
             </div>
           </form> */}
-        </div>
+          </div>
+
       )}
     </header>
   );
