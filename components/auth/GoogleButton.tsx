@@ -11,6 +11,7 @@ export default function GoogleButton() {
   return (
     <GoogleLogin
       onSuccess={async (res) => {
+        console.log('this is the response : \n', res);
         if (!res.credential) return;
 
         await loginWithGoogle(res.credential);
@@ -18,7 +19,10 @@ export default function GoogleButton() {
       }}
       onError={() => {
         console.error("Google login failed");
+        alert()
       }}
+
+
     />
   );
 }

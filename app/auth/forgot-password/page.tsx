@@ -1,27 +1,15 @@
-"use client";
-
-import { useState } from "react";
-import { authApi } from "@/api/auth";
+/**
+ * Forgot Password page.
+ * Combines the image panel and forgot password form.
+ */
+import AuthImagePanel from "@/components/auth/AuthImagePanel";
+import ForgotPasswordForm from "@/components/auth/ForgotPasswordForm";
 
 export default function ForgotPasswordPage() {
-  const [email, setEmail] = useState("");
-  const [sent, setSent] = useState(false);
-
-  const submit = async () => {
-    await authApi.forgotPassword(email);
-    setSent(true);
-  };
-
-  return sent ? (
-    <p>Reset link sent if email exists.</p>
-  ) : (
-    <form onSubmit={(e) => e.preventDefault()}>
-      <input
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        placeholder="Email"
-      />
-      <button onClick={submit}>Send reset link</button>
-    </form>
+  return (
+    <main className="h-screen w-full overflow-hidden flex bg-background-light dark:bg-background-dark">
+      <AuthImagePanel />
+      <ForgotPasswordForm />
+    </main>
   );
 }

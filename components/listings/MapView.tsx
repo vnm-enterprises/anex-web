@@ -1,33 +1,19 @@
 "use client";
 
-import { MapPin } from "lucide-react";
+import { Property } from "@/types/Property";
 
-export default function MapView() {
+export default function MapView({ listings }: { listings: Property[] }) {
+  const valid = listings.filter(
+    (p) => p.latitude !== null && p.longitude !== null
+  );
+
+  if (valid.length === 0)
+    return <p className="text-center">No map data available.</p>;
+
   return (
-    <section className="relative h-[520px] w-full overflow-hidden rounded-xl border border-border-color bg-surface-light shadow-sm dark:border-white/10 dark:bg-surface-dark">
-      {/* Placeholder */}
-      <div className="flex h-full flex-col items-center justify-center gap-3 text-center">
-        <div className="rounded-full bg-primary/10 p-4 text-primary">
-          <MapPin size={32} />
-        </div>
-
-        <h3 className="text-lg font-bold text-text-main dark:text-white">
-          Map View
-        </h3>
-
-        <p className="max-w-xs text-sm text-text-secondary">
-          Interactive map view will be available soon.
-          This will allow browsing listings by location.
-        </p>
-      </div>
-
-      {/* Future Map Overlay */}
-      {/*
-        Integrate Mapbox / Google Maps here:
-        - Load markers
-        - Sync with filters
-        - Hover → highlight card
-      */}
-    </section>
+    <iframe
+      className="w-full h-[520px] rounded-xl"
+      src={`https://maps.google.com/maps?q=${valid[0].latitude},${valid[0].longitude}&z=13&output=embed`}
+    />
   );
 }

@@ -1,25 +1,53 @@
+// components/single-items/OwnerCard.tsx
+"use client";
+
 import { ArrowRight } from "lucide-react";
 
-export default function OwnerCard() {
+interface OwnerCardProps {
+  ownerName: string;
+  ownerAvatar?: string;
+  ownerJoinedAt: string | Date;
+}
+
+export default function OwnerCard({
+  ownerName,
+  ownerAvatar,
+  ownerJoinedAt,
+}: OwnerCardProps) {
+  const joinedDate = new Date(ownerJoinedAt);
+  const joinedYear = joinedDate.getFullYear();
+
   return (
-    <div className="bg-surface-light dark:bg-surface-dark rounded-2xl border p-5 flex items-center gap-4">
-      <div className="relative">
+    <div className="bg-surface-light dark:bg-surface-dark rounded-2xl border border-gray-200 dark:border-gray-700 p-5 flex items-center gap-4">
+      {/* Avatar */}
+      <div className="relative shrink-0">
         <img
-          src="https://lh3.googleusercontent.com/aida-public/AB6AXuClUlJe6x5X6dObtrlrM03v4pR0gt17JhO8LdVataNzP4WWqjyz7zqsExpy5Dc3EOikSdRA4dzqYN_nKAK7XY8ZFpCotiSis4aOCbp5j-cBsfb6rHCsO5IfKAC9QMJ0ZPEV_sbMrx3YceayscGbcu0sQ3xb-3tGqKleUo3R-al2ilkbP4_JhuERhun98stW-slYGzfXK6jrcgP4ev-zWV2_aVB1Nmf3G286XIlxJq8fJXaJbazxhPA7NGoqY-g1ncU1vUG7UERz25I"
+          src={ownerAvatar || "/avatar-placeholder.jpg"}
+          alt={ownerName}
           className="w-14 h-14 rounded-full object-cover"
         />
-        <span className="absolute bottom-0 right-0 w-4 h-4 bg-primary border-2 border-white rounded-full" />
+        {/* Active dot */}
+        <span className="absolute bottom-0 right-0 w-4 h-4 bg-emerald-500 border-2 border-white dark:border-gray-900 rounded-full" />
       </div>
 
-      <div className="flex-1">
+      {/* Info */}
+      <div className="flex-1 min-w-0">
         <p className="text-xs uppercase text-gray-500 font-semibold">
           Listed by
         </p>
-        <p className="font-bold">Kamal Perera</p>
-        <p className="text-xs text-gray-400">Member since 2019</p>
+        <p className="font-bold text-gray-900 dark:text-white truncate">
+          {ownerName}
+        </p>
+        <p className="text-xs text-gray-400">
+          Member since {joinedYear}
+        </p>
       </div>
 
-      <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
+      {/* CTA */}
+      <button
+        aria-label="View owner profile"
+        className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+      >
         <ArrowRight size={18} />
       </button>
     </div>

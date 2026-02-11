@@ -1,20 +1,20 @@
+
 "use client";
 
 import { useEffect } from "react";
 import { useAuthStore } from "@/store/auth";
-import api from "@/lib/api";
 
 export default function AuthHydrator() {
-  const { token, fetchMe } = useAuthStore();
+  const hydrateUser = useAuthStore((state) => state.hydrateUser);
+  const loading = useAuthStore((state) => state.loading);
 
   useEffect(() => {
-    if (token) {
-      api.defaults.headers.common[
-        "Authorization"
-      ] = `Bearer ${token}`;
-      fetchMe();
+    if (typeof window !== "undefined") {
+      hydrateUser();
     }
-  }, [token, fetchMe]);
+  }, [hydrateUser]);
+
+  if (loading) return null;
 
   return null;
 }

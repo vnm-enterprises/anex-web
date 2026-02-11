@@ -7,7 +7,7 @@ export default function WhyAnex() {
         {/* Header */}
         <div className="mb-16 text-center">
           <span className="mb-2 block text-sm font-bold uppercase tracking-wider text-primary">
-            Why anex.lk?
+            Why annex.lk?
           </span>
           <h2 className="text-3xl font-bold tracking-tight text-text-main dark:text-white sm:text-4xl">
             The smartest way to find a rental
