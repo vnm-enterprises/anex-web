@@ -70,9 +70,7 @@ export default function Navbar() {
   =========================== */
   if (isLogged) {
     return (
-      <header
-        className={`top-0 left-0 right-0 bg-[#10b98107] z-50 ${navbarColor() ? "" : "fixed"}`}
-      >
+          <header className="relative z-50 ">
         <div className="mx-auto max-w-7xl px-4 md:px-6 py-3 ">
           <div className="flex items-center justify-between">
             {/* Left */}
@@ -84,7 +82,7 @@ export default function Navbar() {
                   <Home size={18} />
                 </div>
                 <h2
-                  className={`text-xl font-bold  tracking-tight group-hover:text-primary transition-colors ${navbarColor() ? "text-black" : "text-[#f8fafc]"}`}
+                  className={`text-xl font-bold  tracking-tight transition-colors ${pathname !== '/' ? "text-black" : "text-[#f8fafc] group-hover:text-primary "}`}
                 >
                   annex.lk
                 </h2>
@@ -110,7 +108,7 @@ export default function Navbar() {
               <div className="flex items-center gap-3">
                 <button
                   onClick={() => router.push("/dashboard")}
-                  className={`hidden sm:flex h-10 px-4 items-center justify-center rounded-full ${navbarColor() ? "text-black" : "text-[#f8fafc]"} text-sm font-semibold hover:text-primary transition cursor-pointer`}
+                  className={`hidden sm:flex h-10 px-4 items-center justify-center rounded-full ${navbarColor() ? "text-black" : "text-[#f8fafc]"} text-sm font-semibold  transition cursor-pointer`}
                 >
                   Dashboard
                 </button>
@@ -228,13 +226,13 @@ export default function Navbar() {
           <div className="hidden sm:flex gap-2">
             <button
               onClick={() => router.push("/auth/login")}
-              className={`h-9 px-4 rounded-full border  text-sm font-semibold hover:border-primary transition ${pathname !== "/" ? "border-black text-black" : "border-[#f8fafc] text-[#f8fafc] "}`}
+              className={`h-9 px-4 rounded-md border  text-sm font-semibold hover:border-primary transition ${pathname !== "/" ? "border-black text-black" : "border-[#f8fafc] text-[#f8fafc] "}`}
             >
               Log In
             </button>
             <button
               onClick={() => router.push("/auth/signup")}
-              className="h-9 px-4 rounded-full bg-primary text-sm font-bold text-black hover:bg-primary-dark transition"
+              className="h-9 px-4 rounded-md bg-primary text-sm font-bold text-black hover:bg-primary-dark transition"
             >
               Sign Up
             </button>
