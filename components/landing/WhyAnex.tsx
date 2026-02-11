@@ -18,7 +18,7 @@ export default function WhyAnex() {
         <div className="grid gap-10 md:grid-cols-3">
           {/* Verified Listings */}
           <div className="flex flex-col items-center text-center">
-            <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/20 text-primary-dark dark:bg-primary/10 dark:text-primary">
+            <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-md bg-primary/20 text-primary-dark dark:bg-primary/10 dark:text-primary">
               <span className="material-symbols-outlined text-[32px]">
                 <Verified />
               </span>
@@ -34,7 +34,7 @@ export default function WhyAnex() {
 
           {/* Direct Contact */}
           <div className="flex flex-col items-center text-center">
-            <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/20 text-primary-dark dark:bg-primary/10 dark:text-primary">
+            <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-md bg-primary/20 text-primary-dark dark:bg-primary/10 dark:text-primary">
               <span className="material-symbols-outlined text-[32px]">
                 <Handshake />
               </span>
@@ -50,7 +50,7 @@ export default function WhyAnex() {
 
           {/* Advanced Search */}
           <div className="flex flex-col items-center text-center">
-            <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/20 text-primary-dark dark:bg-primary/10 dark:text-primary">
+            <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-md bg-primary/20 text-primary-dark dark:bg-primary/10 dark:text-primary">
               <span className="material-symbols-outlined text-[32px]">
                 <Filter />
               </span>

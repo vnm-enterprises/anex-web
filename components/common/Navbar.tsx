@@ -52,7 +52,7 @@ export default function Navbar() {
     ${
       isActive(href)
         ? "text-primary underline decoration-primary underline-offset-4"
-        : `${navbarColor() ? "text-white" : "text-white"} hover:underline decoration-primary underline-offset-4`
+        : `${pathname !== '/' ? 'text-black' : 'text-white'} text-[#f8fafc] hover:underline decoration-primary underline-offset-4`
     }
   `;
 
@@ -70,9 +70,7 @@ export default function Navbar() {
   =========================== */
   if (isLogged) {
     return (
-      <header
-        className={`top-0 left-0 right-0 bg-[#10b98107] z-50 ${navbarColor() ? "" : "fixed"}`}
-      >
+          <header className="relative z-50 ">
         <div className="mx-auto max-w-7xl px-4 md:px-6 py-3 ">
           <div className="flex items-center justify-between">
             {/* Left */}
@@ -84,7 +82,7 @@ export default function Navbar() {
                   <Home size={18} />
                 </div>
                 <h2
-                  className={`text-xl font-bold  tracking-tight group-hover:text-primary transition-colors ${navbarColor() ? "text-black" : "text-white"}`}
+                  className={`text-xl font-bold  tracking-tight transition-colors ${pathname !== '/' ? "text-black" : "text-[#f8fafc] group-hover:text-primary "}`}
                 >
                   annex.lk
                 </h2>
@@ -97,7 +95,7 @@ export default function Navbar() {
               <nav className="hidden md:flex items-center gap-6">
                 <Link
                   href="/"
-                  className={`${navLinkClass("/")} ${navbarColor() ? "text-black" : "text-white"}`}
+                  className={`${navLinkClass("/")} ${navbarColor() ? "text-black" : "text-[#f8fafc]"}`}
                 >
                   Home
                 </Link>
@@ -110,13 +108,13 @@ export default function Navbar() {
               <div className="flex items-center gap-3">
                 <button
                   onClick={() => router.push("/dashboard")}
-                  className={`hidden sm:flex h-10 px-4 items-center justify-center rounded-full ${navbarColor() ? "text-black" : "text-white"} text-sm font-semibold hover:text-primary transition cursor-pointer`}
+                  className={`hidden sm:flex h-10 px-4 items-center justify-center rounded-full ${navbarColor() ? "text-black" : "text-[#f8fafc]"} text-sm font-semibold  transition cursor-pointer`}
                 >
                   Dashboard
                 </button>
 
                 <button
-                  className="size-10 rounded-full overflow-hidden border-2 border-white/60 shadow-md cursor-pointer"
+                  className="size-10 rounded-full overflow-hidden border-2 border-[#f8fafc]/60 shadow-md cursor-pointer"
                   onClick={() => router.push("/dashboard?profile=open")}
                 >
                   <img
@@ -133,7 +131,7 @@ export default function Navbar() {
 
                 {/* Mobile Toggle */}
                 <button
-                  className="md:hidden text-white"
+                  className="md:hidden text-[#f8fafc]"
                   onClick={() => setMobileOpen((v) => !v)}
                   aria-label="Toggle menu"
                 >
@@ -166,7 +164,7 @@ export default function Navbar() {
                     router.push("/dashboard");
                     setMobileOpen(false);
                   }}
-                  className="text-white text-sm font-semibold text-left"
+                  className="text-[#f8fafc] text-sm font-semibold text-left"
                 >
                   Dashboard
                 </button>
@@ -174,7 +172,7 @@ export default function Navbar() {
 
               {/* Mobile Search */}
               <form onSubmit={handleSearchSubmit}>
-                <div className="flex items-center h-11 bg-white rounded-full px-3">
+                <div className="flex items-center h-11 bg-[#f8fafc] rounded-full px-3">
                   <Search size={18} className="text-gray-400" />
                   <input
                     value={searchTerm}
@@ -204,7 +202,7 @@ export default function Navbar() {
               <Home size={18} />
             </div>
             <h2
-              className={`text-xl font-bold  tracking-tight ${pathname !== "/" ? "text-[#000000]" : "text-white"}`}
+              className={`text-xl font-bold  tracking-tight ${pathname !== "/" ? "text-[#000000]" : "text-[#f8fafc]"}`}
             >
               annex.lk
             </h2>
@@ -212,13 +210,13 @@ export default function Navbar() {
         </div>
 
         <nav className="hidden md:flex items-center gap-6">
-          <Link href="/" className={ `${pathname !== '/' ? 'text-white' : 'text-black'}` + navLinkClass("/")}>
+          <Link href="/" className={ navLinkClass("/")}>
             Home
           </Link>
-          <Link href="/rentals" className={`${pathname !== '/' ? 'text-white' : 'text-black'}` + navLinkClass("/rentals") }>
+          <Link href="/rentals" className={navLinkClass("/rentals") }>
             Find a Place
           </Link>
-          <Link href="/auth/login" className={`${pathname !== '/' ? 'text-white' : 'text-black'}` + navLinkClass("/auth/login")}>
+          <Link href="/auth/login" className={navLinkClass("/auth/login")}>
             List Property
           </Link>
         </nav>
@@ -228,13 +226,13 @@ export default function Navbar() {
           <div className="hidden sm:flex gap-2">
             <button
               onClick={() => router.push("/auth/login")}
-              className={`h-9 px-4 rounded-full border  text-sm font-semibold hover:border-primary transition ${pathname !== "/" ? "border-black text-black" : "border-white text-white "}`}
+              className={`h-9 px-4 rounded-md border  text-sm font-semibold hover:border-primary transition ${pathname !== "/" ? "border-black text-black" : "border-[#f8fafc] text-[#f8fafc] "}`}
             >
               Log In
             </button>
             <button
               onClick={() => router.push("/auth/signup")}
-              className="h-9 px-4 rounded-full bg-primary text-sm font-bold text-black hover:bg-primary-dark transition"
+              className="h-9 px-4 rounded-md bg-primary text-sm font-bold text-black hover:bg-primary-dark transition"
             >
               Sign Up
             </button>
@@ -242,7 +240,7 @@ export default function Navbar() {
 
           {/* Mobile Toggle */}
           <button
-            className={`md:hidden z-50 ${pathname !== '/' ? 'text-black' : 'text-white'} `}
+            className={`md:hidden z-50 ${pathname !== '/' ? 'text-black' : 'text-[#f8fafc]'} `}
             onClick={() => setMobileOpen((v) => !v)}
           >
             {mobileOpen ? <X size={26} /> : <Menu size={26} />}
@@ -255,7 +253,7 @@ export default function Navbar() {
 
           <div
             ref={mobileNavReferance}
-            className={`md:hidden mx-4  rounded-2xl my-10 right-0  border border-white backdrop-blur-xl p-4 space-y-4 animate-fadeIn ${pathname !== '/' ? 'bg-black text-white' : 'bg-transparent'}`}
+            className={`md:hidden mx-4  rounded-2xl my-10 right-0  border border-[#f8fafc] backdrop-blur-xl p-4 space-y-4 animate-fadeIn ${pathname !== '/' ? 'bg-black text-[#f8fafc]' : 'bg-transparent'}`}
           >
             <nav className="flex flex-col gap-3">
               <Link
@@ -284,7 +282,7 @@ export default function Navbar() {
             <div className="flex flex-col gap-2">
               <button
                 onClick={() => router.push("/auth/login")}
-                className="w-full h-10 rounded-full border border-white text-white text-sm font-semibold"
+                className="w-full h-10 rounded-full border border-[#f8fafc] text-[#f8fafc] text-sm font-semibold"
               >
                 Log In
               </button>
@@ -298,7 +296,7 @@ export default function Navbar() {
 
             {/* Mobile Search */}
             {/* <form onSubmit={handleSearchSubmit}>
-            <div className="flex items-center h-11 bg-white rounded-full px-3">
+            <div className="flex items-center h-11 bg-[#f8fafc] rounded-full px-3">
               <Search size={18} className="text-gray-400" />
               <input
                 value={searchTerm}

@@ -15,7 +15,7 @@ export default function Footer() {
           {/* Brand */}
           <div className="text-center sm:text-left">
             <Link
-              href="#"
+              href="/"
               className="mb-6 inline-flex items-center gap-2 rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
               aria-label="annex.lk home"
             >
@@ -28,56 +28,53 @@ export default function Footer() {
             </Link>
 
             <p className="mx-auto sm:mx-0 max-w-xs text-sm leading-relaxed text-gray-500 dark:text-gray-400">
-              Sri Lanka&apos;s #1 platform for finding rental annexes, rooms, and
-              houses. Simple, fast, and reliable.
+              Sri Lanka&apos;s #1 platform for finding rental annexes, rooms,
+              and houses. Simple, fast, and reliable.
             </p>
           </div>
 
           {/* Company */}
-          <nav
-            aria-label="Company"
-            className="text-center sm:text-left"
-          >
+          <nav aria-label="Company" className="text-center sm:text-left">
             <h3 className="mb-4 text-sm font-bold uppercase tracking-wider text-text-main dark:text-white">
               Company
             </h3>
             <ul className="space-y-3">
-              {["About Us", "Careers", "Contact", "Privacy Policy"].map(
-                (item) => (
-                  <li key={item}>
-                    <Link
-                      href="#"
-                      className="text-sm text-gray-500 transition-colors hover:text-primary focus-visible:text-primary dark:text-gray-400 focus:outline-none focus-visible:underline"
-                    >
-                      {item}
-                    </Link>
-                  </li>
-                )
-              )}
+              {[
+                { id: 1, label: "About Us", route: "/about" },
+                { id: 2, label: "Careers", route: "/careers" },
+                { id: 3, label: "Contact", route: "/contact" },
+                { id: 4, label: "Privacy Policy", route: "/privacy-policy" },
+              ].map((item) => (
+                <li key={item.id}>
+                  <Link
+                    href={item.route}
+                    className="text-sm text-gray-500 transition-colors hover:text-primary focus-visible:text-primary dark:text-gray-400 focus:outline-none focus-visible:underline"
+                  >
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </nav>
 
           {/* Discover */}
-          <nav
-            aria-label="Discover"
-            className="text-center sm:text-left"
-          >
+          <nav aria-label="Discover" className="text-center sm:text-left">
             <h3 className="mb-4 text-sm font-bold uppercase tracking-wider text-text-main dark:text-white">
               Discover
             </h3>
             <ul className="space-y-3">
               {[
-                "Find a Place",
-                "List Property",
-                "Popular Cities",
-                "Blog",
+                { id: 1, label: "Find a Place", route: "/rentals" },
+                { id: 2, label: "List Property", route: "/auth/signup" },
+                { id: 3, label: "Popular Cities", route: "/rentals" },
+                { id: 4, label: "Blog", route: "/blog" },
               ].map((item) => (
-                <li key={item}>
+                <li key={item.id}>
                   <Link
-                    href="#"
+                    href={item.route}
                     className="text-sm text-gray-500 transition-colors hover:text-primary focus-visible:text-primary dark:text-gray-400 focus:outline-none focus-visible:underline"
                   >
-                    {item}
+                    {item.label}
                   </Link>
                 </li>
               ))}

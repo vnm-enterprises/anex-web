@@ -124,7 +124,7 @@ export default function PopularLocations() {
               <Link
                 key={location.id}
                 href={`/rentals?location=${location.slug}`}
-                className="group relative aspect-[3/4] overflow-hidden rounded-2xl shadow-md"
+                className="group relative aspect-[3/4] overflow-hidden rounded-md shadow-md"
               >
                 <div className="absolute inset-0 z-10 bg-gradient-to-t from-black/80 via-black/30 to-transparent transition-opacity group-hover:opacity-90" />
 
