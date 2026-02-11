@@ -6,7 +6,7 @@ export default function Footer() {
 
   return (
     <footer
-      className="border-t border-[#e7f3ed] bg-white pt-16 pb-8 dark:border-white/10 dark:bg-background-dark"
+      className="border-t border-[#e7f3ed] bg-[#10b98107] pt-16 pb-8 dark:border-white/10 dark:bg-background-dark"
       role="contentinfo"
     >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -109,7 +109,7 @@ export default function Footer() {
         {/* Bottom */}
         <div className="border-t border-gray-100 pt-8 text-center dark:border-white/10">
           <p className="text-sm text-gray-400">
-            © {year} anex.lk. All rights reserved.
+            © {year} annex.lk. All rights reserved.
           </p>
         </div>
       </div>

@@ -2,6 +2,11 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import AuthHydrator from "@/components/common/AuthHydrator";
+import GoogleProviders from "@/providers/google-providers";
+import Script from "next/script";
+import "leaflet/dist/leaflet.css";
+import ScrollToTopButton from "@/components/common/AccessNavBar";
+
 
 const inter = Inter({
   variable: "--font-geist-sans",
@@ -10,16 +15,16 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: {
-    default: "anex.lk – Find your perfect home",
-    template: "%s | anex.lk",
+    default: "annex.lk – Find your perfect home",
+    template: "%s | annex.lk",
   },
   description:
-    "Find annexes, rooms, houses and short stays for rent across Sri Lanka. Search by city, town or property ID on anex.lk.",
+    "Find annexes, rooms, houses and short stays for rent across Sri Lanka. Search by city, town or property ID on annex.lk.",
 
-  applicationName: "anex.lk",
+  applicationName: "annex.lk",
 
   keywords: [
-    "anex.lk",
+    "annex.lk",
     "annex for rent Sri Lanka",
     "rooms for rent Sri Lanka",
     "houses for rent Sri Lanka",
@@ -29,9 +34,9 @@ export const metadata: Metadata = {
     "property rental Sri Lanka",
   ],
 
-  authors: [{ name: "anex.lk" }],
-  creator: "anex.lk",
-  publisher: "anex.lk",
+  authors: [{ name: "annex.lk" }],
+  creator: "annex.lk",
+  publisher: "annex.lk",
 
   robots: {
     index: true,
@@ -46,32 +51,31 @@ export const metadata: Metadata = {
   },
 
   alternates: {
-    canonical: "https://anex.lk",
+    canonical: "https://annex.lk",
   },
 
   openGraph: {
     type: "website",
-    url: "https://anex.lk",
-    title: "anex.lk – Find your perfect home",
+    url: "https://annex.lk",
+    title: "annex.lk – Find your perfect home",
     description:
       "Find annexes, rooms and houses for rent across Sri Lanka. Simple, fast and trusted.",
-    siteName: "anex.lk",
+    siteName: "annex.lk",
     images: [
       {
-        url: "https://anex.lk/og-image.png",
+        url: "https://annex.lk/og-image.png",
         width: 1200,
         height: 630,
-        alt: "anex.lk – Property rentals in Sri Lanka",
+        alt: "annex.lk – Property rentals in Sri Lanka",
       },
     ],
   },
 
   twitter: {
     card: "summary_large_image",
-    title: "anex.lk – Find your perfect home",
-    description:
-      "Find annexes, rooms and houses for rent across Sri Lanka.",
-    images: ["https://anex.lk/og-image.png"],
+    title: "annex.lk – Find your perfect home",
+    description: "Find annexes, rooms and houses for rent across Sri Lanka.",
+    images: ["https://annex.lk/og-image.png"],
   },
 
   category: "real estate",
@@ -88,7 +92,9 @@ export default function RootLayout({
         className={`${inter.variable} bg-[#f8fcfa] text-[#0d1b14] bg-background-light dark:bg-background-dark font-display text-text-main antialiased selection:bg-primary selection:text-black`}
       >
         <AuthHydrator />
-        {children}
+        <GoogleProviders> {children}
+            <ScrollToTopButton />
+           </GoogleProviders>
       </body>
     </html>
   );

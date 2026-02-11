@@ -1,14 +1,20 @@
+
 "use client";
 
 import { useEffect } from "react";
 import { useAuthStore } from "@/store/auth";
 
 export default function AuthHydrator() {
-  const hydrate = useAuthStore((s) => s.hydrate);
+  const hydrateUser = useAuthStore((state) => state.hydrateUser);
+  const loading = useAuthStore((state) => state.loading);
 
   useEffect(() => {
-    hydrate();
-  }, [hydrate]);
+    if (typeof window !== "undefined") {
+      hydrateUser();
+    }
+  }, [hydrateUser]);
+
+  if (loading) return null;
 
   return null;
 }
