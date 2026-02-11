@@ -99,7 +99,7 @@ export default function FeaturedListings() {
   }, []);
 
   return (
-    <section className="relative mt-30 py-10 md:py-10">
+    <section className="relative py-10 md:py-10">
         {/* Decorative gradient blobs */}
           {/* <div className="absolute bottom-0 right-0 translate-x-1/2 translate-y-1/2 h-64 w-64 rounded-full bg-primary/30 blur-3xl" /> */}
 
@@ -107,17 +107,17 @@ export default function FeaturedListings() {
         {/* Header */}
         <div className="mb-12 flex items-end justify-between">
           <div>
-            <h2 className="text-3xl font-bold tracking-tight text-text-main dark:text-white sm:text-4xl">
+            <h2 className="text-3xl font-bold tracking-tight text-text-main sm:text-4xl">
               Featured Listings
             </h2>
-            <p className="mt-2 text-lg text-text-secondary dark:text-gray-400">
+            <p className="mt-2 text-lg text-text-secondary ">
               Handpicked properties curated for you.
             </p>
           </div>
 
           <Link
             href="/rentals"
-            className="hidden sm:flex items-center gap-2 text-sm font-bold text-text-primary hover:text-primary-dark transition-colors"
+            className="hidden sm:flex items-center border border-slate-400 py-2 px-4 rounded-full gap-2 text-sm font-bold text-text-primary hover:text-primary-dark transition-colors"
           >
             View All
             <ArrowRight size={18} />
@@ -130,7 +130,7 @@ export default function FeaturedListings() {
             {[...Array(3)].map((_, i) => (
               <div
                 key={i}
-                className="h-[360px] rounded-2xl bg-background-light dark:bg-surface-dark animate-pulse border border-border-color dark:border-white/10"
+                className="h-[360px] rounded-2xl bg-background-light  animate-pulse border border-border-color "
               />
             ))}
           </div>
@@ -142,7 +142,7 @@ export default function FeaturedListings() {
             {listings.map((item) => (
               <div
                 key={item.id}
-                className="group relative flex flex-col overflow-hidden rounded-2xl bg-white shadow-sm transition-all hover:-translate-y-1 hover:shadow-xl dark:bg-[#1a2c24] border border-border-color dark:border-white/10"
+                className="group relative flex flex-col overflow-hidden rounded-md bg-[[#f8fafc]] shadow-sm transition-all hover:-translate-y-1 hover:shadow-xl dark:bg-[#1a2c24] border border-border-color dark:border-white/10"
               >
                 {/* Image */}
                 <div className="relative aspect-[4/3] overflow-hidden">
@@ -170,9 +170,9 @@ export default function FeaturedListings() {
                   </div>
 
                   {/* Wishlist */}
-                  <button className="absolute right-3 top-3 rounded-full bg-black/30 p-2 text-white backdrop-blur-sm hover:bg-black/50 transition-colors">
+                  {/* <button className="absolute right-3 top-3 rounded-full bg-black/30 p-2 text-white backdrop-blur-sm hover:bg-black/50 transition-colors">
                     <Heart size={18} />
-                  </button>
+                  </button> */}
                 </div>
 
                 {/* Content */}
@@ -189,7 +189,7 @@ export default function FeaturedListings() {
                     </div>
                   </div>
 
-                  <h3 className="mb-1 text-lg font-bold text-text-main dark:text-white line-clamp-1 group-hover:text-primary transition-colors">
+                  <h3 className="mb-1 text-lg font-bold text-text-main dark:text-white line-clamp-1  transition-colors">
                     {item.title}
                   </h3>
 

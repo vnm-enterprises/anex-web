@@ -4,7 +4,7 @@ export default function ListPropertyCTA() {
   return (
     <section className="py-16">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="relative overflow-hidden rounded-3xl bg-[#0d1b14] px-6 py-16 text-center shadow-2xl sm:px-12 sm:py-24">
+        <div className="relative overflow-hidden rounded-md bg-[#0d1b14] px-6 py-16 text-center shadow-2xl sm:px-12 sm:py-24">
           {/* Decorative gradient blobs */}
           <div className="absolute top-0 left-0 -translate-x-1/2 -translate-y-1/2 h-64 w-64 rounded-full bg-primary/20 blur-3xl" />
           <div className="absolute bottom-0 right-0 translate-x-1/2 translate-y-1/2 h-64 w-64 rounded-full bg-primary/20 blur-3xl" />
