@@ -1,10 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-// app/rentals/[slug]/ClientWrapper.tsx
 "use client";
 
 import dynamic from "next/dynamic";
-
-// Dynamically import client components
 const Gallery = dynamic(() => import("@/components/single-items/Gallery"), {
   ssr: false,
 });
@@ -34,7 +31,6 @@ const OwnerCard = dynamic(() => import("@/components/single-items/OwnerCard"), {
   ssr: false,
 });
 
-// 🔴 Named export fix
 const SimilarProperties = dynamic(
   () =>
     import("@/components/single-items/SimilarProperties").then(
@@ -49,10 +45,11 @@ interface ClientWrapperProps {
 
 export default function ClientWrapper({ property }: ClientWrapperProps) {
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20 py-10">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-0">
       <Gallery
         propertyImages={property.propertyImages}
         surroundingImages={property.surroundingImages}
+        breadcumbtitle={property.title}
       />
 
       <div className="flex flex-col lg:flex-row gap-8 xl:gap-16">

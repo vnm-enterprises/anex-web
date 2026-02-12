@@ -1,4 +1,3 @@
-// components/single-items/GalleryModal.tsx
 "use client";
 
 import { X, Home, MapPin } from "lucide-react";
@@ -54,7 +53,7 @@ export default function GalleryModal({
                     key={`property-${i}`}
                     src={img}
                     alt={`Property photo ${i + 1}`}
-                    className="w-full h-64 object-cover rounded-xl hover:opacity-90 transition"
+                    className="w-full h-64 object-cover rounded-md hover:opacity-90 transition"
                     loading="lazy"
                   />
                 ))}
@@ -78,7 +77,7 @@ export default function GalleryModal({
                     key={`surrounding-${i}`}
                     src={img}
                     alt={`Surrounding photo ${i + 1}`}
-                    className="w-full h-64 object-cover rounded-xl hover:opacity-90 transition"
+                    className="w-full h-64 object-cover rounded-md hover:opacity-90 transition"
                     loading="lazy"
                   />
                 ))}

@@ -31,7 +31,7 @@ export default function PropertyCard({ property }: { property: Property }) {
 
   return (
     <Link href={`/rentals/${property.id}`}>
-      <div className="rounded-2xl overflow-hidden border border-gray-200 bg-white hover:shadow-lg transition dark:bg-surface-dark">
+      <div className="rounded-md overflow-hidden border border-gray-200 bg-white hover:shadow-lg transition dark:bg-surface-dark">
       {/* Image */}
       <div className="relative h-48">
         <img

@@ -28,9 +28,6 @@ export default function Reviews({ propertyId }: { propertyId: string }) {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
-  /* -------------------------------------------------------------------------- */
-  /*                               LOAD DATA                                    */
-  /* -------------------------------------------------------------------------- */
 
   useEffect(() => {
     const load = async () => {
@@ -46,22 +43,18 @@ export default function Reviews({ propertyId }: { propertyId: string }) {
         setLoading(false);
       }
 
-      // Optional (user might not be logged in)
       try {
         const userRes = await api.get(`/ratings/${propertyId}/user`);
         setUserRating(userRes.data.rating || 0);
         setComment(userRes.data.comment || "");
       } catch {
-        // ignore unauthenticated
+
       }
     };
 
     load();
   }, [propertyId]);
 
-  /* -------------------------------------------------------------------------- */
-  /*                              SUBMIT REVIEW                                 */
-  /* -------------------------------------------------------------------------- */
 
   const submitReview = async () => {
     if (!userRating) return;
@@ -74,7 +67,6 @@ export default function Reviews({ propertyId }: { propertyId: string }) {
         propertyId
       });
 
-      // Reload everything after submit
       const [reviewsRes, avgRes] = await Promise.all([
         api.get(`/ratings/${propertyId}`),
         api.get(`/ratings/${propertyId}/average`),
@@ -89,16 +81,12 @@ export default function Reviews({ propertyId }: { propertyId: string }) {
 
   if (loading) return null;
 
-  /* -------------------------------------------------------------------------- */
-  /*                                   UI                                       */
-  /* -------------------------------------------------------------------------- */
-
   return (
-    <section className="pt-12 border-t border-gray-100 dark:border-gray-800">
+    <section className="pt-12 border-t border-gray-100 ">
       {/* HEADER */}
       <div className="flex items-center gap-3 mb-6">
         <Star className="text-yellow-500 fill-yellow-500" />
-        <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+        <h3 className="text-xl font-bold text-gray-900 ">
           {average?.average?.toFixed(1) ?? "No ratings"}
           {average && (
             <span className="text-gray-500 font-normal text-base ml-2">
@@ -113,7 +101,7 @@ export default function Reviews({ propertyId }: { propertyId: string }) {
         {reviews.map((r) => (
           <div
             key={r.id}
-            className="bg-surface-light dark:bg-surface-dark border border-gray-200 dark:border-gray-700 rounded-xl p-5"
+            className="bg-surface-light dark:bg-surface-dark border border-gray-200 dark:border-gray-700 rounded-md p-5"
           >
             <div className="flex items-center gap-3 mb-2">
               <img
@@ -155,7 +143,7 @@ export default function Reviews({ propertyId }: { propertyId: string }) {
       </div>
 
       {/* ADD / UPDATE REVIEW */}
-      <div className="bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-6">
+      <div className="bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-md p-6">
         <h4 className="font-semibold mb-4 text-gray-900 dark:text-white">
           {userRating ? "Update your review" : "Leave a review"}
         </h4>
@@ -184,13 +172,13 @@ export default function Reviews({ propertyId }: { propertyId: string }) {
           value={comment}
           onChange={(e) => setComment(e.target.value)}
           placeholder="Share your experience (optional)"
-          className="w-full border border-gray-300 dark:border-gray-600 rounded-lg p-3 text-sm bg-white dark:bg-gray-800 mb-4"
+          className="w-full border border-gray-300 dark:border-gray-600 rounded-md p-3 text-sm bg-white dark:bg-gray-800 mb-4"
         />
 
         <button
           onClick={submitReview}
           disabled={submitting || !userRating}
-          className="px-5 py-2.5 rounded-lg bg-primary text-primary-content font-semibold disabled:opacity-50"
+          className="px-5 py-2.5 rounded-md bg-primary text-primary-content font-semibold disabled:opacity-50"
         >
           {submitting ? "Submitting..." : "Submit review"}
         </button>

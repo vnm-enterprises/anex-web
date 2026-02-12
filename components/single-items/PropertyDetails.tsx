@@ -1,10 +1,9 @@
-// components/single-items/PropertyDetails.tsx
 import { Bed, Bath, Ruler } from "lucide-react";
 
 interface PropertyDetailsProps {
   beds: number;
   baths: number;
-  area: number; // in sqft
+  area: number;
   description: string;
 }
 
@@ -44,8 +43,8 @@ function Feature({
   value: string;
 }) {
   return (
-    <div className="flex items-center gap-3 min-w-max">
-      <div className="p-2 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300">
+    <div className="flex items-center gap-3 min-w-max border px-4 py-1 rounded-md justify-between">
+      <div className="p-2 rounded-md bg-[#f8fcfa]  text-gray-700">
         {icon}
       </div>
       <div>

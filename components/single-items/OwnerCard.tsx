@@ -1,4 +1,3 @@
-// components/single-items/OwnerCard.tsx
 "use client";
 
 import { ArrowRight } from "lucide-react";
@@ -18,7 +17,7 @@ export default function OwnerCard({
   const joinedYear = joinedDate.getFullYear();
 
   return (
-    <div className="bg-surface-light dark:bg-surface-dark rounded-2xl border border-gray-200 dark:border-gray-700 p-5 flex items-center gap-4">
+    <div className="bg-surface-light dark:bg-surface-dark rounded-md border border-gray-200 dark:border-gray-700 p-5 flex items-center gap-4">
       {/* Avatar */}
       <div className="relative shrink-0">
         <img

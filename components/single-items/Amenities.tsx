@@ -1,4 +1,3 @@
-// components/single-items/Amenities.tsx
 "use client";
 
 import {
@@ -24,35 +23,29 @@ interface AmenitiesProps {
   amenities: Amenity[];
 }
 
-/* -------------------------------------------------------------------------- */
-/*                         ICON + LABEL NORMALIZATION                          */
-/* -------------------------------------------------------------------------- */
 
-const amenityUIMap: Record<
-  string,
-  { icon: React.ReactNode; label?: string }
-> = {
-  wifi: { icon: <Wifi size={16} />, label: "Wi-Fi" },
-  ac: { icon: <Snowflake size={16} />, label: "Air Conditioning" },
-  bike_parking: { icon: <Bike size={16} />, label: "Bike Parking" },
-  hot_water: { icon: <Flame size={16} />, label: "Hot Water" },
-  cctv: { icon: <Video size={16} />, label: "CCTV Security" },
-  coffee: { icon: <Coffee size={16} />, label: "Coffee Maker" },
-  parking: { icon: <ParkingCircle size={16} />, label: "Car Parking" },
-  tv: { icon: <Tv size={16} />, label: "Smart TV" },
-  washing_machine: {
-    icon: <WashingMachine size={16} />,
-    label: "Washing Machine",
-  },
-  bins: { icon: <Trash2 size={16} />, label: "Waste Disposal" },
-};
+const amenityUIMap: Record<string, { icon: React.ReactNode; label?: string }> =
+  {
+    wifi: { icon: <Wifi size={16} />, label: "Wi-Fi" },
+    ac: { icon: <Snowflake size={16} />, label: "Air Conditioning" },
+    bike_parking: { icon: <Bike size={16} />, label: "Bike Parking" },
+    hot_water: { icon: <Flame size={16} />, label: "Hot Water" },
+    cctv: { icon: <Video size={16} />, label: "CCTV Security" },
+    coffee: { icon: <Coffee size={16} />, label: "Coffee Maker" },
+    parking: { icon: <ParkingCircle size={16} />, label: "Car Parking" },
+    tv: { icon: <Tv size={16} />, label: "Smart TV" },
+    washing_machine: {
+      icon: <WashingMachine size={16} />,
+      label: "Washing Machine",
+    },
+    bins: { icon: <Trash2 size={16} />, label: "Waste Disposal" },
+  };
 
-/* -------------------------------------------------------------------------- */
-/*                                   COMPONENT                                */
-/* -------------------------------------------------------------------------- */
+
 
 export default function Amenities({ amenities }: AmenitiesProps) {
   if (!amenities || amenities.length === 0) return null;
+  console.log(amenities);
 
   return (
     <section className="mb-12">
@@ -62,7 +55,7 @@ export default function Amenities({ amenities }: AmenitiesProps) {
 
       <div className="flex flex-wrap gap-3">
         {amenities.slice(0, 12).map((amenity) => {
-          const ui = amenityUIMap[amenity.id];
+          const ui = amenityUIMap[amenity.name];
 
           return (
             <div
@@ -70,14 +63,14 @@ export default function Amenities({ amenities }: AmenitiesProps) {
               className="
                 inline-flex items-center gap-2
                 px-3 py-2
-                rounded-full
-                bg-gray-100 dark:bg-gray-800
-                text-gray-700 dark:text-gray-300
+                rounded-md
+                bg-gray-50
+                text-gray-700
                 text-sm font-medium
                 border border-gray-200 dark:border-gray-700
               "
             >
-              <span className="text-primary">
+              <span className="text-primary font-bold">
                 {ui?.icon ?? <CheckCircle size={16} />}
               </span>
 

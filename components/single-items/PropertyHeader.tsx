@@ -1,4 +1,3 @@
-// components/single-items/PropertyHeader.tsx
 import { ShieldCheck } from "lucide-react";
 
 interface PropertyHeaderProps {
@@ -15,7 +14,7 @@ export default function PropertyHeader({
   isVerified,
 }: PropertyHeaderProps) {
   return (
-    <div className="mb-6">
+    <div className="mb-2">
       <div className="flex items-center gap-3 mb-1">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
           {title}

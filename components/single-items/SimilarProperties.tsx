@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import SimilarPropertyCard from "./SimilarPropertyCard";
 import api from "@/lib/api";
 import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 
 interface SimilarProperty {
   id: string;
@@ -50,21 +51,22 @@ export function SimilarProperties({
   if (loading || properties.length === 0) return null;
 
   return (
-    <section className="mt-20">
-      <div className="flex items-center justify-between mb-6">
-        <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+    <section className="my-10">
+      <div className="flex items-center justify-between">
+        <h3 className="text-xl font-bold text-gray-900 dark:text-white my-4">
           Similar properties you may like
         </h3>
 
         <Link
           href="/rentals"
-          className="text-sm font-medium text-primary hover:underline"
+          className="text-sm flex gap-3 font-medium text-black hover:underline border border-slate-300 px-6 py-2 rounded-md"
         >
           View all
+          <ArrowRight size={18} className='text-black' />
         </Link>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 mb-6">
         {properties.map((property) => (
           <SimilarPropertyCard
             key={property.id}
@@ -72,9 +74,9 @@ export function SimilarProperties({
             title={property.title}
             location={property.location}
             price={property.price}
-            beds={property.bedrooms}       // ✅ FIXED
-            baths={property.bathrooms}     // ✅ FIXED
-            area={property.sizeSqft}       // ✅ FIXED
+            beds={property.bedrooms}
+            baths={property.bathrooms}
+            area={property.sizeSqft}
             image={property.propertyImages?.[0] || "/placeholder.jpg"}
           />
         ))}

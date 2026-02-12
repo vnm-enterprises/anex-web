@@ -1,4 +1,3 @@
-// components/single-items/SimilarPropertyCard.tsx
 import { Bath, Bed, MapPin, Ruler } from "lucide-react";
 import Link from "next/link";
 
@@ -8,11 +7,11 @@ export default function SimilarPropertyCard({
   id,
   title,
   location,
-  price,        // now: number (e.g., 35000)
+  price,
   image,
   beds,
   baths,
-  area,         // now: number (e.g., 650)
+  area,
 }: {
   id: string;
   title: string;
@@ -23,11 +22,11 @@ export default function SimilarPropertyCard({
   baths: number;
   area: number;
 }) {
-  // Generate SEO-friendly slug (matches your page route logic)
+
   const slug = `${id}`;
 
   return (
-    <div className="group bg-surface-light dark:bg-surface-dark rounded-xl overflow-hidden border border-gray-100 dark:border-gray-800 hover:shadow-lg transition">
+    <div className="group bg-s[#ffffff] rounded-md overflow-hidden border border-gray-100 dark:border-gray-800 hover:shadow-lg transition">
       {/* Image */}
       <div className="relative aspect-[4/3] overflow-hidden">
         <img
@@ -39,8 +38,8 @@ export default function SimilarPropertyCard({
       </div>
 
       {/* Content */}
-      <div className="p-4 flex flex-col h-full">
-        <h4 className="font-bold text-gray-900 dark:text-white leading-tight mb-1 line-clamp-2">
+      <div className="p-4 flex flex-col h-full bg-[#f1f1f1]">
+        <h4 className="font-bold text-gray-900  leading-tight mb-1 line-clamp-2">
           {title}
         </h4>
 

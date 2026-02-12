@@ -185,22 +185,22 @@ export default function AdsCarousel() {
   /* ------------------------------- UI ------------------------------- */
 
   return (
-    <section className="mb-8">
-      <div className="relative overflow-hidden rounded-2xl shadow-lg">
+    <section className="mb-8 min-h-[600px]">
+      <div className="relative overflow-hidden rounded-none shadow-lg">
         {/* Slides */}
         <div
-          className="flex transition-transform duration-700 ease-in-out"
+          className="flex transition-transform duration-700 ease-in-out min-h-[600px]"
           style={{ transform: `translateX(-${index * 100}%)` }}
         >
           {ads.map((p) => (
-            <div key={p.id} className="relative min-w-full h-64 md:h-72">
+            <div key={p.id} className="relative min-w-full h-64 md:h-[600px]">
               <img
                 src={p.propertyImages?.[0] || "/placeholder.jpg"}
                 alt={p.title}
-                className="w-full h-full object-cover"
+                className="w-full h-full min-h-[600px] object-cover"
               />
 
-              <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-transparent flex flex-col justify-center px-8">
+              <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-transparent flex flex-col justify-center px-20">
                 <span className="mb-2 w-fit rounded-full bg-primary px-3 py-1 text-xs font-bold text-black">
                   Featured
                 </span>

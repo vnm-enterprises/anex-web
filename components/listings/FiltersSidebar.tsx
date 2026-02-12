@@ -24,16 +24,16 @@ const PROPERTY_TYPES = [
   { label: "Room / Boarding", value: "ROOM" },
 ];
 
-const PREDEFINED_AMENITIES = [
-  { id: "wifi", name: "Wi-Fi" },
-  { id: "ac", name: "Air Conditioning" },
-  { id: "parking", name: "Parking" },
-  { id: "kitchen", name: "Kitchen" },
-  { id: "furnished", name: "Furnished" },
-  { id: "hot_water", name: "Hot Water" },
-  { id: "private_entrance", name: "Private Entrance" },
-  { id: "attached_bathroom", name: "Attached Bathroom" },
-];
+// const PREDEFINED_AMENITIES = [
+//   { id: "wifi", name: "Wi-Fi" },
+//   { id: "ac", name: "Air Conditioning" },
+//   { id: "parking", name: "Parking" },
+//   { id: "kitchen", name: "Kitchen" },
+//   { id: "furnished", name: "Furnished" },
+//   { id: "hot_water", name: "Hot Water" },
+//   { id: "private_entrance", name: "Private Entrance" },
+//   { id: "attached_bathroom", name: "Attached Bathroom" },
+// ];
 
 /* -------------------------------------------------------------------------- */
 /*                                COMPONENT                                   */
@@ -57,14 +57,14 @@ export default function FiltersSidebar({
   /*                                 HELPERS                                  */
   /* ------------------------------------------------------------------------ */
 
-  const toggleAmenity = (id: string) => {
-    setFilters((prev) => ({
-      ...prev,
-      amenities: prev.amenities.includes(id)
-        ? prev.amenities.filter((a: any) => a !== id)
-        : [...prev.amenities, id],
-    }));
-  };
+  // const toggleAmenity = (id: string) => {
+  //   setFilters((prev) => ({
+  //     ...prev,
+  //     amenities: prev.amenities.includes(id)
+  //       ? prev.amenities.filter((a: any) => a !== id)
+  //       : [...prev.amenities, id],
+  //   }));
+  // };
 
   const applyFilters = () => {
     const payload: Record<string, any> = {};
@@ -95,7 +95,7 @@ export default function FiltersSidebar({
   /* ------------------------------------------------------------------------ */
 
   return (
-    <aside className="rounded-2xl border bg-white p-5 shadow-sm">
+    <aside className="rounded-md border bg-white p-5 shadow-sm">
       {/* Header */}
       <div className="mb-6 flex items-center gap-2">
         <SlidersHorizontal size={18} />
@@ -118,7 +118,7 @@ export default function FiltersSidebar({
               setFilters({ ...filters, query: e.target.value })
             }
             placeholder="e.g. Nugegoda, Annex"
-            className="w-full rounded-xl border pl-9 pr-3 py-2 text-sm"
+            className="w-full rounded-md border pl-9 pr-3 py-2 text-sm"
           />
         </div>
       </div>
@@ -136,7 +136,7 @@ export default function FiltersSidebar({
             onChange={(e) =>
               setFilters({ ...filters, minPrice: e.target.value })
             }
-            className="rounded-xl border p-2 text-sm"
+            className="rounded-md border p-2 text-sm"
           />
           <input
             type="number"
@@ -145,7 +145,7 @@ export default function FiltersSidebar({
             onChange={(e) =>
               setFilters({ ...filters, maxPrice: e.target.value })
             }
-            className="rounded-xl border p-2 text-sm"
+            className="rounded-md border p-2 text-sm"
           />
         </div>
       </div>
@@ -160,7 +160,7 @@ export default function FiltersSidebar({
           onChange={(e) =>
             setFilters({ ...filters, propertyType: e.target.value })
           }
-          className="mt-1 w-full rounded-xl border p-2 text-sm"
+          className="mt-1 w-full rounded-md border p-2 text-sm"
         >
           {PROPERTY_TYPES.map((t) => (
             <option key={t.value} value={t.value}>
@@ -204,14 +204,14 @@ export default function FiltersSidebar({
       <div className="flex gap-2">
         <button
           onClick={applyFilters}
-          className="flex-1 rounded-xl bg-primary py-2 text-sm font-bold text-black"
+          className="flex-1 rounded-md bg-primary py-2 text-sm font-bold text-black"
         >
           Apply filters
         </button>
 
         <button
           onClick={resetFilters}
-          className="flex-1 rounded-xl border py-2 text-sm"
+          className="flex-1 rounded-md border py-2 text-sm"
         >
           Reset
         </button>
