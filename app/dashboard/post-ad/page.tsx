@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useState,  useEffect,  KeyboardEvent } from "react";
+import { useState, useEffect, KeyboardEvent, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
@@ -47,8 +47,10 @@ export default function AddPropertyPage() {
   const [uploading, setUploading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [amenities, setAmenities] = useState<{ id: string; name: string }[]>([]);
-  const [dynamicAmenities, setDynamicAmenities] = useState<string[]>([]); // Landlord-added
+  const [amenities, setAmenities] = useState<{ id: string; name: string }[]>(
+    [],
+  );
+  const [dynamicAmenities, setDynamicAmenities] = useState<string[]>([]);
   const [inputValue, setInputValue] = useState("");
 
   const [formData, setFormData] = useState({
@@ -82,13 +84,75 @@ export default function AddPropertyPage() {
     };
     loadAmenities();
   }, []);
+  const mapRefInstance = useRef<any>(null);
+  const markerRef = useRef<any>(null);
+
+  const forwardGeocode = async (query: string) => {
+    try {
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
+          query,
+        )}`,
+        {
+          headers: {
+            "Accept-Language": "en",
+          },
+        },
+      );
+
+      const data = await res.json();
+
+      if (data && data.length > 0) {
+        const lat = parseFloat(data[0].lat);
+        const lon = parseFloat(data[0].lon);
+
+        updateField("latitude", lat);
+        updateField("longitude", lon);
+
+        if (!mapRefInstance.current) return;
+
+        // 🔥 Move map
+        mapRefInstance.current.setView([lat, lon], 15);
+
+        const L = await import("leaflet");
+
+        // 🔥 If marker exists → move it
+        if (markerRef.current) {
+          markerRef.current.setLatLng([lat, lon]);
+        } else {
+          // 🔥 If no marker → create one
+          markerRef.current = L.marker([lat, lon], {
+            draggable: true,
+          })
+            .addTo(mapRefInstance.current)
+            .on("dragend", function () {
+              const pos = markerRef.current.getLatLng();
+              updateField("latitude", pos.lat);
+              updateField("longitude", pos.lng);
+            });
+        }
+      }
+    } catch (err) {
+      console.warn("Forward geocoding failed", err);
+    }
+  };
+
+  useEffect(() => {
+    if (!formData.location || currentStep !== 1) return;
+
+    const timer = setTimeout(() => {
+      forwardGeocode(formData.location);
+    }, 600);
+
+    return () => clearTimeout(timer);
+  }, [formData.location, currentStep]);
 
   // Initialize map
   useEffect(() => {
     if (typeof window === "undefined" || currentStep !== 1) return;
 
-    let map: any = null;
-    let marker: any = null;
+    // let map: any = null;
+    // let marker: any = null;
 
     const initMap = async () => {
       try {
@@ -97,9 +161,12 @@ export default function AddPropertyPage() {
         // Fix marker icons for Next.js
         delete (L.Icon.Default.prototype as any)._getIconUrl;
         L.Icon.Default.mergeOptions({
-          iconRetinaUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
-          iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
-          shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
+          iconRetinaUrl:
+            "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
+          iconUrl:
+            "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
+          shadowUrl:
+            "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
         });
 
         const mapElement = document.getElementById("property-map");
@@ -114,16 +181,20 @@ export default function AddPropertyPage() {
           initialZoom = 15;
         }
 
-        map = L.map(mapElement).setView(initialCenter, initialZoom);
+        mapRefInstance.current = L.map(mapElement).setView(
+          initialCenter,
+          initialZoom,
+        );
 
-        L.tileLayer('https://tile.openstreetmap.de/{z}/{x}/{y}.png', {
-          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        }).addTo(map);
+        L.tileLayer("https://tile.openstreetmap.de/{z}/{x}/{y}.png", {
+          attribution:
+            '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        }).addTo(mapRefInstance.current);
 
         const reverseGeocode = async (lat: number, lng: number) => {
           try {
             const res = await fetch(
-              `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`
+              `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`,
             );
             const data = await res.json();
             if (data.display_name) {
@@ -135,24 +206,30 @@ export default function AddPropertyPage() {
         };
 
         if (formData.latitude && formData.longitude) {
-          marker = L.marker([formData.latitude, formData.longitude], { draggable: true })
-            .addTo(map)
-            .on('dragend', function () {
-              const pos = marker.getLatLng();
+          markerRef.current = L.marker(
+            [formData.latitude, formData.longitude],
+            {
+              draggable: true,
+            },
+          )
+            .addTo(mapRefInstance.current)
+            .on("dragend", function () {
+              const pos = markerRef.current.getLatLng();
               updateField("latitude", pos.lat);
               updateField("longitude", pos.lng);
               reverseGeocode(pos.lat, pos.lng);
             });
         }
 
-        map.on('click', (e: any) => {
+        mapRefInstance.current.on("click", (e: any) => {
           const { lat, lng } = e.latlng;
-          if (marker) map.removeLayer(marker);
+          if (markerRef.current)
+            mapRefInstance.current.removeLayer(markerRef.current);
 
-          marker = L.marker([lat, lng], { draggable: true })
-            .addTo(map)
-            .on('dragend', function () {
-              const pos = marker.getLatLng();
+          markerRef.current = L.marker([lat, lng], { draggable: true })
+            .addTo(mapRefInstance.current)
+            .on("dragend", function () {
+              const pos = markerRef.current.getLatLng();
               updateField("latitude", pos.lat);
               updateField("longitude", pos.lng);
               reverseGeocode(pos.lat, pos.lng);
@@ -163,7 +240,7 @@ export default function AddPropertyPage() {
           reverseGeocode(lat, lng);
         });
 
-        setTimeout(() => map.invalidateSize(), 100);
+        setTimeout(() => mapRefInstance.current.invalidateSize(), 100);
       } catch (err) {
         console.error("Map init error:", err);
       }
@@ -172,9 +249,9 @@ export default function AddPropertyPage() {
     const timer = setTimeout(initMap, 100);
     return () => {
       clearTimeout(timer);
-      if (map) map.remove();
+      if (mapRefInstance.current) mapRefInstance.current.remove();
     };
-  }, [currentStep, formData.latitude, formData.longitude]);
+  }, [currentStep]);
 
   const updateField = (field: string, value: any) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -196,10 +273,10 @@ export default function AddPropertyPage() {
   };
 
   const removeDynamicAmenity = (amenity: string) => {
-    setDynamicAmenities(dynamicAmenities.filter(a => a !== amenity));
+    setDynamicAmenities(dynamicAmenities.filter((a) => a !== amenity));
     setFormData((prev) => ({
       ...prev,
-      amenities: prev.amenities.filter(a => a !== amenity),
+      amenities: prev.amenities.filter((a) => a !== amenity),
     }));
   };
 
@@ -251,7 +328,7 @@ export default function AddPropertyPage() {
           <div className="space-y-6">
             <h2 className="text-xl font-bold">The Basics</h2>
             <input
-              className="w-full px-4 py-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary focus:border-transparent"
+              className="w-full px-4 py-3 rounded-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary focus:border-transparent"
               placeholder="Property title (e.g. Spacious Annex in Nugegoda)"
               value={formData.title}
               onChange={(e) => updateField("title", e.target.value)}
@@ -278,34 +355,64 @@ export default function AddPropertyPage() {
               ))}
             </div>
             <div className="grid grid-cols-2 gap-6">
+              {/* Bedrooms & Bathrooms */}
               {[
-                { label: "Bedrooms", field: "bedrooms", value: formData.bedrooms },
-                { label: "Bathrooms", field: "bathrooms", value: formData.bathrooms },
-                { label: "Size (sqft)", field: "sizeSqft", value: formData.sizeSqft },
+                {
+                  label: "Bedrooms",
+                  field: "bedrooms",
+                  value: formData.bedrooms,
+                },
+                {
+                  label: "Bathrooms",
+                  field: "bathrooms",
+                  value: formData.bathrooms,
+                },
               ].map(({ label, field, value }) => (
                 <div key={label}>
                   <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
                     {label}
                   </label>
-                  <div className="flex items-center border border-gray-200 dark:border-gray-700 rounded-lg w-fit">
+
+                  <div className="flex items-center border border-gray-200 dark:border-gray-700 rounded-md w-fit">
                     <button
                       type="button"
-                      onClick={() => updateField(field, Math.max(1, value - 1))}
-                      className="px-4 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-l-lg"
+                      onClick={() => updateField(field, Math.max(0, value - 1))}
+                      className="px-4 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-l-md"
                     >
                       −
                     </button>
-                    <span className="w-10 text-center font-medium">{value}</span>
+
+                    <span className="w-10 text-center font-medium">
+                      {value}
+                    </span>
+
                     <button
                       type="button"
                       onClick={() => updateField(field, value + 1)}
-                      className="px-4 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-r-lg"
+                      className="px-4 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-r-md"
                     >
                       +
                     </button>
                   </div>
                 </div>
               ))}
+
+              {/* Size Input */}
+              <div>
+                <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
+                  Size (sqft)
+                </label>
+
+                <input
+                  type="number"
+                  min={0}
+                  value={formData.sizeSqft}
+                  onChange={(e) =>
+                    updateField("sizeSqft", Number(e.target.value) || 0)
+                  }
+                  className="w-full border border-gray-200 dark:border-gray-700 rounded-md px-4 py-2 bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-primary"
+                />
+              </div>
             </div>
           </div>
         );
@@ -315,7 +422,7 @@ export default function AddPropertyPage() {
           <div className="space-y-6">
             <h2 className="text-xl font-bold">Location</h2>
             <input
-              className="w-full px-4 py-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary focus:border-transparent"
+              className="w-full px-4 py-3 rounded-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary focus:border-transparent"
               placeholder="Area / City (e.g. Nugegoda, Colombo)"
               value={formData.location}
               onChange={(e) => updateField("location", e.target.value)}
@@ -338,7 +445,7 @@ export default function AddPropertyPage() {
           <div className="space-y-6">
             <h2 className="text-xl font-bold">Details & Amenities</h2>
             <textarea
-              className="w-full px-4 py-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
+              className="w-full px-4 py-3 rounded-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
               rows={5}
               placeholder="Describe your property... Mention nearby landmarks, transport, and what makes it special."
               value={formData.description}
@@ -375,7 +482,7 @@ export default function AddPropertyPage() {
                   onChange={(e) => setInputValue(e.target.value)}
                   onKeyDown={handleKeyDown}
                   placeholder="Type amenity and press Enter..."
-                  className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary focus:border-transparent"
+                  className="w-full px-4 py-2 rounded-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary focus:border-transparent"
                 />
                 <button
                   type="button"
@@ -428,66 +535,80 @@ export default function AddPropertyPage() {
           </div>
         );
 
-     case 3: // Photos
-  return (
-    <div className="space-y-8">
-      <h2 className="text-xl font-bold">Photos</h2>
+      case 3: // Photos
+        return (
+          <div className="space-y-8">
+            <h2 className="text-xl font-bold">Photos</h2>
 
-      {/* Property Images */}
-      <div className="border border-gray-200 dark:border-gray-700 rounded-2xl p-6 bg-gray-50/50 dark:bg-gray-800/30">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="font-semibold text-gray-900 dark:text-white">Property Photos</h3>
-          <span className="text-xs px-2 py-1 bg-primary/10 text-primary rounded-full">
-            Min. 3 required
-          </span>
-        </div>
+            {/* Property Images */}
+            <div className="border border-gray-200 dark:border-gray-700 rounded-2xl p-6 bg-gray-50/50 dark:bg-gray-800/30">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-semibold text-gray-900 dark:text-white">
+                  Property Photos
+                </h3>
+                <span className="text-xs px-2 py-1 bg-primary/10 text-primary rounded-full">
+                  Min. 3 required
+                </span>
+              </div>
 
-        <PhotoUploadZone
-          onUpload={(urls) =>
-            setFormData(prev => ({ ...prev, propertyImages: [...prev.propertyImages, ...urls] }))
-          }
-          maxFiles={10}
-          minFiles={3}
-          currentCount={formData.propertyImages.length}
-          error={error}
-          onRemove={(index) =>
-            setFormData(prev => ({
-              ...prev,
-              propertyImages: prev.propertyImages.filter((_, i) => i !== index)
-            }))
-          }
-          previews={formData.propertyImages}
-        />
-      </div>
+              <PhotoUploadZone
+                onUpload={(urls) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    propertyImages: [...prev.propertyImages, ...urls],
+                  }))
+                }
+                maxFiles={10}
+                minFiles={3}
+                currentCount={formData.propertyImages.length}
+                error={error}
+                onRemove={(index) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    propertyImages: prev.propertyImages.filter(
+                      (_, i) => i !== index,
+                    ),
+                  }))
+                }
+                previews={formData.propertyImages}
+              />
+            </div>
 
-      {/* Surrounding Images */}
-      <div className="border border-gray-200 dark:border-gray-700 rounded-2xl p-6 bg-gray-50/50 dark:bg-gray-800/30">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="font-semibold text-gray-900 dark:text-white">Surrounding Area</h3>
-          <span className="text-xs px-2 py-1 bg-primary/10 text-primary rounded-full">
-            Min. 2 required
-          </span>
-        </div>
+            {/* Surrounding Images */}
+            <div className="border border-gray-200 dark:border-gray-700 rounded-2xl p-6 bg-gray-50/50 dark:bg-gray-800/30">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-semibold text-gray-900 dark:text-white">
+                  Surrounding Area
+                </h3>
+                <span className="text-xs px-2 py-1 bg-primary/10 text-primary rounded-full">
+                  Min. 2 required
+                </span>
+              </div>
 
-        <PhotoUploadZone
-          onUpload={(urls) =>
-            setFormData(prev => ({ ...prev, surroundingImages: [...prev.surroundingImages, ...urls] }))
-          }
-          maxFiles={5}
-          minFiles={2}
-          currentCount={formData.surroundingImages.length}
-          error={error}
-          onRemove={(index) =>
-            setFormData(prev => ({
-              ...prev,
-              surroundingImages: prev.surroundingImages.filter((_, i) => i !== index)
-            }))
-          }
-          previews={formData.surroundingImages}
-        />
-      </div>
-    </div>
-  );
+              <PhotoUploadZone
+                onUpload={(urls) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    surroundingImages: [...prev.surroundingImages, ...urls],
+                  }))
+                }
+                maxFiles={5}
+                minFiles={2}
+                currentCount={formData.surroundingImages.length}
+                error={error}
+                onRemove={(index) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    surroundingImages: prev.surroundingImages.filter(
+                      (_, i) => i !== index,
+                    ),
+                  }))
+                }
+                previews={formData.surroundingImages}
+              />
+            </div>
+          </div>
+        );
 
       case 4: // Pricing
         return (
@@ -499,13 +620,17 @@ export default function AddPropertyPage() {
                   Monthly Rent (LKR)
                 </label>
                 <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">LKR</span>
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
+                    LKR
+                  </span>
                   <input
                     type="number"
-                    className="w-full pl-12 pr-4 py-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary focus:border-transparent"
+                    className="w-full pl-12 pr-4 py-3 rounded-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary focus:border-transparent"
                     placeholder="45000"
                     value={formData.price}
-                    onChange={(e) => updateField("price", Number(e.target.value))}
+                    onChange={(e) =>
+                      updateField("price", Number(e.target.value))
+                    }
                   />
                 </div>
               </div>
@@ -517,10 +642,12 @@ export default function AddPropertyPage() {
                   type="number"
                   min="0"
                   max="24"
-                  className="w-full px-4 py-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary focus:border-transparent"
+                  className="w-full px-4 py-3 rounded-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary focus:border-transparent"
                   placeholder="6"
                   value={formData.keymoney}
-                  onChange={(e) => updateField("keymoney", Number(e.target.value))}
+                  onChange={(e) =>
+                    updateField("keymoney", Number(e.target.value))
+                  }
                 />
               </div>
             </div>
@@ -544,7 +671,9 @@ export default function AddPropertyPage() {
             <ArrowLeft size={16} />
             Back to Dashboard
           </Link>
-          <h1 className="text-2xl font-bold hidden sm:block">List Your Property</h1>
+          <h1 className="text-2xl font-bold hidden sm:block">
+            List Your Property
+          </h1>
         </div>
 
         {/* Progress Bar */}
@@ -556,7 +685,10 @@ export default function AddPropertyPage() {
               style={{ width: `${(currentStep / (STEPS.length - 1)) * 100}%` }}
             />
             {STEPS.map((label, i) => (
-              <div key={label} className="flex flex-col items-center gap-2 z-10">
+              <div
+                key={label}
+                className="flex flex-col items-center gap-2 z-10"
+              >
                 <div
                   className={`size-8 rounded-full flex items-center justify-center font-bold text-sm
                     ${
@@ -581,7 +713,7 @@ export default function AddPropertyPage() {
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Form */}
           <div className="lg:w-2/3">
-            <div className="bg-surface-light dark:bg-surface-dark rounded-2xl border border-gray-200 dark:border-gray-700 p-6">
+            <div className="bg-white rounded-md border border-gray-200 dark:border-gray-700 p-6">
               {renderStep()}
 
               {/* Navigation */}
@@ -598,15 +730,35 @@ export default function AddPropertyPage() {
                 <div className="flex-1" />
                 <button
                   type="button"
-                  onClick={isLastStep ? handleSubmit : () => setCurrentStep(currentStep + 1)}
+                  onClick={
+                    isLastStep
+                      ? handleSubmit
+                      : () => setCurrentStep(currentStep + 1)
+                  }
                   disabled={submitting || uploading}
-                  className="px-6 py-2.5 bg-primary text-background-dark rounded-lg font-bold hover:bg-primary/90 active:scale-[0.98] transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-60 flex items-center gap-1"
+                  className="px-6 py-2.5 bg-primary text-background-dark rounded-md font-bold hover:bg-primary/90 active:scale-[0.98] transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-60 flex items-center gap-1"
                 >
                   {submitting ? (
                     <span className="flex items-center gap-1">
-                      <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      <svg
+                        className="animate-spin h-4 w-4"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        ></circle>
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        ></path>
                       </svg>
                       Publishing...
                     </span>
@@ -618,22 +770,28 @@ export default function AddPropertyPage() {
                 </button>
               </div>
 
-              {error && !uploading && <p className="mt-4 text-sm text-red-500 text-center">{error}</p>}
+              {error && !uploading && (
+                <p className="mt-4 text-sm text-red-500 text-center">{error}</p>
+              )}
             </div>
           </div>
 
           {/* Preview (Desktop Only) */}
           <div className="hidden lg:block lg:w-1/3">
             <div className="sticky top-24">
-              <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-5 shadow-sm">
+              <div className="bg-white dark:bg-gray-800 rounded-md border border-gray-200 dark:border-gray-700 p-5 shadow-sm">
                 <h3 className="font-semibold text-gray-900 dark:text-white flex items-center gap-2 mb-4">
                   <Eye size={16} className="text-gray-500" />
                   Live Preview
                 </h3>
                 <div className="space-y-4">
-                  <div className="aspect-video bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden">
+                  <div className="aspect-video bg-gray-100 dark:bg-gray-700 rounded-md overflow-hidden">
                     {formData.propertyImages[0] ? (
-                      <img src={formData.propertyImages[0]} alt="Preview" className="w-full h-full object-cover" />
+                      <img
+                        src={formData.propertyImages[0]}
+                        alt="Preview"
+                        className="w-full h-full object-cover"
+                      />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-gray-400 text-sm">
                         No property image
@@ -644,7 +802,8 @@ export default function AddPropertyPage() {
                     {formData.title || "Your property title"}
                   </h4>
                   <p className="text-primary font-bold">
-                    LKR {formData.price ? formData.price.toLocaleString() : "0"}/mo
+                    LKR {formData.price ? formData.price.toLocaleString() : "0"}
+                    /mo
                   </p>
                   <p className="text-sm text-gray-600 dark:text-gray-300">
                     {formData.location || "Colombo, Sri Lanka"}
@@ -652,13 +811,19 @@ export default function AddPropertyPage() {
                   {formData.amenities.length > 0 && (
                     <div className="flex flex-wrap gap-1">
                       {formData.amenities.slice(0, 3).map((id) => {
-                        const amenity = amenities.find(a => a.id === id);
+                        const amenity = amenities.find((a) => a.id === id);
                         return amenity ? (
-                          <span key={id} className="text-xs bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">
+                          <span
+                            key={id}
+                            className="text-xs bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded"
+                          >
                             {amenity.name}
                           </span>
                         ) : (
-                          <span key={id} className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded">
+                          <span
+                            key={id}
+                            className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded"
+                          >
                             {id}
                           </span>
                         );

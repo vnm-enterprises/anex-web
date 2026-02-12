@@ -23,7 +23,7 @@ export default function DashboardPage() {
   }, [isAuthenticated, loading, hydrateUser, router]);
 
   if (loading || !isAuthenticated) {
-    return null; // or <div>Loading...</div>
+    return null; 
   }
 
   return (

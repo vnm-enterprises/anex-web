@@ -32,9 +32,8 @@ export function SimilarProperties({
         const res = await api.get("/properties?limit=6&page=1");
         const all: SimilarProperty[] = res.data.properties;
 
-        //TODO change to not
         const filtered = all.filter(
-          (p) => p.id === currentPropertyId
+          (p) => p.id !== currentPropertyId
         );
 
         setProperties(filtered.slice(0, 3) || []);

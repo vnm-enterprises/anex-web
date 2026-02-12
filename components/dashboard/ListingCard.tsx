@@ -58,7 +58,6 @@ export default function ListingCard({
     router.push(`/rentals/${listing.id}`);
   };
 
-  // ✅ CORRECTED: Uses PATCH /properties/:id with { status } in body
   const updateStatus = async (status: "active" | "occupied") => {
     try {
       setLoading(true);
@@ -76,7 +75,7 @@ export default function ListingCard({
 
   const deleteListing = async () => {
     const confirmed = confirm(
-      "Are you sure you want to delete this listing? This action cannot be undone."
+      "Are you sure you want to delete this listing? This action cannot be undone.",
     );
     if (!confirmed) return;
 
@@ -98,93 +97,103 @@ export default function ListingCard({
   /* -------------------------------------------------------------------------- */
 
   return (
-    <div
-      className={`
-        relative
-        bg-white dark:bg-surface-dark
-        rounded-2xl border border-gray-200 dark:border-gray-700
-        transition-all duration-300
-        hover:shadow-lg hover:-translate-y-0.5
-        overflow-hidden
-        ${view === "list" ? "flex gap-5 p-5" : "p-4"}
-        shadow-sm
-      `}
-    >
+   <div
+  className={`
+    group relative overflow-hidden
+    rounded-md bg-white dark:bg-[#1a2c24]
+    border border-border-color dark:border-white/10
+    shadow-sm transition-all duration-300
+    hover:-translate-y-1 hover:shadow-xl
+    ${view === "list" ? "flex gap-5 p-5" : "flex flex-col"}
+  `}
+>
+
       {/* Copied Toast */}
       {showCopied && (
-        <div className="absolute top-4 right-4 z-50 bg-black/80 backdrop-blur-sm text-white text-xs px-3 py-2 rounded-lg shadow-lg">
+        <div className="absolute top-4 right-4 z-50 bg-black/80 text-white text-xs px-3 py-2 rounded-lg shadow-lg">
           URL copied to clipboard
         </div>
       )}
 
-      {/* Image */}
-      <div
-        className={`
-          relative rounded-xl overflow-hidden shrink-0
-          ${view === "list" ? "w-64 h-40" : "w-full h-48 mb-4"}
-          transition-transform duration-300 hover:scale-[1.02]
-        `}
-      >
+      {/* Image Section */}
+     <div
+  className={`
+    relative overflow-hidden rounded-md shrink-0
+    ${
+      view === "list"
+        ? "w-64 h-40"
+        : "aspect-[4/3]"
+    }
+  `}
+>
+
         <img
           src={coverImage}
           alt={listing.title}
-          className={`w-full h-full object-cover transition-opacity duration-300 ${
-            isOccupied ? "grayscale opacity-90" : "opacity-100"
+          className={`h-full w-full object-cover transition-transform duration-300 group-hover:scale-105 ${
+            isOccupied ? "grayscale opacity-90" : ""
           }`}
         />
 
-        {/* Status badge */}
+        {/* Gradient Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+
+        {/* Status Badge */}
         <span
-          className={`absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-semibold ${status.className} backdrop-blur-sm`}
+          className={`absolute top-3 left-3 px-3 py-1 rounded-md text-xs font-bold ${status.className}`}
         >
           {status.label}
         </span>
 
         {isOccupied && (
-          <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-            <span className="text-white font-bold tracking-wide text-lg drop-shadow">
+          <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+            <span className="text-white font-bold text-lg tracking-wide">
               OCCUPIED
             </span>
           </div>
         )}
       </div>
 
-      {/* Content */}
-      <div className="flex flex-col flex-1">
-        <div className="mb-3">
-          <h3 className="font-bold text-lg text-gray-900 dark:text-white line-clamp-1">
-            {listing.title}
-          </h3>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-            {listing.location}
-          </p>
-          <p className="mt-2 font-bold text-primary text-xl">
-            LKR {listing.price.toLocaleString()}
-            <span className="text-sm font-normal text-gray-500 dark:text-gray-400 ml-1">
-              / mo
-            </span>
-          </p>
-        </div>
+      {/* Content Section */}
+<div className={`flex flex-col flex-1 ${view === "list" ? "" : "p-5"}`}>
 
-        <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-2 mb-3">
+        {/* Price */}
+        <p className="text-xl font-bold text-primary">
+          LKR {listing.price.toLocaleString()}
+          <span className="text-sm text-gray-500"> /mo</span>
+        </p>
+
+        {/* Title */}
+        <h3 className="mt-1 text-lg font-bold text-text-main dark:text-white line-clamp-1">
+          {listing.title}
+        </h3>
+
+        {/* Location */}
+        <p className="mt-1 text-sm text-gray-500 line-clamp-1">
+          {listing.location}
+        </p>
+
+        {/* Description */}
+        <p className="mt-3 text-sm text-gray-600 dark:text-gray-300 line-clamp-2">
           {listing.description}
         </p>
 
+        {/* Divider */}
+        <div className="mt-auto pt-4 border-t border-border-color dark:border-white/10" />
+
         {/* Actions */}
-        <div className="mt-auto pt-2 flex flex-wrap gap-2">
+        <div className="mt-4 flex flex-wrap gap-2">
           <button
             onClick={copyUrl}
-            className="flex items-center gap-1.5 px-3 py-2 text-sm rounded-lg bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 transition-colors"
+            className="px-3 py-2 text-sm rounded-md bg-gray-100 hover:bg-gray-200 dark:bg-white/5 dark:hover:bg-white/10 transition"
           >
-            <LinkIcon size={14} />
             Copy URL
           </button>
 
           <button
             onClick={viewListing}
-            className="flex items-center gap-1.5 px-3 py-2 text-sm rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-900/50 transition-colors"
+            className="px-3 py-2 text-sm rounded-md bg-primary text-background-dark font-semibold hover:bg-primary/90 transition"
           >
-            <Eye size={14} />
             View
           </button>
 
@@ -193,18 +202,16 @@ export default function ListingCard({
               <button
                 disabled={loading}
                 onClick={() => updateStatus("occupied")}
-                className="flex items-center gap-1.5 px-3 py-2 text-sm rounded-lg bg-orange-50 text-orange-700 hover:bg-orange-100 dark:bg-orange-900/30 dark:text-orange-300 dark:hover:bg-orange-900/50 transition-colors"
+                className="px-3 py-2 text-sm rounded-md bg-orange-100 text-orange-800 hover:bg-orange-200 transition"
               >
-                <Home size={14} />
                 Mark Occupied
               </button>
 
               <button
                 disabled={loading}
                 onClick={deleteListing}
-                className="flex items-center gap-1.5 px-3 py-2 text-sm rounded-lg bg-red-50 text-red-700 hover:bg-red-100 dark:bg-red-900/30 dark:text-red-300 dark:hover:bg-red-900/50 transition-colors"
+                className="px-3 py-2 text-sm rounded-md bg-red-100 text-red-800 hover:bg-red-200 transition"
               >
-                <Trash2 size={14} />
                 Delete
               </button>
             </>
@@ -212,9 +219,8 @@ export default function ListingCard({
             <button
               disabled={loading}
               onClick={() => updateStatus("active")}
-              className="flex items-center gap-1.5 px-3 py-2 text-sm rounded-lg bg-indigo-50 text-indigo-700 hover:bg-indigo-100 dark:bg-indigo-900/30 dark:text-indigo-300 dark:hover:bg-indigo-900/50 transition-colors"
+              className="px-3 py-2 text-sm rounded-md bg-indigo-100 text-indigo-800 hover:bg-indigo-200 transition"
             >
-              <RotateCcw size={14} />
               Republish
             </button>
           )}

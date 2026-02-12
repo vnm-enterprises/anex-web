@@ -23,13 +23,17 @@ import ListingSuccessPopup from "./ListingSuccessPopup";
  * Note: The top navbar is currently commented out but can be re-enabled
  * if a persistent top navigation bar is needed in addition to the sidebar.
  */
-export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+export default function DashboardLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   /**
    * Controls the visibility of the profile drawer (slide-over panel).
    * Toggled by clicking the profile button in the sidebar.
    */
   const [profileOpen, setProfileOpen] = useState(false);
-    const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
+  const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
   const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
   const searchParams = useSearchParams();
   const listingId = searchParams.get("listingId");
@@ -54,21 +58,21 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         />
       </div>
 
-            {isEditProfileOpen && (
-              <EditProfileModal
-                isOpen={isEditProfileOpen}
-                onClose={() => setIsEditProfileOpen(false)}
-              />
-            )}
+      {isEditProfileOpen && (
+        <EditProfileModal
+          isOpen={isEditProfileOpen}
+          onClose={() => setIsEditProfileOpen(false)}
+        />
+      )}
 
-            {isChangePasswordOpen && (
-              <ChangePasswordModal
-                isOpen={isChangePasswordOpen}
-                onClose={() => setIsChangePasswordOpen(false)}
-              />
-            )}
+      {isChangePasswordOpen && (
+        <ChangePasswordModal
+          isOpen={isChangePasswordOpen}
+          onClose={() => setIsChangePasswordOpen(false)}
+        />
+      )}
 
-            {/* Success popup */}
+      {/* Success popup */}
       <ListingSuccessPopup listingId={listingId || undefined} />
     </div>
   );

@@ -36,7 +36,7 @@ export default function DashboardHeader() {
       {/* Right: Primary action button */}
       <button
         className="flex items-center gap-2 bg-primary hover:bg-primary/90
-                   text-gray-900 font-bold px-5 py-2.5 rounded-lg
+                   text-gray-900 font-bold px-5 py-2.5 rounded-md
                    shadow-lg shadow-primary/20
                    transition-all active:scale-95
                    self-start md:self-auto cursor-pointer"

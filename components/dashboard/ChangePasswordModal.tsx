@@ -72,7 +72,7 @@ export default function ChangePasswordModal({ isOpen, onClose }: ChangePasswordM
         />
 
         {/* Modal */}
-        <div className="relative w-full max-w-md rounded-lg bg-white dark:bg-gray-800 shadow-xl">
+        <div className="relative w-full max-w-md rounded-md bg-white dark:bg-gray-800 shadow-xl">
           <div className="px-6 pt-5 pb-4 sm:p-6">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-bold text-gray-900 dark:text-white">Change Password</h3>
@@ -115,7 +115,7 @@ export default function ChangePasswordModal({ isOpen, onClose }: ChangePasswordM
                     type="password"
                     value={currentPassword}
                     onChange={(e) => setCurrentPassword(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 focus:ring-2 focus:ring-primary focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 focus:ring-2 focus:ring-primary focus:border-transparent"
                     required
                   />
                 </div>
@@ -128,7 +128,7 @@ export default function ChangePasswordModal({ isOpen, onClose }: ChangePasswordM
                     type="password"
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 focus:ring-2 focus:ring-primary focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 focus:ring-2 focus:ring-primary focus:border-transparent"
                     required
                   />
                 </div>
@@ -141,7 +141,7 @@ export default function ChangePasswordModal({ isOpen, onClose }: ChangePasswordM
                     type="password"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 focus:ring-2 focus:ring-primary focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 focus:ring-2 focus:ring-primary focus:border-transparent"
                     required
                   />
                 </div>
@@ -152,14 +152,14 @@ export default function ChangePasswordModal({ isOpen, onClose }: ChangePasswordM
                   <button
                     type="button"
                     onClick={onClose}
-                    className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                    className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={loading}
-                    className="px-4 py-2 bg-primary text-background-dark rounded-lg font-medium hover:bg-primary/90 disabled:opacity-60 transition-colors"
+                    className="px-4 py-2 bg-primary text-background-dark rounded-md font-medium hover:bg-primary/90 disabled:opacity-60 transition-colors"
                   >
                     {loading ? "Updating..." : "Update Password"}
                   </button>
