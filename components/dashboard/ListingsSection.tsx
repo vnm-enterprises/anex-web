@@ -155,7 +155,7 @@ export default function ListingsSection() {
     <section className="space-y-4">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-bold flex items-center gap-2">
+        <h2 className="text-2xl font-bold flex items-center gap-2">
           <Landmark size={20} className="text-primary" />
           My Listings
         </h2>
@@ -170,7 +170,7 @@ export default function ListingsSection() {
         <div
           className={
             view === "grid"
-              ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
+              ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
               : "space-y-4"
           }
         >
