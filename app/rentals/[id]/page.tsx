@@ -69,14 +69,14 @@ export default async function RentalPage(
   }
 
   return (
-    <>
+    <div className="bg-[#ffffff]">
       <div className=" w-full">
         <Navbar />
       </div>
-      <main className="bg-background-light pt-10">
+      <main className="">
         <ClientWrapper property={property} />
       </main>
       <Footer />
-    </>
+    </div>
   );
 }
