@@ -23,6 +23,8 @@ export default function EditProfileModal({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
@@ -84,7 +86,7 @@ const handleSubmit = async (e: React.FormEvent) => {
         />
 
         {/* Modal */}
-        <div className="relative w-full max-w-lg rounded-lg bg-white dark:bg-gray-800 shadow-xl">
+        <div className="relative w-full max-w-lg rounded-md bg-white dark:bg-gray-800 shadow-xl">
           <div className="px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-bold">Edit Profile</h3>
@@ -127,7 +129,7 @@ const handleSubmit = async (e: React.FormEvent) => {
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700"
                   required
                 />
               </div>
@@ -139,7 +141,7 @@ const handleSubmit = async (e: React.FormEvent) => {
                   type="text"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700"
                 />
               </div>
 
@@ -156,7 +158,7 @@ const handleSubmit = async (e: React.FormEvent) => {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="px-4 py-2 bg-primary text-background-dark rounded-lg font-medium"
+                  className="px-4 py-2 bg-primary text-background-dark rounded-md font-medium"
                 >
                   {loading ? "Saving..." : "Save Changes"}
                 </button>
