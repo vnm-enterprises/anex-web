@@ -70,7 +70,7 @@ export default function LocationMap({
     <section className="mb-10">
       <h3 className="text-xl font-bold mb-4">Location</h3>
 
-      <div className="relative h-[360px] rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-700">
+      <div className="relative h-[360px] rounded-md overflow-hidden border border-gray-200 dark:border-gray-700">
         <div ref={mapRef} className="w-full h-full" />
 
         {/* Overlay Button */}
