@@ -9,6 +9,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import api from "@/lib/api";
 import Link from "next/link";
 import { useAuthStore } from "@/store";
+import GoogleButton from "./GoogleButton";
 
 /**
  * Login form component for email/password authentication.
@@ -146,13 +147,8 @@ export default function LoginForm() {
               <div className="flex-1 h-px bg-slate-200" />
             </div>
 
-            <button
-              type="button"
-              className="w-full h-12 border rounded-lg flex items-center justify-center gap-3"
-            >
-              <FaGoogle />
-              Sign in with Google
-            </button>
+
+              <GoogleButton />
           </form>
 
           {/* Only show "session expired" — verified flow no longer lands here */}

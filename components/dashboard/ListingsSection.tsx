@@ -7,6 +7,7 @@ import ViewToggle from "./ViewToggle";
 import ListingCard from "./ListingCard";
 import { Landmark } from "lucide-react";
 import api from "@/lib/api";
+import { useAuthStore } from "@/store";
 
 /* -------------------- */
 /* Listing data model   */
@@ -91,13 +92,14 @@ export default function ListingsSection() {
   const [listings, setListings] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { user } = useAuthStore();
 
   /**
    * Fetches user's listings from the backend.
    */
   const fetchListings = async () => {
     try {
-      const res = await api.get("/properties");
+      const res = await api.get(`/properties?id=${user?.id}`);
       console.info(res.data);
       setListings(res.data.properties || []);
     } catch (err: any) {
