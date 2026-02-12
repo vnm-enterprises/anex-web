@@ -1,4 +1,3 @@
-// components/single-items/PricingCard.tsx
 "use client";
 
 import { Phone, MessageCircle, Calendar, Lock } from "lucide-react";
@@ -25,7 +24,7 @@ export default function PricingCard({
       : null;
 
   return (
-    <div className="sticky top-24 bg-white dark:bg-surface-dark rounded-2xl border border-gray-200 dark:border-gray-700 p-6 z-30">
+    <div className="sticky top-4 bg-white dark:bg-surface-dark rounded-md border border-gray-200 dark:border-gray-700 p-6 z-30">
       {/* Price */}
       <div className="mb-5">
         <p className="text-3xl font-bold text-gray-900 dark:text-white">
@@ -56,7 +55,7 @@ export default function PricingCard({
         {landlordPhone ? (
           <button
             onClick={() => setShowPhone(true)}
-            className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-primary text-black font-bold transition hover:opacity-90"
+            className="w-full flex items-center justify-center gap-2 py-3 rounded-md bg-primary text-black font-bold transition hover:opacity-90"
           >
             <Phone size={18} />
             {showPhone ? landlordPhone : "Show phone number"}
@@ -71,7 +70,7 @@ export default function PricingCard({
             href={whatsappLink}
             target="_blank"
             rel="noopener noreferrer"
-            className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border border-primary/30 hover:bg-primary/5 transition"
+            className="w-full flex items-center justify-center gap-2 py-3 rounded-md border border-primary/30 hover:bg-primary/5 transition"
           >
             <MessageCircle size={18} />
             Chat on WhatsApp
@@ -107,7 +106,7 @@ function DisabledButton({
   return (
     <button
       disabled
-      className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-400 cursor-not-allowed"
+      className="w-full flex items-center justify-center gap-2 py-3 rounded-md bg-gray-100 dark:bg-gray-800 text-gray-400 cursor-not-allowed"
     >
       {icon}
       {label}
