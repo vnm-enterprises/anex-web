@@ -200,7 +200,7 @@ export default function AdsCarousel() {
                 className="w-full h-full min-h-[600px] object-cover"
               />
 
-              <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-transparent flex flex-col justify-center px-8">
+              <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-transparent flex flex-col justify-center px-20">
                 <span className="mb-2 w-fit rounded-full bg-primary px-3 py-1 text-xs font-bold text-black">
                   Featured
                 </span>
