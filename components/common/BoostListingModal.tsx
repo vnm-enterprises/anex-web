@@ -11,22 +11,22 @@ export default function BoostListingModal({ propertyId }: { propertyId: string }
   const [loading, setLoading] = useState(false);
 
   const handlePayHere = async () => {
-    try {
-      setLoading(true);
+    // try {
+    //   setLoading(true);
 
-      const res = await api.post("/payments/boost", {
-        propertyId,
-        tier,
-        durationDays: days,
-      });
+    //   const res = await api.post("/payments/boost", {
+    //     propertyId,
+    //     tier,
+    //     durationDays: days,
+    //   });
 
-      submitToPayHere(res.data.payhere);
-    } catch (err) {
-      alert("Payment initialization failed");
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
+    //   submitToPayHere(res.data.payhere);
+    // } catch (err) {
+    //   alert("Payment initialization failed");
+    //   console.error(err);
+    // } finally {
+    //   setLoading(false);
+    // }
   };
 
   return (
