@@ -63,9 +63,11 @@ interface AuthState {
    * Safe to call even if already logged out.
    */
   logout: () => Promise<void>;
+
+  loginWithGoogle: (idToken: string) => Promise<void>;
 }
 
-export const useAuthStore = create<AuthState>((set) => ({
+export const useAuthStore = create<AuthState>((set, get) => ({
   user: null,
   isAuthenticated: false,
   loading: true,
@@ -94,6 +96,21 @@ export const useAuthStore = create<AuthState>((set) => ({
       console.warn("Logout API call failed (safe to ignore):", error);
     } finally {
       set({ user: null, isAuthenticated: false });
+    }
+  },
+
+  // 🚀 GOOGLE LOGIN IMPLEMENTATION
+  loginWithGoogle: async (idToken: string) => {
+    try {
+      // 1️⃣ Send token to backend
+      await api.post("/auth/google", { idToken });
+
+      // 2️⃣ Backend sets HTTP-only cookie
+      // 3️⃣ Now hydrate user to sync frontend state
+      await get().hydrateUser();
+    } catch (error) {
+      console.error("Google login failed", error);
+      throw error;
     }
   },
 }));
