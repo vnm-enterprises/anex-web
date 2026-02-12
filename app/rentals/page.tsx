@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-// app/rentals/page.tsx
+
 "use client";
 
 import { useEffect, useState } from "react";
@@ -52,7 +52,7 @@ export default function RentalsPage() {
     return { city, minPrice, maxPrice, type, gender, amenities, page };
   };
 
-  // app/rentals/page.tsx
+
 const fetchListings = async () => {
   setLoading(true);
   setError(null);
@@ -72,15 +72,13 @@ const fetchListings = async () => {
     const params = new URLSearchParams();
 
     if (hasFilters) {
-      // Use SEARCH endpoint
-      if (city) params.append("query", city); // Note: search uses "query", not "city"
+      if (city) params.append("query", city);
       if (minPrice !== undefined) params.append("minPrice", minPrice.toString());
       if (maxPrice !== undefined) params.append("maxPrice", maxPrice.toString());
       if (type) params.append("propertyType", type);
       if (amenities.length > 0) params.append("amenities", amenities.join(","));
-      // Note: your backend doesn't support "gender" filter yet
+
     } else {
-      // Use LIST endpoint
       params.append("page", page.toString());
       params.append("limit", "12");
     }
@@ -92,13 +90,11 @@ const fetchListings = async () => {
 
     const data = await res.json();
 
-    // Handle different response shapes
     if (hasFilters) {
-      // Search returns array directly
       setListings(Array.isArray(data) ? data : []);
-      setTotalPages(1); // Search doesn't paginate in your current impl
+      setTotalPages(1);
     } else {
-      // List returns { properties, totalPages }
+
       setListings(data.properties || []);
       setTotalPages(data.totalPages || 1);
     }
@@ -150,9 +146,9 @@ const fetchListings = async () => {
   return (
     <>
       <Navbar />
-
+      <AdsCarousel />
       <main className="my-2 max-w-7xl mx-auto px-4">
-        <AdsCarousel />
+
         <Breadcrumbs params={searchParams} />
 
         <div className="flex gap-8">
