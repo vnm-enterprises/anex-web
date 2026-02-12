@@ -2,7 +2,7 @@
 
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { ListingView } from "@/types/view";
 import FiltersSidebar from "@/components/listings/FiltersSidebar";
@@ -19,7 +19,7 @@ import { Property } from "@/types/Property";
 
 
 
-export default function RentalsPage() {
+export function RentalsPage() {
   const [view, setView] = useState<ListingView>("grid");
   const [listings, setListings] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
@@ -144,6 +144,7 @@ const fetchListings = async () => {
   }));
 
   return (
+
     <>
       <Navbar />
       <AdsCarousel />
@@ -218,4 +219,12 @@ const fetchListings = async () => {
       <Footer />
     </>
   );
+}
+
+export default function Page() {
+  return (
+         <Suspense fallback={<div>Loading...</div>}>
+          <RentalsPage />
+         </Suspense>
+  )
 }
