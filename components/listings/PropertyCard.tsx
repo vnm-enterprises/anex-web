@@ -53,10 +53,13 @@ export default function PropertyCard({ property }: { property: Property }) {
             {property.title}
           </h3>
 
-        <p className="mt-1 text-sm flex items-center gap-1 text-gray-500">
-          <MapPin size={14} />
-          {property.location}
-        </p>
+        <p className="mt-1 text-sm flex items-start gap-1 text-gray-500 line-clamp-2">
+  <MapPin size={14} className="mt-[2px] shrink-0" />
+  <span className="line-clamp-2">
+    {property.location}
+  </span>
+</p>
+
 
         {/* Beds / Baths */}
         <div className="mt-3 flex gap-4 text-sm text-gray-700">
