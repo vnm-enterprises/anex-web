@@ -3,7 +3,6 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import AuthHydrator from "@/components/common/AuthHydrator";
 import GoogleProviders from "@/providers/google-providers";
-import Script from "next/script";
 import "leaflet/dist/leaflet.css";
 import ScrollToTopButton from "@/components/common/AccessNavBar";
 
