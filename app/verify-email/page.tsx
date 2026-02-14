@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { CheckCircle, XCircle, RotateCcw } from "lucide-react";
@@ -15,7 +15,7 @@ import { useAuthStore } from "@/store";
  * - Shows success/error states
  * - Provides redirect to login after success
  */
-export default function VerifyEmailPage() {
+export  function VerifyEmailPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
@@ -125,4 +125,13 @@ export default function VerifyEmailPage() {
       </div>
     </div>
   );
+}
+
+
+export default function VerifyPage() {
+  return (
+    <Suspense fallback={<div>Loading ...</div>}>
+      <VerifyEmailPage />
+    </Suspense>
+  )
 }

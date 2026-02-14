@@ -11,22 +11,35 @@ export default function BoostListingModal({ propertyId }: { propertyId: string }
   const [loading, setLoading] = useState(false);
 
   const handlePayHere = async () => {
-    // try {
-    //   setLoading(true);
+    try {
+      setLoading(true);
 
-    //   const res = await api.post("/payments/boost", {
-    //     propertyId,
-    //     tier,
-    //     durationDays: days,
-    //   });
+      const paymentType = tier === "FEATURED" ? "FEATURE" : "BOOST";
+      const amountLkr = tier === "FEATURED" ? (days === 30 ? 15000 : 9000) : (days === 30 ? 7000 : days === 14 ? 4500 : 2500);
 
-    //   submitToPayHere(res.data.payhere);
-    // } catch (err) {
-    //   alert("Payment initialization failed");
-    //   console.error(err);
-    // } finally {
-    //   setLoading(false);
-    // }
+      const res = await api.post("/payments/checkout-session", {
+        type: paymentType,
+        amountLkr,
+        currency: "LKR",
+        listingId: propertyId,
+        metadata: {
+          listingId: propertyId,
+          durationDays: String(days),
+          tier,
+        },
+      });
+
+      if (res.data?.checkoutUrl) {
+        window.location.href = res.data.checkoutUrl as string;
+      } else {
+        alert("Payment initialization failed");
+      }
+    } catch (err) {
+      alert("Payment initialization failed");
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

@@ -1,0 +1,13 @@
+.git
+.gitignore
+.next
+node_modules
+coverage
+pnpm-store
+.env
+.env.*
+*.log
+.vscode
+.idea
+README.md
+commit_each.sh

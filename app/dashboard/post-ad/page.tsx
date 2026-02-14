@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import api from "@/lib/api";
 import PhotoUploadZone from "@/components/dashboard/PhotoUploadZone";
+import type { UploadedPhoto } from "@/components/dashboard/PhotoUploadZone";
 
 /**
  * Property listing creation page with full backend integration.
@@ -30,16 +31,9 @@ import PhotoUploadZone from "@/components/dashboard/PhotoUploadZone";
  * - Full Prisma model compatibility
  */
 
-const predefinedAmenities = [
-  { id: "wifi", name: "WiFi" },
-  { id: "ac", name: "Air Conditioning" },
-  { id: "parking", name: "Parking" },
-  { id: "kitchen", name: "Kitchen" },
-  { id: "furnished", name: "Furnished" },
-  { id: "hot_water", name: "Hot Water" },
-  { id: "private_entrance", name: "Private Entrance" },
-  { id: "attached_bathroom", name: "Attached Bathroom" },
-];
+type District = { id: number; name: string; slug: string };
+type City = { id: number; name: string; slug: string };
+type Amenity = { id: number; name: string; slug: string };
 
 export default function AddPropertyPage() {
   const router = useRouter();
@@ -47,9 +41,11 @@ export default function AddPropertyPage() {
   const [uploading, setUploading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [amenities, setAmenities] = useState<{ id: string; name: string }[]>(
-    [],
-  );
+  const [amenities, setAmenities] = useState<Amenity[]>([]);
+  const [districts, setDistricts] = useState<District[]>([]);
+  const [cities, setCities] = useState<City[]>([]);
+  const [showPaymentAfterPublish, setShowPaymentAfterPublish] = useState(false);
+  const [postPublishAction, setPostPublishAction] = useState<"NONE" | "BOOST" | "FEATURE">("NONE");
   const [dynamicAmenities, setDynamicAmenities] = useState<string[]>([]);
   const [inputValue, setInputValue] = useState("");
 
@@ -61,9 +57,18 @@ export default function AddPropertyPage() {
     sizeSqft: 800,
     location: "",
     description: "",
-    amenities: [] as string[],
+    amenities: [] as number[],
+    districtId: 0,
+    cityId: 0,
+    furnishedStatus: "SEMI_FURNISHED" as "FURNISHED" | "SEMI_FURNISHED" | "UNFURNISHED",
+    genderPreference: "ANY" as "ANY" | "MALE" | "FEMALE",
+    contactName: "",
+    contactPhone: "",
+    contactEmail: "",
     propertyImages: [] as string[],
+    propertyImageUploadIds: [] as string[],
     surroundingImages: [] as string[],
+    surroundingImageUploadIds: [] as string[],
     price: 0,
     keymoney: 0,
     latitude: null as number | null,
@@ -73,17 +78,48 @@ export default function AddPropertyPage() {
   const STEPS = ["Basics", "Location", "Details", "Photos", "Pricing"];
   const isLastStep = currentStep === STEPS.length - 1;
 
-  // Load predefined amenities on mount
+  // Load meta + user defaults
   useEffect(() => {
-    const loadAmenities = async () => {
+    const loadMeta = async () => {
       try {
-        setAmenities(predefinedAmenities);
+        const [amenitiesRes, districtsRes, meRes] = await Promise.all([
+          api.get<Amenity[]>("/meta/amenities"),
+          api.get<District[]>("/meta/districts"),
+          api.get<{ name: string | null; phone: string | null; email: string }>("/auth/me"),
+        ]);
+
+        setAmenities(amenitiesRes.data);
+        setDistricts(districtsRes.data);
+        setFormData((prev) => ({
+          ...prev,
+          contactName: meRes.data.name ?? "",
+          contactPhone: meRes.data.phone ?? "",
+          contactEmail: meRes.data.email ?? "",
+        }));
       } catch (err) {
-        console.error("Failed to load amenities", err);
+        console.error("Failed to load metadata", err);
       }
     };
-    loadAmenities();
+    void loadMeta();
   }, []);
+
+  useEffect(() => {
+    if (!formData.districtId) {
+      setCities([]);
+      return;
+    }
+
+    const loadCities = async () => {
+      try {
+        const res = await api.get<City[]>(`/meta/cities?districtId=${formData.districtId}`);
+        setCities(res.data);
+      } catch (err) {
+        console.error("Failed to load cities", err);
+      }
+    };
+
+    void loadCities();
+  }, [formData.districtId]);
   const mapRefInstance = useRef<any>(null);
   const markerRef = useRef<any>(null);
 
@@ -263,10 +299,6 @@ export default function AddPropertyPage() {
       const newAmenity = inputValue.trim();
       if (!dynamicAmenities.includes(newAmenity)) {
         setDynamicAmenities([...dynamicAmenities, newAmenity]);
-        setFormData((prev) => ({
-          ...prev,
-          amenities: [...prev.amenities, newAmenity],
-        }));
       }
       setInputValue("");
     }
@@ -274,10 +306,6 @@ export default function AddPropertyPage() {
 
   const removeDynamicAmenity = (amenity: string) => {
     setDynamicAmenities(dynamicAmenities.filter((a) => a !== amenity));
-    setFormData((prev) => ({
-      ...prev,
-      amenities: prev.amenities.filter((a) => a !== amenity),
-    }));
   };
 
   const handleSubmit = async () => {
@@ -290,6 +318,18 @@ export default function AddPropertyPage() {
       setError("At least 2 surrounding images are required");
       return;
     }
+    if (!formData.districtId || !formData.cityId) {
+      setError("District and city are required");
+      return;
+    }
+    if (!formData.contactName || !formData.contactPhone) {
+      setError("Contact name and phone are required");
+      return;
+    }
+    if ((formData.description || "").trim().length < 30) {
+      setError("Description must be at least 30 characters");
+      return;
+    }
 
     setSubmitting(true);
     setError(null);
@@ -298,22 +338,50 @@ export default function AddPropertyPage() {
       const payload = {
         title: formData.title.trim(),
         description: formData.description.trim(),
-        location: formData.location.trim(),
+        districtId: formData.districtId,
+        cityId: formData.cityId,
+        area: formData.location.trim(),
         latitude: formData.latitude,
         longitude: formData.longitude,
-        price: formData.price,
+        priceLkr: formData.price,
         propertyType: formData.propertyType,
-        bedrooms: formData.bedrooms,
-        bathrooms: formData.bathrooms,
-        sizeSqft: formData.sizeSqft,
-        keymoney: formData.keymoney,
-        propertyImages: formData.propertyImages,
-        surroundingImages: formData.surroundingImages,
-        amenities: formData.amenities.map((id) => ({ id })),
+        furnishedStatus: formData.furnishedStatus,
+        genderPreference: formData.genderPreference,
+        contactName: formData.contactName.trim(),
+        contactPhone: formData.contactPhone.trim(),
+        contactEmail: formData.contactEmail.trim() || undefined,
+        amenityIds: formData.amenities,
+        imageUploadIds: [...formData.propertyImageUploadIds, ...formData.surroundingImageUploadIds],
       };
 
-      await api.post("/properties", payload);
-      router.push("/dashboard?listing=created");
+      const res = await api.post("/listings", payload);
+      const createdListing = res.data?.listing;
+
+      if (!showPaymentAfterPublish || postPublishAction === "NONE" || !createdListing?.id) {
+        router.push("/dashboard?listing=created");
+        return;
+      }
+
+      const paymentType = postPublishAction === "FEATURE" ? "FEATURE" : "BOOST";
+      const amountLkr = postPublishAction === "FEATURE" ? 7500 : 3500;
+
+      const checkout = await api.post("/payments/checkout-session", {
+        type: paymentType,
+        amountLkr,
+        currency: "LKR",
+        listingId: createdListing.id,
+        metadata: {
+          listingId: createdListing.id,
+          action: postPublishAction,
+        },
+      });
+
+      const checkoutUrl = checkout.data?.checkoutUrl;
+      if (checkoutUrl) {
+        window.location.href = checkoutUrl;
+      } else {
+        router.push("/dashboard?listing=created&payment=failed_to_init");
+      }
     } catch (err: any) {
       setError(err.response?.data?.error || "Failed to create listing");
     } finally {
@@ -421,6 +489,39 @@ export default function AddPropertyPage() {
         return (
           <div className="space-y-6">
             <h2 className="text-xl font-bold">Location</h2>
+            <div className="grid sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">District</label>
+                <select
+                  value={formData.districtId || ""}
+                  onChange={(e) => {
+                    const districtId = Number(e.target.value);
+                    updateField("districtId", districtId);
+                    updateField("cityId", 0);
+                  }}
+                  className="w-full px-4 py-3 rounded-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800"
+                >
+                  <option value="">Select district</option>
+                  {districts.map((d) => (
+                    <option key={d.id} value={d.id}>{d.name}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">City</label>
+                <select
+                  value={formData.cityId || ""}
+                  onChange={(e) => updateField("cityId", Number(e.target.value))}
+                  disabled={!formData.districtId}
+                  className="w-full px-4 py-3 rounded-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 disabled:opacity-50"
+                >
+                  <option value="">Select city</option>
+                  {cities.map((c) => (
+                    <option key={c.id} value={c.id}>{c.name}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
             <input
               className="w-full px-4 py-3 rounded-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary focus:border-transparent"
               placeholder="Area / City (e.g. Nugegoda, Colombo)"
@@ -451,6 +552,33 @@ export default function AddPropertyPage() {
               value={formData.description}
               onChange={(e) => updateField("description", e.target.value)}
             />
+
+            <div className="grid sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Furnished Status</label>
+                <select
+                  value={formData.furnishedStatus}
+                  onChange={(e) => updateField("furnishedStatus", e.target.value)}
+                  className="w-full px-4 py-3 rounded-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800"
+                >
+                  <option value="FURNISHED">Furnished</option>
+                  <option value="SEMI_FURNISHED">Semi-furnished</option>
+                  <option value="UNFURNISHED">Unfurnished</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Gender Preference</label>
+                <select
+                  value={formData.genderPreference}
+                  onChange={(e) => updateField("genderPreference", e.target.value)}
+                  className="w-full px-4 py-3 rounded-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800"
+                >
+                  <option value="ANY">Any</option>
+                  <option value="MALE">Male</option>
+                  <option value="FEMALE">Female</option>
+                </select>
+              </div>
+            </div>
 
             {/* Dynamic Amenity Input */}
             <div>
@@ -491,10 +619,6 @@ export default function AddPropertyPage() {
                       const newAmenity = inputValue.trim();
                       if (!dynamicAmenities.includes(newAmenity)) {
                         setDynamicAmenities([...dynamicAmenities, newAmenity]);
-                        setFormData((prev) => ({
-                          ...prev,
-                          amenities: [...prev.amenities, newAmenity],
-                        }));
                         setInputValue("");
                       }
                     }
@@ -552,10 +676,11 @@ export default function AddPropertyPage() {
               </div>
 
               <PhotoUploadZone
-                onUpload={(urls) =>
+                onUpload={(photos: UploadedPhoto[]) =>
                   setFormData((prev) => ({
                     ...prev,
-                    propertyImages: [...prev.propertyImages, ...urls],
+                    propertyImages: [...prev.propertyImages, ...photos.map((p) => p.url)],
+                    propertyImageUploadIds: [...prev.propertyImageUploadIds, ...photos.map((p) => p.uploadId)],
                   }))
                 }
                 maxFiles={10}
@@ -568,6 +693,7 @@ export default function AddPropertyPage() {
                     propertyImages: prev.propertyImages.filter(
                       (_, i) => i !== index,
                     ),
+                    propertyImageUploadIds: prev.propertyImageUploadIds.filter((_, i) => i !== index),
                   }))
                 }
                 previews={formData.propertyImages}
@@ -586,10 +712,11 @@ export default function AddPropertyPage() {
               </div>
 
               <PhotoUploadZone
-                onUpload={(urls) =>
+                onUpload={(photos: UploadedPhoto[]) =>
                   setFormData((prev) => ({
                     ...prev,
-                    surroundingImages: [...prev.surroundingImages, ...urls],
+                    surroundingImages: [...prev.surroundingImages, ...photos.map((p) => p.url)],
+                    surroundingImageUploadIds: [...prev.surroundingImageUploadIds, ...photos.map((p) => p.uploadId)],
                   }))
                 }
                 maxFiles={5}
@@ -602,6 +729,7 @@ export default function AddPropertyPage() {
                     surroundingImages: prev.surroundingImages.filter(
                       (_, i) => i !== index,
                     ),
+                    surroundingImageUploadIds: prev.surroundingImageUploadIds.filter((_, i) => i !== index),
                   }))
                 }
                 previews={formData.surroundingImages}
@@ -650,6 +778,61 @@ export default function AddPropertyPage() {
                   }
                 />
               </div>
+            </div>
+
+            <div className="grid sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Contact Name</label>
+                <input
+                  className="w-full px-4 py-3 rounded-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800"
+                  value={formData.contactName}
+                  onChange={(e) => updateField("contactName", e.target.value)}
+                  placeholder="Owner name"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Contact Phone</label>
+                <input
+                  className="w-full px-4 py-3 rounded-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800"
+                  value={formData.contactPhone}
+                  onChange={(e) => updateField("contactPhone", e.target.value)}
+                  placeholder="07X XXX XXXX"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Contact Email (optional)</label>
+              <input
+                type="email"
+                className="w-full px-4 py-3 rounded-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800"
+                value={formData.contactEmail}
+                onChange={(e) => updateField("contactEmail", e.target.value)}
+                placeholder="owner@example.com"
+              />
+            </div>
+
+            <div className="rounded-lg border border-gray-200 dark:border-gray-700 p-4">
+              <h3 className="font-semibold mb-2">Post-publish Promotion</h3>
+              <label className="flex items-center gap-2 text-sm mb-2">
+                <input
+                  type="checkbox"
+                  checked={showPaymentAfterPublish}
+                  onChange={(e) => setShowPaymentAfterPublish(e.target.checked)}
+                />
+                Redirect to secure checkout after listing publish
+              </label>
+              {showPaymentAfterPublish && (
+                <select
+                  value={postPublishAction}
+                  onChange={(e) => setPostPublishAction(e.target.value as "NONE" | "BOOST" | "FEATURE")}
+                  className="w-full px-4 py-2 rounded-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800"
+                >
+                  <option value="NONE">No paid action</option>
+                  <option value="BOOST">Boost listing</option>
+                  <option value="FEATURE">Feature listing</option>
+                </select>
+              )}
             </div>
           </div>
         );

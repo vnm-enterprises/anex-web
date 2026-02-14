@@ -5,12 +5,16 @@
  */
 import AuthImagePanel from "@/components/auth/AuthImagePanel";
 import ResetPasswordForm from "@/components/auth/ResetPasswordForm";
+import { Suspense } from "react";
 
 export default function ResetPasswordPage() {
   return (
     <main className="h-screen w-full overflow-hidden flex bg-background-light dark:bg-background-dark">
       <AuthImagePanel />
-      <ResetPasswordForm />
+      <Suspense fallback={<div>Loading...</div>}>
+       <ResetPasswordForm />
+    </Suspense>
+
     </main>
   );
 }
