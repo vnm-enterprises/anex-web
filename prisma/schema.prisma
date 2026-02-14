@@ -1,0 +1,415 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+enum AuthProvider {
+  CREDENTIALS
+  GOOGLE
+}
+
+enum PropertyType {
+  ANNEX
+  BOARDING
+  HOUSE
+  APARTMENT
+}
+
+enum FurnishedStatus {
+  FURNISHED
+  SEMI_FURNISHED
+  UNFURNISHED
+}
+
+enum GenderPreference {
+  ANY
+  MALE
+  FEMALE
+}
+
+enum ListingStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  EXPIRED
+}
+
+enum PlanCode {
+  FREE
+  BASIC
+  PRO
+  BUSINESS
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  EXPIRED
+  CANCELED
+  GRACE
+}
+
+enum AdPlacement {
+  HOME_HERO
+  HOME_INLINE
+  DISTRICT_TOP
+  CITY_TOP
+  SEARCH_INLINE
+}
+
+enum UploadPurpose {
+  LISTING_IMAGE
+  USER_AVATAR
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCEEDED
+  FAILED
+  CANCELED
+}
+
+enum PaymentType {
+  SUBSCRIPTION
+  BOOST
+  FEATURE
+  ONE_TIME
+}
+
+model User {
+  id             String            @id @default(cuid())
+  email          String            @unique @db.VarChar(191)
+  passwordHash   String?           @db.VarChar(255)
+  name           String?           @db.VarChar(120)
+  phone          String?           @db.VarChar(32)
+  avatarUrl      String?           @db.VarChar(255)
+  role           UserRole          @default(USER)
+  provider       AuthProvider      @default(CREDENTIALS)
+  providerSub    String?           @db.VarChar(191)
+  emailVerifiedAt DateTime?
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+
+  listings       Listing[]
+  subscriptions  Subscription[]
+  inquiries      Inquiry[]         @relation("InquirySender")
+  favorites      Favorite[]
+  uploads        UploadAsset[]
+  payments       Payment[]
+
+  @@index([provider, providerSub])
+}
+
+model District {
+  id          Int       @id @default(autoincrement())
+  name        String    @unique @db.VarChar(100)
+  slug        String    @unique @db.VarChar(120)
+  cities      City[]
+  listings    Listing[]
+  ads         Ad[]
+  createdAt   DateTime  @default(now())
+}
+
+model City {
+  id          Int       @id @default(autoincrement())
+  districtId  Int
+  name        String    @db.VarChar(100)
+  slug        String    @db.VarChar(120)
+  district    District  @relation(fields: [districtId], references: [id])
+  listings    Listing[]
+  ads         Ad[]
+  createdAt   DateTime  @default(now())
+
+  @@unique([districtId, name])
+  @@unique([districtId, slug])
+  @@index([slug])
+}
+
+model Amenity {
+  id          Int               @id @default(autoincrement())
+  name        String            @unique @db.VarChar(100)
+  slug        String            @unique @db.VarChar(120)
+  listings    ListingAmenity[]
+}
+
+model Plan {
+  id                  Int       @id @default(autoincrement())
+  code                PlanCode  @unique
+  name                String    @db.VarChar(80)
+  monthlyPriceLkr     Int
+  listingLimitMonthly Int?
+  freeBoostsMonthly   Int       @default(0)
+  canFeature          Boolean   @default(false)
+  priorityWeight      Int       @default(0)
+  analyticsLevel      String    @db.VarChar(40)
+  isActive            Boolean   @default(true)
+  subscriptions       Subscription[]
+}
+
+model Subscription {
+  id            String              @id @default(cuid())
+  userId         String
+  planId         Int
+  status         SubscriptionStatus @default(ACTIVE)
+  startedAt      DateTime
+  endsAt         DateTime
+  graceEndsAt    DateTime?
+  canceledAt     DateTime?
+  createdAt      DateTime           @default(now())
+
+  user           User               @relation(fields: [userId], references: [id])
+  plan           Plan               @relation(fields: [planId], references: [id])
+  payments       Payment[]
+
+  @@index([userId, status, endsAt])
+}
+
+model Listing {
+  id                 String            @id @default(cuid())
+  ownerId             String
+  title               String            @db.VarChar(140)
+  slug                String            @unique @db.VarChar(180)
+  description         String            @db.Text
+  propertyType        PropertyType
+  priceLkr            Int
+  districtId          Int
+  cityId              Int
+  area                String?           @db.VarChar(120)
+  latitude            Decimal?          @db.Decimal(10, 7)
+  longitude           Decimal?          @db.Decimal(10, 7)
+  furnishedStatus     FurnishedStatus
+  genderPreference    GenderPreference  @default(ANY)
+  contactName         String            @db.VarChar(120)
+  contactPhone        String            @db.VarChar(32)
+  contactEmail        String?           @db.VarChar(191)
+  rankingWeight       Int               @default(0)
+  status              ListingStatus     @default(PENDING)
+  isBoosted           Boolean           @default(false)
+  isFeatured          Boolean           @default(false)
+  boostExpiresAt      DateTime?
+  expiresAt           DateTime
+  approvedAt          DateTime?
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+
+  owner               User              @relation(fields: [ownerId], references: [id])
+  district            District          @relation(fields: [districtId], references: [id])
+  city                City              @relation(fields: [cityId], references: [id])
+  images              ListingImage[]
+  amenities           ListingAmenity[]
+  boosts              Boost[]
+  featuredFlags       FeaturedFlag[]
+  inquiries           Inquiry[]
+  favorites           Favorite[]
+  analyticsDaily      ListingAnalyticsDaily[]
+  views               ListingView[]
+  uploads             UploadAsset[]
+  payments            Payment[]
+
+  @@index([ownerId, createdAt])
+  @@index([districtId, cityId, propertyType])
+  @@index([status, expiresAt, createdAt])
+  @@index([isFeatured, isBoosted, rankingWeight])
+  @@index([priceLkr])
+  @@fulltext([title, description])
+}
+
+model ListingImage {
+  id          String   @id @default(cuid())
+  listingId   String
+  url         String   @db.VarChar(255)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+
+  listing     Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  @@index([listingId, sortOrder])
+}
+
+model ListingAmenity {
+  listingId   String
+  amenityId   Int
+
+  listing     Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  amenity     Amenity  @relation(fields: [amenityId], references: [id])
+
+  @@id([listingId, amenityId])
+  @@index([amenityId])
+}
+
+model Boost {
+  id          String   @id @default(cuid())
+  listingId   String
+  startsAt    DateTime
+  endsAt      DateTime
+  durationDays Int
+  createdAt   DateTime @default(now())
+
+  listing     Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  @@index([listingId, endsAt])
+}
+
+model FeaturedFlag {
+  id          String   @id @default(cuid())
+  listingId   String
+  startsAt    DateTime
+  endsAt      DateTime
+  createdAt   DateTime @default(now())
+
+  listing     Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  @@index([listingId, endsAt])
+}
+
+model Inquiry {
+  id           String   @id @default(cuid())
+  listingId     String
+  senderUserId  String?
+  name         String   @db.VarChar(120)
+  phone        String   @db.VarChar(32)
+  message      String   @db.VarChar(1500)
+  createdAt    DateTime @default(now())
+
+  listing      Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  senderUser   User?    @relation("InquirySender", fields: [senderUserId], references: [id])
+
+  @@index([listingId, createdAt])
+}
+
+model Favorite {
+  userId       String
+  listingId     String
+  createdAt    DateTime @default(now())
+
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  listing      Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  @@id([userId, listingId])
+}
+
+model ListingView {
+  id           String   @id @default(cuid())
+  listingId     String
+  viewedAt     DateTime @default(now())
+  viewerIpHash String?  @db.VarChar(128)
+  userAgent    String?  @db.VarChar(255)
+
+  listing      Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  @@index([listingId, viewedAt])
+}
+
+model ListingAnalyticsDaily {
+  id            String   @id @default(cuid())
+  listingId      String
+  date          DateTime @db.Date
+  viewCount     Int      @default(0)
+  inquiryCount  Int      @default(0)
+  favoriteCount Int      @default(0)
+
+  listing       Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  @@unique([listingId, date])
+  @@index([date])
+}
+
+model Ad {
+  id            String      @id @default(cuid())
+  title         String      @db.VarChar(140)
+  imageUrl      String      @db.VarChar(255)
+  targetUrl     String      @db.VarChar(255)
+  placement     AdPlacement
+  districtId    Int?
+  cityId        Int?
+  startsAt      DateTime
+  endsAt        DateTime
+  isActive      Boolean     @default(true)
+  createdAt     DateTime    @default(now())
+
+  district      District?   @relation(fields: [districtId], references: [id])
+  city          City?       @relation(fields: [cityId], references: [id])
+  impressions   AdImpression[]
+
+  @@index([placement, isActive, startsAt, endsAt])
+  @@index([districtId, cityId])
+}
+
+model AdImpression {
+  id            String   @id @default(cuid())
+  adId          String
+  seenAt        DateTime @default(now())
+  listingId     String?  
+  userId        String?
+
+  ad            Ad       @relation(fields: [adId], references: [id], onDelete: Cascade)
+
+  @@index([adId, seenAt])
+}
+
+model SystemConfig {
+  key           String   @id @db.VarChar(80)
+  value         String   @db.VarChar(191)
+  updatedAt     DateTime @updatedAt
+}
+
+model UploadAsset {
+  id           String        @id @default(cuid())
+  userId       String
+  listingId    String?
+  purpose      UploadPurpose
+  bucket       String        @db.VarChar(120)
+  objectKey    String        @unique @db.VarChar(255)
+  mimeType     String        @db.VarChar(100)
+  sizeBytes    Int
+  etag         String?       @db.VarChar(80)
+  isCompleted  Boolean       @default(false)
+  createdAt    DateTime      @default(now())
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  listing      Listing?      @relation(fields: [listingId], references: [id], onDelete: SetNull)
+
+  @@index([userId, createdAt])
+  @@index([listingId])
+}
+
+model Payment {
+  id                    String        @id @default(cuid())
+  userId                 String
+  subscriptionId         String?
+  listingId              String?
+  type                  PaymentType
+  status                PaymentStatus @default(PENDING)
+  amountLkr             Int
+  currency              String        @default("LKR") @db.VarChar(8)
+  provider              String        @default("stripe") @db.VarChar(32)
+  providerSessionId     String?       @unique @db.VarChar(191)
+  providerPaymentIntent String?       @unique @db.VarChar(191)
+  metadata              Json?
+  createdAt             DateTime      @default(now())
+  updatedAt             DateTime      @updatedAt
+
+  user                  User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subscription          Subscription? @relation(fields: [subscriptionId], references: [id], onDelete: SetNull)
+  listing               Listing?      @relation(fields: [listingId], references: [id], onDelete: SetNull)
+
+  @@index([userId, status, createdAt])
+  @@index([type, status])
+}
+
+model PaymentWebhookEvent {
+  id           String   @id @default(cuid())
+  provider     String   @db.VarChar(32)
+  eventId      String   @unique @db.VarChar(191)
+  eventType    String   @db.VarChar(120)
+  payload      Json
+  processedAt  DateTime @default(now())
+}
