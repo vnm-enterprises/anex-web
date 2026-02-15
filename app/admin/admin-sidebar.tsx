@@ -19,7 +19,7 @@ const navItems = [
   { href: "/admin/listings", label: "Listings", icon: FileText },
   { href: "/admin/users", label: "Users", icon: Users },
   { href: "/admin/analytics", label: "Analytics", icon: BarChart3 },
-  { href: "/admin/settings", label: "Settings", icon: Settings },
+  // { href: "/admin/settings", label: "Settings", icon: Settings },
 ]
 
 export function AdminSidebar() {
