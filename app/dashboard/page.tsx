@@ -92,8 +92,8 @@ export default async function DashboardPage() {
           </p>
         </div>
         <Button asChild>
-          <Link href="/dashboard/listings/new">
-            <PlusCircle className="mr-2 h-4 w-4" />
+          <Link href="/dashboard/listings/new" className="text-white">
+            <PlusCircle className="mr-2 h-4 w-4 text-white" />
             New Listing
           </Link>
         </Button>
@@ -167,7 +167,7 @@ export default async function DashboardPage() {
           <h2 className="text-xl font-semibold text-foreground">
             Your Listings
           </h2>
-          <Button asChild variant="ghost" size="sm" className="text-primary">
+          <Button asChild variant="ghost" size="sm" className="text-primary hover:text-white hover:bg-primary">
             <Link href="/dashboard/listings">
               View All
               <ArrowRight className="ml-1 h-4 w-4" />
@@ -184,7 +184,7 @@ export default async function DashboardPage() {
                 Post your first property listing to get started
               </p>
               <Button asChild className="mt-4">
-                <Link href="/dashboard/listings/new">
+                <Link href="/dashboard/listings/new" className="text-white">
                   <PlusCircle className="mr-2 h-4 w-4" />
                   Create Listing
                 </Link>
