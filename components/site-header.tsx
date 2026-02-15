@@ -102,16 +102,17 @@ export function SiteHeader() {
               <>
                 <Link
                   href="/dashboard"
-                  className="hidden md:block text-sm font-semibold text-white/80 hover:text-white transition"
+                  className={`hidden md:flex items-center gap-2 text-sm font-semibold ${pathname === "/" ? "text-white/80 hover:text-white" : "text-black/80 hover:text-black"} hover:text-white transition`}
                 >
                   <LayoutDashboard className="h-4 w-4" />
+                  {/* <img src={user.avatar_url || 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSy_JmafxKbli9Es5QUvL6d-qIdOd5RmExsvA&s'} className="rounded-full w-5 h-5"/> */}
                   Dashboard
                 </Link>
 
                 {user.role === "admin" && (
                   <Link
                     href="/admin"
-                    className="hidden md:block text-sm font-semibold text-white/80 hover:text-white transition"
+                    className={`hidden md:flex items-center gap-2 text-sm font-semibold ${pathname === "/" ? "text-white/80 hover:text-white" : "text-black/80 hover:text-black"} hover:text-white transition`}
                   >
                     <Shield className="h-4 w-4" />
                     Admin
@@ -120,7 +121,7 @@ export function SiteHeader() {
 
                 <button
                   onClick={handleLogout}
-                  className="hidden md:block text-sm font-semibold text-white/80 hover:text-white transition"
+                  className={`hidden md:flex items-center gap-2 text-sm font-semibold ${pathname === "/" ? "text-white/80 hover:text-white" : "text-black/80 hover:text-black"} hover:text-white transition`}
                 >
                   <LogOut className="h-4 w-4" />
                   Log out
