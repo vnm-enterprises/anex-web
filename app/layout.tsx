@@ -1,101 +1,59 @@
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-import "./globals.css";
-import AuthHydrator from "@/components/common/AuthHydrator";
-import GoogleProviders from "@/providers/google-providers";
-import Script from "next/script";
-import "leaflet/dist/leaflet.css";
-import ScrollToTopButton from "@/components/common/AccessNavBar";
+import type { Metadata, Viewport } from 'next'
+import { Inter, Space_Grotesk } from 'next/font/google'
+import { Toaster } from 'sonner'
 
+import './globals.css'
 
-const inter = Inter({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
+const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
+const spaceGrotesk = Space_Grotesk({
+  subsets: ['latin'],
+  variable: '--font-space-grotesk',
+})
 
 export const metadata: Metadata = {
   title: {
-    default: "annex.lk – Find your perfect home",
-    template: "%s | annex.lk",
+    default: 'Annex.lk - Find Your Perfect Rental in Sri Lanka',
+    template: '%s | Annex.lk',
   },
   description:
-    "Find annexes, rooms, houses and short stays for rent across Sri Lanka. Search by city, town or property ID on annex.lk.",
-
-  applicationName: "annex.lk",
-
+    'Sri Lanka\'s premier rental marketplace. Find annexes, boarding places, apartments, and houses for long-term rent across all 25 districts.',
   keywords: [
-    "annex.lk",
-    "annex for rent Sri Lanka",
-    "rooms for rent Sri Lanka",
-    "houses for rent Sri Lanka",
-    "short stays Sri Lanka",
-    "boarding places Sri Lanka",
-    "rent annex",
-    "property rental Sri Lanka",
+    'Sri Lanka rentals',
+    'annex for rent',
+    'boarding place',
+    'apartment rent Colombo',
+    'house rent Sri Lanka',
   ],
-
-  authors: [{ name: "annex.lk" }],
-  creator: "annex.lk",
-  publisher: "annex.lk",
-
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      "max-image-preview": "large",
-      "max-snippet": -1,
-      "max-video-preview": -1,
-    },
-  },
-
-  alternates: {
-    canonical: "https://annex.lk",
-  },
-
   openGraph: {
-    type: "website",
-    url: "https://annex.lk",
-    title: "annex.lk – Find your perfect home",
+    type: 'website',
+    locale: 'en_US',
+    url: 'https://annex.lk',
+    siteName: 'Annex.lk',
+    title: 'Annex.lk - Find Your Perfect Rental in Sri Lanka',
     description:
-      "Find annexes, rooms and houses for rent across Sri Lanka. Simple, fast and trusted.",
-    siteName: "annex.lk",
-    images: [
-      {
-        url: "https://annex.lk/og-image.png",
-        width: 1200,
-        height: 630,
-        alt: "annex.lk – Property rentals in Sri Lanka",
-      },
-    ],
+      'Sri Lanka\'s premier rental marketplace for annexes, boarding places, apartments, and houses.',
   },
+}
 
-  twitter: {
-    card: "summary_large_image",
-    title: "annex.lk – Find your perfect home",
-    description: "Find annexes, rooms and houses for rent across Sri Lanka.",
-    images: ["https://annex.lk/og-image.png"],
-  },
-
-  category: "real estate",
-};
+export const viewport: Viewport = {
+  themeColor: '#0f9b72',
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+  userScalable: true,
+}
 
 export default function RootLayout({
   children,
-}: {
-  children: React.ReactNode;
-}) {
+}: Readonly<{
+  children: React.ReactNode
+}>) {
   return (
-    <html lang="en" className="light">
-      <body
-        className={`${inter.variable} bg-[#f8fcfa] text-[#0d1b14] bg-background-light dark:bg-background-dark font-display text-text-main antialiased selection:bg-primary selection:text-black`}
-      >
-        <AuthHydrator />
-        <GoogleProviders> {children}
-            <ScrollToTopButton />
-           </GoogleProviders>
+    <html lang="en" className={`${inter.variable} ${spaceGrotesk.variable}`}>
+      <body className="font-sans antialiased">
+        {children}
+        <Toaster position="top-right" richColors />
       </body>
     </html>
-  );
+  )
 }
