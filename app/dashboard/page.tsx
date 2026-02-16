@@ -168,10 +168,10 @@ export default async function DashboardPage() {
             Your Listings
           </h2>
           <Button asChild variant="ghost" size="sm" className="text-primary hover:text-white hover:bg-primary">
-            <Link href="/dashboard/listings">
+            {/* <Link href="/dashboard/listings">
               View All
               <ArrowRight className="ml-1 h-4 w-4" />
-            </Link>
+            </Link> */}
           </Button>
         </div>
 
