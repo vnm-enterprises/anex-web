@@ -83,8 +83,8 @@ export function NewListingForm() {
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || [])
-    if (imageFiles.length + files.length > 10) {
-      toast.error("Maximum 10 images allowed")
+    if (imageFiles.length + files.length > 3) {
+      toast.error("Maximum 3 images allowed")
       return
     }
     setImageFiles((prev) => [...prev, ...files])
@@ -148,6 +148,7 @@ export function NewListingForm() {
           .from("listing-images")
           .upload(filePath, file)
 
+          if (uploadError) alert(uploadError)
         if (!uploadError) {
           const {
             data: { publicUrl },
@@ -160,6 +161,7 @@ export function NewListingForm() {
             display_order: i,
           })
         }
+
       }
 
       // Link amenities
