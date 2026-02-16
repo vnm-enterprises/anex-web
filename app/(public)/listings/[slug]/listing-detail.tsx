@@ -242,15 +242,15 @@ export function ListingDetail({ listing }: { listing: Listing }) {
             </div>
 
             <div className="mt-6 flex flex-wrap gap-3">
-              <Badge variant="secondary" className="capitalize gap-1.5 px-3 py-1 text-sm">
+              <Badge variant="default" className="capitalize bg-primary text-white gap-1.5 px-3 py-1 text-sm">
                 <PropertyIcon className="h-4 w-4" />
                 {listing.property_type}
               </Badge>
-              <Badge variant="secondary" className="capitalize gap-1.5 px-3 py-1 text-sm">
+              <Badge variant="default" className="capitalize bg-primary text-white gap-1.5 px-3 py-1 text-sm">
                 {listing.furnished.replace("-", " ")}
               </Badge>
               {listing.gender_preference !== "any" && (
-                <Badge variant="secondary" className="capitalize gap-1.5 px-3 py-1 text-sm">
+                <Badge variant="default" className="capitalize bg-primary text-white gap-1.5 px-3 py-1 text-sm">
                   {listing.gender_preference} only
                 </Badge>
               )}
@@ -265,10 +265,10 @@ export function ListingDetail({ listing }: { listing: Listing }) {
                 <Calendar className="h-4 w-4" />
                 Posted {formatDate(listing.created_at)}
               </div>
-              <div className="flex items-center gap-1.5">
+              {/* <div className="flex items-center gap-1.5">
                 <MessageCircle className="h-4 w-4" />
                 {listing.inquiries_count} inquiries
-              </div>
+              </div> */}
             </div>
 
             <div className="mt-8">
