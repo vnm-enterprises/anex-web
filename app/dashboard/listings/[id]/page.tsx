@@ -9,14 +9,18 @@ import {
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
-  Eye,
-  MessageCircle,
-  Sparkles,
   Trash2,
   MapPin,
   Calendar,
   Home,
+  CheckCircle,
+  Eye,
+  MessageCircle,
+  Sparkles,
+  ArrowBigLeft,
+  ArrowLeft,
 } from "lucide-react"
+import Link from "next/link"
 import { formatPrice, formatDate } from "@/lib/constants"
 
 /* ================= PAGE ================= */
@@ -110,6 +114,15 @@ export default async function DashboardListingPage({
 
   return (
     <div className="space-y-12">
+      <Link
+        href="/dashboard"
+        className="inline-flex items-center gap-2 text-sm font-black uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors group mb-2"
+      >
+        <div className="p-2 rounded-lg bg-muted group-hover:bg-primary group-hover:text-white transition-colors">
+          <ArrowLeft className="h-4 w-4" />
+        </div>
+        Back to Dashboard
+      </Link>
 
       {/* ================= HERO ================= */}
       <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-8">
@@ -311,46 +324,49 @@ export default async function DashboardListingPage({
       </div>
     )}
 
-    {unreadInquiries.map((inq: any) => (
+    {listing.inquiries?.map((inq: any) => (
       <div
         key={inq.id}
-        className="rounded-2xl border border-border p-6 bg-muted/20 hover:bg-muted/40 transition"
+        className={`rounded-2xl border p-6 transition-all duration-300 ${
+          inq.is_read
+            ? 'bg-card border-border/50 opacity-70'
+            : 'bg-primary/5 border-primary/20 shadow-lg shadow-primary/5'
+        }`}
       >
         <div className="flex justify-between items-start gap-4">
-
           <div className="space-y-2 flex-1">
-
-            <div className="flex justify-between text-xs text-muted-foreground">
-              <span className="font-medium">
+            <div className="flex justify-between text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+              <span className={inq.is_read ? '' : 'text-primary'}>
                 {inq.sender_phone}
               </span>
               <span>
                 {formatDate(inq.created_at)}
               </span>
             </div>
-
-            <p className="text-sm leading-relaxed">
+            <p className={`text-sm leading-relaxed ${inq.is_read ? 'text-muted-foreground font-medium' : 'text-foreground font-bold'}`}>
               {inq.message}
             </p>
-
           </div>
 
           <form action={markAsRead}>
-            <input
-              type="hidden"
-              name="inquiry_id"
-              value={inq.id}
-            />
+            <input type="hidden" name="inquiry_id" value={inq.id} />
             <Button
               type="submit"
               size="sm"
-              variant="outline"
-              className="rounded-xl"
+              variant={inq.is_read ? "ghost" : "outline"}
+              disabled={inq.is_read}
+              className={`rounded-xl font-black text-[10px] uppercase tracking-widest px-4 ${
+                inq.is_read ? 'text-emerald-500 cursor-default hover:bg-transparent' : 'border-primary text-primary hover:bg-primary hover:text-white'
+              }`}
             >
-              Mark as Read
+              {inq.is_read ? (
+                <>
+                  <CheckCircle className="h-3 w-3 mr-1.5" />
+                  Read
+                </>
+              ) : "Mark as Read"}
             </Button>
           </form>
-
         </div>
       </div>
     ))}
