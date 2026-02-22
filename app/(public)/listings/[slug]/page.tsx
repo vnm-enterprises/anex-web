@@ -1,24 +1,22 @@
-import { createClient } from "@/lib/supabase/server"
-import { notFound } from "next/navigation"
-import type { Metadata } from "next"
-import Link from "next/link"
-import { formatPrice } from "@/lib/constants"
-import { ListingDetail } from "./listing-detail"
-import { ListingCard } from "@/components/listing-card"
+import { createClient } from "@/lib/supabase/server";
+import { notFound } from "next/navigation";
+import type { Metadata } from "next";
+import Link from "next/link";
+import { formatPrice } from "@/lib/constants";
+import { ListingDetail } from "./listing-detail";
+import { ListingCard } from "@/components/listing-card";
 
 interface Props {
-  params: Promise<{ slug: string }>
+  params: Promise<{ slug: string }>;
 }
 
 /* ============================= */
 /*          METADATA             */
 /* ============================= */
 
-export async function generateMetadata({
-  params,
-}: Props): Promise<Metadata> {
-  const { slug } = await params
-  const supabase = await createClient()
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params;
+  const supabase = await createClient();
 
   const { data: listing } = await supabase
     .from("listings")
@@ -28,27 +26,46 @@ export async function generateMetadata({
       description,
       price,
       districts!listings_district_id_fkey(name),
-      cities!listings_city_id_fkey(name)
-      `
+      cities!listings_city_id_fkey(name),
+      listing_images(url)
+      `,
     )
     .eq("slug", slug)
     .eq("status", "approved")
-    .single()
+    .single();
 
   if (!listing) {
-    return { title: "Listing Not Found" }
+    return { title: "Listing Not Found" };
   }
 
-  const data = listing as any
+  const data = listing as any;
+  const imageUrl = data.listing_images?.[0]?.url;
+  const description = `${listing.title} for Rs. ${listing.price?.toLocaleString()}/month in ${data.cities?.name}, ${data.districts?.name}. ${listing.description?.slice(0, 140)}`;
 
   return {
-    title: listing.title,
-    description: `${listing.title} for Rs. ${listing.price?.toLocaleString()}/month in ${data.cities?.name}, ${data.districts?.name}. ${listing.description?.slice(0, 140)}`,
+    title: `${listing.title} | Annex.lk`,
+    description,
     openGraph: {
       title: listing.title,
-      description: listing.description?.slice(0, 200),
+      description,
+      url: `https://annex.lk/listings/${slug}`,
+      siteName: "Annex.lk",
+      images: imageUrl
+        ? [{ url: imageUrl, width: 1200, height: 630, alt: listing.title }]
+        : [],
+      locale: "en_US",
+      type: "website",
     },
-  }
+    twitter: {
+      card: "summary_large_image",
+      title: listing.title,
+      description,
+      images: imageUrl ? [imageUrl] : [],
+    },
+    alternates: {
+      canonical: `https://annex.lk/listings/${slug}`,
+    },
+  };
 }
 
 /* ============================= */
@@ -56,8 +73,8 @@ export async function generateMetadata({
 /* ============================= */
 
 export default async function ListingPage({ params }: Props) {
-  const { slug } = await params
-  const supabase = await createClient()
+  const { slug } = await params;
+  const supabase = await createClient();
 
   const { data: listing, error } = await supabase
     .from("listings")
@@ -74,18 +91,39 @@ export default async function ListingPage({ params }: Props) {
         full_name,
         avatar_url
       )
-      `
+      `,
     )
     .eq("slug", slug)
     .eq("status", "approved")
-    .single()
+    .single();
 
   if (error || !listing) {
-    console.error(error)
-    notFound()
+    console.error(error);
+    notFound();
   }
 
-  const listingData = listing as any
+  const listingData = listing as any;
+
+  // JSON-LD for Search Engines
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Accommodation",
+    name: listingData.title,
+    description: listingData.description,
+    image: listingData.listing_images?.map((img: any) => img.url) || [],
+    address: {
+      "@type": "PostalAddress",
+      addressLocality: listingData.cities?.name,
+      addressRegion: listingData.districts?.name,
+      addressCountry: "LK",
+    },
+    offers: {
+      "@type": "Offer",
+      price: listingData.price,
+      priceCurrency: "LKR",
+      availability: "https://schema.org/InStock",
+    },
+  };
 
   /* ============================= */
   /*        VIEW INCREMENT         */
@@ -93,15 +131,16 @@ export default async function ListingPage({ params }: Props) {
 
   const { error: rpcError } = await supabase.rpc("increment_views", {
     listing_id: listing.id,
-  })
+  });
 
+  // ... rest of the component
   if (rpcError) {
     await supabase
       .from("listings")
       .update({
         views_count: (listing.views_count ?? 0) + 1,
       })
-      .eq("id", listing.id)
+      .eq("id", listing.id);
   }
 
   /* ============================= */
@@ -118,15 +157,15 @@ export default async function ListingPage({ params }: Props) {
       price,
       listing_images(url),
       cities!listings_city_id_fkey(name)
-      `
+      `,
     )
     .eq("status", "approved")
     .eq("city_id", listing.city_id)
     .eq("property_type", listing.property_type)
     .neq("id", listing.id)
-    .limit(4)
+    .limit(4);
 
-  const similar = (similarListings ?? []) as any[]
+  const similar = (similarListings ?? []) as any[];
 
   /* ============================= */
   /*            RENDER             */
@@ -134,23 +173,33 @@ export default async function ListingPage({ params }: Props) {
 
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <ListingDetail listing={listingData} />
 
       {similar.length > 0 && (
         <section className="mt-20 border-t border-border pt-20">
           <div className="mx-auto max-w-7xl px-6 lg:px-8">
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
-               <div>
-                  <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] font-black uppercase tracking-widest mb-3">
-                    Recommendations
+              <div>
+                <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] font-black uppercase tracking-widest mb-3">
+                  Recommendations
+                </span>
+                <h2 className="text-4xl font-black text-foreground tracking-tighter">
+                  Similar Properties in{" "}
+                  <span className="text-primary italic">
+                    {listingData.cities?.name}
                   </span>
-                  <h2 className="text-4xl font-black text-foreground tracking-tighter">
-                    Similar Properties in <span className="text-primary italic">{listingData.cities?.name}</span>
-                  </h2>
-               </div>
-               <Link href="/search" className="text-sm font-black text-primary hover:underline underline-offset-4">
-                 View all listings
-               </Link>
+                </h2>
+              </div>
+              <Link
+                href="/search"
+                className="text-sm font-black text-primary hover:underline underline-offset-4"
+              >
+                View all listings
+              </Link>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -162,5 +211,5 @@ export default async function ListingPage({ params }: Props) {
         </section>
       )}
     </>
-  )
+  );
 }
