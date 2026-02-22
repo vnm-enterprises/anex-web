@@ -110,191 +110,194 @@ export function ListingDetail({ listing }: { listing: Listing }) {
   }
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 lg:px-6">
+    <div className="mx-auto max-w-7xl px-6 py-12 lg:px-8 mt-16 animate-fade-in">
       <Link
         href="/search"
-        className="mb-6 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-primary"
+        className="mb-10 inline-flex items-center gap-2 text-sm font-black uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors group"
       >
-        <ChevronLeft className="h-4 w-4" />
-        Back to Search
+        <div className="p-2 rounded-lg bg-muted group-hover:bg-primary group-hover:text-white transition-colors">
+           <ChevronLeft className="h-4 w-4" />
+        </div>
+        Back to search
       </Link>
 
-      <div className="grid gap-8 lg:grid-cols-3">
-        <div className="lg:col-span-2">
+      <div className="grid gap-12 lg:grid-cols-3">
+        <div className="lg:col-span-2 space-y-10">
           {/* Image Gallery */}
-          <div className="relative overflow-hidden rounded-xl bg-muted">
-            {images.length > 0 ? (
-              <>
-                <div className="aspect-[16/10]">
-                  <img
-                    src={images[currentImage]?.url}
-                    alt={`${listing.title} - Image ${currentImage + 1}`}
-                    className="h-full w-full object-cover"
-                  />
+          <div className="space-y-4">
+            <div className="relative overflow-hidden rounded-[2.5rem] bg-muted soft-shadow">
+              {images.length > 0 ? (
+                <>
+                  <div className="aspect-[16/10]">
+                    <img
+                      src={images[currentImage]?.url}
+                      alt={`${listing.title} - Image ${currentImage + 1}`}
+                      className="h-full w-full object-cover transition-transform duration-[2s] hover:scale-110"
+                    />
+                  </div>
+                  {images.length > 1 && (
+                    <>
+                      <button
+                        onClick={() =>
+                          setCurrentImage(
+                            currentImage > 0 ? currentImage - 1 : images.length - 1
+                          )
+                        }
+                        className="absolute left-6 top-1/2 flex h-14 w-14 -translate-y-1/2 items-center justify-center rounded-2xl bg-white/90 text-primary shadow-xl backdrop-blur-md hover:bg-white transition-all active:scale-95"
+                        aria-label="Previous image"
+                      >
+                        <ChevronLeft className="h-6 w-6" />
+                      </button>
+                      <button
+                        onClick={() =>
+                          setCurrentImage(
+                            currentImage < images.length - 1 ? currentImage + 1 : 0
+                          )
+                        }
+                        className="absolute right-6 top-1/2 flex h-14 w-14 -translate-y-1/2 items-center justify-center rounded-2xl bg-white/90 text-primary shadow-xl backdrop-blur-md hover:bg-white transition-all active:scale-95"
+                        aria-label="Next image"
+                      >
+                        <ChevronRight className="h-6 w-6" />
+                      </button>
+                    </>
+                  )}
+                </>
+              ) : (
+                <div className="flex aspect-[16/10] items-center justify-center">
+                  <PropertyIcon className="h-20 w-20 text-muted-foreground/30" />
                 </div>
-                {images.length > 1 && (
-                  <>
-                    <button
-                      onClick={() =>
-                        setCurrentImage(
-                          currentImage > 0 ? currentImage - 1 : images.length - 1
-                        )
-                      }
-                      className="absolute left-3 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-card/90 text-foreground shadow-md backdrop-blur hover:bg-card"
-                      aria-label="Previous image"
-                    >
-                      <ChevronLeft className="h-5 w-5" />
-                    </button>
-                    <button
-                      onClick={() =>
-                        setCurrentImage(
-                          currentImage < images.length - 1 ? currentImage + 1 : 0
-                        )
-                      }
-                      className="absolute right-3 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-card/90 text-foreground shadow-md backdrop-blur hover:bg-card"
-                      aria-label="Next image"
-                    >
-                      <ChevronRight className="h-5 w-5" />
-                    </button>
-                    <div className="absolute bottom-3 left-1/2 flex -translate-x-1/2 items-center gap-1.5">
-                      {images.map((_, i) => (
-                        <button
-                          key={i}
-                          onClick={() => setCurrentImage(i)}
-                          className={`h-2 rounded-full transition-all ${
-                            i === currentImage
-                              ? "w-6 bg-primary-foreground"
-                              : "w-2 bg-primary-foreground/50"
-                          }`}
-                          aria-label={`Go to image ${i + 1}`}
-                        />
-                      ))}
-                    </div>
-                  </>
+              )}
+
+              <div className="absolute left-6 top-6 flex flex-col gap-2">
+                {listing.is_boosted && (
+                  <Badge className="bg-primary text-white border-none font-black uppercase tracking-widest text-[10px] px-3 py-1 shadow-lg backdrop-blur-sm">
+                    <Zap className="h-3 w-3 mr-1 fill-current" />
+                    Boosted
+                  </Badge>
                 )}
-              </>
-            ) : (
-              <div className="flex aspect-[16/10] items-center justify-center">
-                <PropertyIcon className="h-20 w-20 text-muted-foreground/30" />
+                {listing.is_featured && (
+                  <Badge className="bg-amber-500 text-white border-none font-black uppercase tracking-widest text-[10px] px-3 py-1 shadow-lg backdrop-blur-sm">
+                    <Sparkles className="h-3 w-3 mr-1 fill-current" />
+                    Featured
+                  </Badge>
+                )}
+              </div>
+            </div>
+
+            {/* Thumbnail strip */}
+            {images.length > 1 && (
+              <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
+                {images.map((img, i) => (
+                  <button
+                    key={img.id}
+                    onClick={() => setCurrentImage(i)}
+                    className={`h-24 w-32 shrink-0 overflow-hidden rounded-2xl border-4 transition-all duration-300 ${
+                      i === currentImage
+                        ? "border-primary scale-105 shadow-lg"
+                        : "border-transparent opacity-60 hover:opacity-100 hover:scale-105"
+                    }`}
+                  >
+                    <img
+                      src={img.url}
+                      alt={`Thumbnail ${i + 1}`}
+                      className="h-full w-full object-cover"
+                    />
+                  </button>
+                ))}
               </div>
             )}
-
-            <div className="absolute left-3 top-3 flex gap-1.5">
-              {listing.is_featured && (
-                <Badge className="bg-accent text-accent-foreground shadow-sm">
-                  <Sparkles className="mr-1 h-3 w-3" />
-                  Featured
-                </Badge>
-              )}
-              {listing.is_boosted && (
-                <Badge className="bg-primary text-primary-foreground shadow-sm">
-                  <Zap className="mr-1 h-3 w-3" />
-                  Boosted
-                </Badge>
-              )}
-            </div>
           </div>
 
-          {/* Thumbnail strip */}
-          {images.length > 1 && (
-            <div className="mt-3 flex gap-2 overflow-x-auto pb-2">
-              {images.map((img, i) => (
-                <button
-                  key={img.id}
-                  onClick={() => setCurrentImage(i)}
-                  className={`h-16 w-20 shrink-0 overflow-hidden rounded-lg border-2 transition-all ${
-                    i === currentImage
-                      ? "border-primary"
-                      : "border-transparent opacity-60 hover:opacity-100"
-                  }`}
-                >
-                  <img
-                    src={img.url}
-                    alt={`Thumbnail ${i + 1}`}
-                    className="h-full w-full object-cover"
-                  />
-                </button>
-              ))}
-            </div>
-          )}
-
           {/* Info */}
-          <div className="mt-8">
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <h1 className="font-display text-2xl font-bold text-foreground md:text-3xl">
-                  {listing.title}
-                </h1>
-                <div className="mt-2 flex items-center gap-2 text-muted-foreground">
-                  <MapPin className="h-4 w-4" />
-                  <span>
-                    {listing.cities?.name}, {listing.districts?.name}
-                    {listing.area ? ` - ${listing.area}` : ""}
-                  </span>
-                </div>
+          <div className="bg-card rounded-[3rem] p-8 md:p-12 soft-shadow border border-border/50">
+            <div className="flex flex-col md:flex-row md:items-start justify-between gap-6 mb-8">
+              <div className="space-y-4">
+                 <div className="flex flex-wrap gap-2">
+                    <Badge variant="secondary" className="bg-primary/10 text-primary border-none font-bold px-4 py-1.5 rounded-full capitalize">
+                      {listing.property_type}
+                    </Badge>
+                    <Badge variant="secondary" className="bg-muted text-foreground border-none font-bold px-4 py-1.5 rounded-full capitalize">
+                      {listing.furnished.replace("-", " ")}
+                    </Badge>
+                    {listing.gender_preference !== "any" && (
+                      <Badge variant="secondary" className="bg-muted text-foreground border-none font-bold px-4 py-1.5 rounded-full capitalize">
+                        {listing.gender_preference} preferred
+                      </Badge>
+                    )}
+                 </div>
+                 <h1 className="text-4xl md:text-5xl font-black text-foreground tracking-tighter leading-tight">
+                    {listing.title}
+                 </h1>
+                 <div className="flex items-center gap-2 text-muted-foreground font-bold">
+                    <MapPin className="h-5 w-5 text-primary" />
+                    <span className="text-lg">
+                      {listing.cities?.name}, {listing.districts?.name}
+                      {listing.area ? ` — ${listing.area}` : ""}
+                    </span>
+                 </div>
               </div>
-              <div className="flex gap-2">
-                <Button variant="outline" size="icon" onClick={handleShare}>
-                  <Share2 className="h-4 w-4" />
-                  <span className="sr-only">Share</span>
-                </Button>
-              </div>
+              <Button variant="outline" size="icon" onClick={handleShare} className="h-14 w-14 rounded-2xl shrink-0 self-end md:self-auto border-border bg-card soft-shadow hover:bg-primary hover:text-white transition-all">
+                <Share2 className="h-6 w-6" />
+                <span className="sr-only">Share</span>
+              </Button>
             </div>
 
-            <div className="mt-6 flex flex-wrap gap-3">
-              <Badge variant="secondary" className="capitalize gap-1.5 px-3 py-1 text-sm">
-                <PropertyIcon className="h-4 w-4" />
-                {listing.property_type}
-              </Badge>
-              <Badge variant="secondary" className="capitalize gap-1.5 px-3 py-1 text-sm">
-                {listing.furnished.replace("-", " ")}
-              </Badge>
-              {listing.gender_preference !== "any" && (
-                <Badge variant="secondary" className="capitalize gap-1.5 px-3 py-1 text-sm">
-                  {listing.gender_preference} only
-                </Badge>
-              )}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 p-8 bg-muted/40 rounded-[2rem] border border-border/50 mb-10">
+               <div className="flex flex-col gap-1">
+                  <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest leading-none">Views</span>
+                  <div className="flex items-center gap-2 text-foreground font-black text-lg">
+                     <Eye className="h-4 w-4 text-primary" />
+                     {listing.views_count.toLocaleString()}
+                  </div>
+               </div>
+               <div className="flex flex-col gap-1">
+                  <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest leading-none">Posted</span>
+                  <div className="flex items-center gap-2 text-foreground font-black text-lg">
+                     <Calendar className="h-4 w-4 text-primary" />
+                     {formatDate(listing.created_at)}
+                  </div>
+               </div>
+               <div className="flex flex-col gap-1">
+                  <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest leading-none">Security</span>
+                  <div className="flex items-center gap-2 text-foreground font-black text-lg">
+                     <Check className="h-4 w-4 text-emerald-500" />
+                     Verified
+                  </div>
+               </div>
+               <div className="flex flex-col gap-1">
+                  <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest leading-none">Inquiries</span>
+                  <div className="flex items-center gap-2 text-foreground font-black text-lg">
+                     <MessageCircle className="h-4 w-4 text-primary" />
+                     Active
+                  </div>
+               </div>
             </div>
 
-            <div className="mt-6 flex items-center gap-6 text-sm text-muted-foreground">
-              <div className="flex items-center gap-1.5">
-                <Eye className="h-4 w-4" />
-                {listing.views_count} views
-              </div>
-              <div className="flex items-center gap-1.5">
-                <Calendar className="h-4 w-4" />
-                Posted {formatDate(listing.created_at)}
-              </div>
-              <div className="flex items-center gap-1.5">
-                <MessageCircle className="h-4 w-4" />
-                {listing.inquiries_count} inquiries
-              </div>
-            </div>
-
-            <div className="mt-8">
-              <h2 className="mb-3 text-lg font-semibold text-foreground">
-                Description
+            <div className="space-y-6">
+              <h2 className="text-2xl font-black text-foreground tracking-tight">
+                About this <span className="text-primary italic">Property</span>
               </h2>
-              <p className="whitespace-pre-line leading-relaxed text-muted-foreground">
+              <p className="text-lg leading-relaxed text-muted-foreground font-medium bg-muted/20 p-8 rounded-[2rem] border border-dashed border-border/50">
                 {listing.description}
               </p>
             </div>
 
             {amenities.length > 0 && (
-              <div className="mt-8">
-                <h2 className="mb-3 text-lg font-semibold text-foreground">
-                  Amenities
+              <div className="mt-12 pt-10 border-t border-border/50">
+                <h2 className="mb-6 text-2xl font-black text-foreground tracking-tight">
+                  Amenities & <span className="text-primary italic">Features</span>
                 </h2>
-                <div className="flex flex-wrap gap-2">
-                  {amenities.map((la) => (
-                    <Badge
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                  {amenities.map((la: any) => (
+                    <div
                       key={la.amenities.id}
-                      variant="outline"
-                      className="gap-1.5 px-3 py-1.5 text-sm"
+                      className="flex items-center gap-3 px-5 py-4 rounded-2xl bg-muted/30 border border-border hover:border-primary/30 transition-colors"
                     >
-                      <Check className="h-3.5 w-3.5 text-primary" />
-                      {la.amenities.name}
-                    </Badge>
+                      <div className="p-2 rounded-xl bg-primary/10 text-primary">
+                        <Check className="h-4 w-4" />
+                      </div>
+                      <span className="font-bold text-foreground/80">{la.amenities.name}</span>
+                    </div>
                   ))}
                 </div>
               </div>
@@ -303,69 +306,71 @@ export function ListingDetail({ listing }: { listing: Listing }) {
         </div>
 
         {/* Sidebar */}
-        <div className="flex flex-col gap-6">
-          <Card className="sticky top-24 border-border">
-            <CardHeader className="pb-4">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-3xl font-bold text-primary">
-                  {formatPrice(listing.price)}
-                </CardTitle>
-                <span className="text-sm text-muted-foreground">/month</span>
-              </div>
-            </CardHeader>
-            <CardContent className="flex flex-col gap-4">
+        <div className="space-y-8">
+          <Card className="sticky top-24 rounded-[3rem] border border-border/50 soft-shadow overflow-hidden bg-white dark:bg-slate-950">
+            <div className="p-8 pb-0 text-center">
+               <span className="text-xs font-black text-muted-foreground uppercase tracking-widest">Rental Price</span>
+               <div className="flex items-baseline justify-center gap-2 mt-4">
+                  <span className="text-5xl font-black text-primary tracking-tighter">
+                     {formatPrice(listing.price)}
+                  </span>
+                  <span className="text-muted-foreground font-black text-xl">/mo</span>
+               </div>
+            </div>
+
+            <CardContent className="p-8 pt-10 flex flex-col gap-6">
               {listing.profiles && (
-                <div className="flex items-center gap-3 rounded-lg bg-muted p-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-sm font-medium text-primary-foreground">
-                    {listing.profiles.full_name?.charAt(0)?.toUpperCase() || (
-                      <User className="h-4 w-4" />
-                    )}
+                <div className="flex items-center gap-4 rounded-[2rem] bg-muted/40 p-5 border border-border/50 transition-all hover:bg-muted duration-500">
+                  <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary text-2xl font-black text-primary-foreground shadow-lg shadow-primary/20">
+                    {listing.profiles?.full_name?.charAt(0)?.toUpperCase() || <User size={24} />}
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-foreground">
-                      {listing.contact_name || listing.profiles.full_name || "Property Owner"}
-                    </p>
-                    <p className="text-xs text-muted-foreground">Property Owner</p>
+                    <h4 className="font-black text-xl text-foreground tracking-tight leading-none mb-1">
+                      {listing.contact_name || listing.profiles?.full_name || "Owner"}
+                    </h4>
+                    <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Verified Landlord</p>
                   </div>
                 </div>
               )}
 
-              <div className="flex flex-col gap-2">
+              <div className="flex flex-col gap-3">
                 <a
                   href={`tel:${listing.contact_phone}`}
-                  className="flex items-center gap-2 rounded-lg border border-border p-3 text-sm text-foreground transition-colors hover:bg-muted"
+                  className="group flex items-center justify-center gap-3 rounded-2xl bg-primary py-5 text-lg font-black text-white shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all"
                 >
-                  <Phone className="h-4 w-4 text-primary" />
-                  {listing.contact_phone}
+                  <Phone className="h-5 w-5 fill-current animate-pulse" />
+                  Call Now
                 </a>
+
                 {listing.contact_email && (
-                  <a
+                   <a
                     href={`mailto:${listing.contact_email}`}
-                    className="flex items-center gap-2 rounded-lg border border-border p-3 text-sm text-foreground transition-colors hover:bg-muted"
+                    className="flex items-center justify-center gap-3 rounded-2xl border-2 border-primary/20 py-5 text-lg font-black text-primary hover:bg-primary/5 transition-all"
                   >
-                    <Mail className="h-4 w-4 text-primary" />
-                    {listing.contact_email}
+                    <Mail className="h-5 w-5" />
+                    Mail Owner
                   </a>
                 )}
               </div>
 
-              <div className="h-px bg-border" />
+              <div className="relative h-px bg-border my-6">
+                 <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 px-4 bg-white dark:bg-slate-950 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Inquiry Flow</span>
+              </div>
 
               {sent ? (
-                <div className="rounded-lg bg-primary/10 p-4 text-center">
-                  <Check className="mx-auto mb-2 h-8 w-8 text-primary" />
-                  <p className="font-medium text-foreground">Inquiry Sent!</p>
-                  <p className="mt-1 text-sm text-muted-foreground">
-                    The owner will get back to you soon.
+                <div className="rounded-[2.5rem] bg-emerald-50 p-10 text-center border border-emerald-100 animate-fade-in">
+                  <div className="w-20 h-20 rounded-full bg-emerald-500 text-white flex items-center justify-center mx-auto mb-6 shadow-xl shadow-emerald-200">
+                     <Check className="h-10 w-10 stroke-[3]" />
+                  </div>
+                  <h3 className="text-2xl font-black text-emerald-900 tracking-tighter mb-2">Message Sent!</h3>
+                  <p className="text-emerald-700/80 font-bold leading-relaxed">
+                    The owner has been notified. Expect a quick response.
                   </p>
                 </div>
               ) : (
-                <form onSubmit={handleInquiry} className="flex flex-col gap-3">
-                  <h3 className="font-semibold text-foreground">
-                    Send an Inquiry
-                  </h3>
-                  <div>
-                    <Label htmlFor="name" className="text-xs">Name</Label>
+                <form onSubmit={handleInquiry} className="space-y-5">
+                  <div className="space-y-2">
+                    <Label htmlFor="name" className="text-[10px] font-black uppercase tracking-widest ml-4">Full Name</Label>
                     <Input
                       id="name"
                       required
@@ -377,10 +382,11 @@ export function ListingDetail({ listing }: { listing: Listing }) {
                           sender_name: e.target.value,
                         })
                       }
+                      className="h-14 rounded-2xl border-border/50 bg-muted/30 focus-visible:ring-primary/20 font-bold px-6"
                     />
                   </div>
-                  <div>
-                    <Label htmlFor="phone" className="text-xs">Phone</Label>
+                  <div className="space-y-2">
+                    <Label htmlFor="phone" className="text-[10px] font-black uppercase tracking-widest ml-4">Phone Number</Label>
                     <Input
                       id="phone"
                       required
@@ -392,30 +398,16 @@ export function ListingDetail({ listing }: { listing: Listing }) {
                           sender_phone: e.target.value,
                         })
                       }
+                      className="h-14 rounded-2xl border-border/50 bg-muted/30 focus-visible:ring-primary/20 font-bold px-6"
                     />
                   </div>
-                  <div>
-                    <Label htmlFor="email" className="text-xs">Email (optional)</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      placeholder="you@email.com"
-                      value={inquiryForm.sender_email}
-                      onChange={(e) =>
-                        setInquiryForm({
-                          ...inquiryForm,
-                          sender_email: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="message" className="text-xs">Message</Label>
+                  <div className="space-y-2">
+                    <Label htmlFor="message" className="text-[10px] font-black uppercase tracking-widest ml-4">Message</Label>
                     <Textarea
                       id="message"
                       required
-                      placeholder="I'm interested in this property..."
-                      rows={3}
+                      placeholder="I'm interested in viewing this property..."
+                      rows={4}
                       value={inquiryForm.message}
                       onChange={(e) =>
                         setInquiryForm({
@@ -423,10 +415,11 @@ export function ListingDetail({ listing }: { listing: Listing }) {
                           message: e.target.value,
                         })
                       }
+                      className="rounded-2xl border-border/50 bg-muted/30 focus-visible:ring-primary/20 font-bold p-6 leading-relaxed"
                     />
                   </div>
-                  <Button type="submit" disabled={sending} className="w-full">
-                    {sending ? "Sending..." : "Send Inquiry"}
+                  <Button type="submit" disabled={sending} className="w-full h-16 rounded-2xl font-black text-lg bg-zinc-900 text-white hover:bg-black shadow-xl transition-all">
+                    {sending ? "Sending Message..." : "Schedule Viewing"}
                   </Button>
                 </form>
               )}

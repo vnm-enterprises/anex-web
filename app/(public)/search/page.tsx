@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import { SearchClient } from "./search-client"
+import { Suspense } from "react"
 
 export const metadata: Metadata = {
   title: "Search Rentals",
@@ -8,5 +9,7 @@ export const metadata: Metadata = {
 }
 
 export default function SearchPage() {
-  return <SearchClient />
+  return <Suspense fallback={<>Loading</>}>
+    <SearchClient />
+  </Suspense>
 }

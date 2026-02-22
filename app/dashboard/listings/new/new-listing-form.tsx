@@ -36,6 +36,9 @@ export function NewListingForm() {
   const [loading, setLoading] = useState(false)
   const [imageFiles, setImageFiles] = useState<File[]>([])
   const [imagePreviews, setImagePreviews] = useState<string[]>([])
+  const [listingCount, setListingCount] = useState(0)
+  const [showPayment, setShowPayment] = useState(false)
+  const [paymentLoading, setPaymentLoading] = useState(false)
 
   const [form, setForm] = useState({
     title: "",
@@ -61,6 +64,16 @@ export function NewListingForm() {
       ])
       if (d) setDistricts(d)
       if (a) setAmenities(a)
+
+      // Check listing count
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        const { count } = await supabase
+          .from("listings")
+          .select("*", { count: "exact", head: true })
+          .eq("user_id", user.id)
+        setListingCount(count || 0)
+      }
     }
     load()
   }, [])
@@ -83,8 +96,8 @@ export function NewListingForm() {
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || [])
-    if (imageFiles.length + files.length > 10) {
-      toast.error("Maximum 10 images allowed")
+    if (imageFiles.length + files.length > 3) {
+      toast.error("Maximum 3 images allowed")
       return
     }
     setImageFiles((prev) => [...prev, ...files])
@@ -104,6 +117,12 @@ export function NewListingForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+
+    if (listingCount >= 3 && !showPayment) {
+      setShowPayment(true)
+      return
+    }
+
     setLoading(true)
 
     try {
@@ -148,6 +167,7 @@ export function NewListingForm() {
           .from("listing-images")
           .upload(filePath, file)
 
+          if (uploadError) alert(uploadError)
         if (!uploadError) {
           const {
             data: { publicUrl },
@@ -160,6 +180,7 @@ export function NewListingForm() {
             display_order: i,
           })
         }
+
       }
 
       // Link amenities
@@ -470,16 +491,37 @@ export function NewListingForm() {
 
             <div className="mt-4 h-px bg-border" />
 
-            <Button type="submit" className="w-full text-white" disabled={loading}>
-              {loading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Creating...
-                </>
-              ) : (
-                "Create Listing"
-              )}
-            </Button>
+            {listingCount >= 3 ? (
+              <div className="space-y-4">
+                <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-500 text-xs font-bold">
+                  You have reached the free limit of 3 ads. A one-time payment of Rs. 1,000 is required for this listing.
+                </div>
+                <Button
+                  type="submit"
+                  className="w-full text-white bg-amber-500 hover:bg-amber-600"
+                  disabled={loading || paymentLoading}
+                >
+                  {paymentLoading ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : showPayment ? (
+                    "Pay Rs. 1,000 & Post Ad"
+                  ) : (
+                    "Review & Pay"
+                  )}
+                </Button>
+              </div>
+            ) : (
+              <Button type="submit" className="w-full text-white" disabled={loading}>
+                {loading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Creating...
+                  </>
+                ) : (
+                  "Create Listing"
+                )}
+              </Button>
+            )}
             <p className="text-xs text-center text-muted-foreground">
               Your listing will be reviewed before going live.
             </p>

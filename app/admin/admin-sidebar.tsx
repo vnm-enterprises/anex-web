@@ -26,18 +26,23 @@ export function AdminSidebar() {
   const pathname = usePathname()
 
   return (
-    <aside className="hidden w-64 shrink-0 border-r border-border bg-card lg:block">
+    <aside className="hidden w-72 shrink-0 border-r border-border bg-card lg:block">
       <div className="flex h-full flex-col">
-        <div className="flex h-16 items-center gap-2 border-b border-border px-5">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-foreground">
-            <Shield className="h-4 w-4 text-background" />
+        {/* Logo Section */}
+        <div className="flex h-20 items-center gap-3 border-b border-border px-6">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary shadow-lg shadow-primary/20">
+            <Shield className="h-5 w-5 text-primary-foreground" />
           </div>
-          <span className="font-display text-lg font-bold text-foreground">
-            Admin
-          </span>
+          <div>
+            <span className="block font-black text-xl text-foreground tracking-tighter leading-none">
+              Admin<span className="text-primary">Panel</span>
+            </span>
+            <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Control Center</span>
+          </div>
         </div>
 
-        <nav className="flex flex-1 flex-col gap-1 p-3">
+        {/* Navigation */}
+        <nav className="flex flex-1 flex-col gap-2 p-4">
           {navItems.map((item) => {
             const isActive =
               pathname === item.href ||
@@ -47,25 +52,33 @@ export function AdminSidebar() {
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
+                  "flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-bold transition-all duration-300",
                   isActive
-                    ? "bg-primary text-primary-foreground"
+                    ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20"
                     : "text-muted-foreground hover:bg-muted hover:text-foreground"
                 )}
               >
-                <item.icon className="h-4 w-4" />
+                <item.icon className={cn("h-5 w-5 transition-colors", isActive ? "text-primary-foreground" : "text-primary")} />
                 {item.label}
               </Link>
             )
           })}
         </nav>
 
-        <div className="border-t border-border p-3">
+        {/* Bottom Actions */}
+        <div className="border-t border-border p-4 space-y-2">
+           <Link
+            href="/dashboard"
+            className="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-bold text-muted-foreground transition-all hover:bg-muted hover:text-foreground"
+          >
+            <LayoutDashboard className="h-5 w-5 text-primary" />
+            User Dashboard
+          </Link>
           <Link
             href="/"
-            className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+            className="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-bold text-muted-foreground transition-all hover:bg-muted hover:text-foreground"
           >
-            <ArrowLeft className="h-4 w-4" />
+            <ArrowLeft className="h-5 w-5 text-primary" />
             Back to Site
           </Link>
         </div>

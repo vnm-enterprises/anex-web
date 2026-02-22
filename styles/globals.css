@@ -16,6 +16,32 @@ body {
   :root {
     --background: 0 0% 100%;
     --foreground: 0 0% 3.9%;
+    /* Core tokens */
+    --on-overlay: 0 0% 100%;
+    --muted-foreground-ratio: 45.1%;
+    /* Spacing scale */
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 24px;
+    --space-6: 32px;
+    /* Type scale */
+    --font-size-xs: 12px;
+    --font-size-sm: 14px;
+    --font-size-base: 16px;
+    --font-size-lg: 18px;
+    --font-size-xl: 20px;
+    /* Radius */
+    --radius-sm: 6px;
+    --radius: 8px;
+    --radius-lg: 12px;
+    /* Shadows */
+    --shadow-sm: 0 1px 2px rgba(16,24,40,0.05);
+    --shadow-md: 0 6px 18px rgba(2,6,23,0.08);
+    --shadow-lg: 0 10px 30px rgba(2,6,23,0.12);
+    /* Overlay for hero/header */
+    --overlay: rgba(0,0,0,0.32);
     --card: 0 0% 100%;
     --card-foreground: 0 0% 3.9%;
     --popover: 0 0% 100%;
@@ -38,7 +64,6 @@ body {
     --chart-3: 197 37% 24%;
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
-    --radius: 0.5rem;
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
     --sidebar-primary: 240 5.9% 10%;
@@ -91,4 +116,14 @@ body {
   body {
     @apply bg-background text-foreground;
   }
+  /* Utility helpers for consistent tokens */
+  .bg-surface-overlay {
+    background-color: var(--overlay);
+  }
+  .text-on-overlay {
+    color: hsl(var(--on-overlay));
+  }
+  .shadow-token-sm { box-shadow: var(--shadow-sm); }
+  .shadow-token-md { box-shadow: var(--shadow-md); }
+  .shadow-token-lg { box-shadow: var(--shadow-lg); }
 }
