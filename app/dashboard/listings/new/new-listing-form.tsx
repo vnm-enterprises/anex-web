@@ -1,44 +1,44 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
-import { createClient } from "@/lib/supabase/client"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Label } from "@/components/ui/label"
-import { Checkbox } from "@/components/ui/checkbox"
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { Loader2, Upload, X } from "lucide-react"
-import { PROPERTY_TYPES, FURNISHED_OPTIONS, GENDER_OPTIONS, slugify } from "@/lib/constants"
-import type { District, City, Amenity } from "@/lib/types"
-import { toast } from "sonner"
+} from "@/components/ui/select";
+import { Loader2, Upload, X } from "lucide-react";
+import {
+  PROPERTY_TYPES,
+  FURNISHED_OPTIONS,
+  GENDER_OPTIONS,
+  slugify,
+} from "@/lib/constants";
+import type { District, City, Amenity } from "@/lib/types";
+import { toast } from "sonner";
 
 export function NewListingForm() {
-  const router = useRouter()
-  const supabase = createClient()
+  const router = useRouter();
+  const supabase = createClient();
 
-  const [districts, setDistricts] = useState<District[]>([])
-  const [cities, setCities] = useState<City[]>([])
-  const [amenities, setAmenities] = useState<Amenity[]>([])
-  const [loading, setLoading] = useState(false)
-  const [imageFiles, setImageFiles] = useState<File[]>([])
-  const [imagePreviews, setImagePreviews] = useState<string[]>([])
-  const [listingCount, setListingCount] = useState(0)
-  const [showPayment, setShowPayment] = useState(false)
-  const [paymentLoading, setPaymentLoading] = useState(false)
+  const [districts, setDistricts] = useState<District[]>([]);
+  const [cities, setCities] = useState<City[]>([]);
+  const [amenities, setAmenities] = useState<Amenity[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [imageFiles, setImageFiles] = useState<File[]>([]);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  const [listingCount, setListingCount] = useState(0);
+  const [showPayment, setShowPayment] = useState(false);
+  const [paymentLoading, setPaymentLoading] = useState(false);
 
   const [form, setForm] = useState({
     title: "",
@@ -54,84 +54,95 @@ export function NewListingForm() {
     contact_phone: "",
     contact_email: "",
     selectedAmenities: [] as string[],
-  })
+  });
 
   useEffect(() => {
     async function load() {
       const [{ data: d }, { data: a }] = await Promise.all([
         supabase.from("districts").select("*").order("name"),
         supabase.from("amenities").select("*").order("name"),
-      ])
-      if (d) setDistricts(d)
-      if (a) setAmenities(a)
+      ]);
+      if (d) setDistricts(d);
+      if (a) setAmenities(a);
 
       // Check listing count
-      const { data: { user } } = await supabase.auth.getUser()
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (user) {
         const { count } = await supabase
           .from("listings")
           .select("*", { count: "exact", head: true })
-          .eq("user_id", user.id)
-        setListingCount(count || 0)
+          .eq("user_id", user.id);
+        setListingCount(count || 0);
       }
     }
-    load()
-  }, [])
+    load();
+  }, []);
 
   useEffect(() => {
     if (!form.district_id) {
-      setCities([])
-      return
+      setCities([]);
+      return;
     }
     async function loadCities() {
-      const { data } = await supabase
+      // Clear current cities before loading new ones to avoid UI mismatch
+      setCities([]);
+
+      const { data, error } = await supabase
         .from("cities")
         .select("*")
         .eq("district_id", form.district_id)
-        .order("name")
-      if (data) setCities(data)
+        .order("name");
+
+      if (error) {
+        toast.error("Failed to load cities for this district");
+        return;
+      }
+
+      if (data) setCities(data);
     }
-    loadCities()
-  }, [form.district_id])
+    loadCities();
+  }, [form.district_id]);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || [])
-    if (imageFiles.length + files.length > 3) {
-      toast.error("Maximum 3 images allowed")
-      return
+    const files = Array.from(e.target.files || []);
+    if (imageFiles.length + files.length > 5) {
+      toast.error("Maximum 5 images allowed");
+      return;
     }
-    setImageFiles((prev) => [...prev, ...files])
+    setImageFiles((prev) => [...prev, ...files]);
     files.forEach((file) => {
-      const reader = new FileReader()
+      const reader = new FileReader();
       reader.onload = (e) => {
-        setImagePreviews((prev) => [...prev, e.target?.result as string])
-      }
-      reader.readAsDataURL(file)
-    })
-  }
+        setImagePreviews((prev) => [...prev, e.target?.result as string]);
+      };
+      reader.readAsDataURL(file);
+    });
+  };
 
   const removeImage = (index: number) => {
-    setImageFiles((prev) => prev.filter((_, i) => i !== index))
-    setImagePreviews((prev) => prev.filter((_, i) => i !== index))
-  }
+    setImageFiles((prev) => prev.filter((_, i) => i !== index));
+    setImagePreviews((prev) => prev.filter((_, i) => i !== index));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
     if (listingCount >= 3 && !showPayment) {
-      setShowPayment(true)
-      return
+      setShowPayment(true);
+      return;
     }
 
-    setLoading(true)
+    setLoading(true);
 
     try {
       const {
         data: { user },
-      } = await supabase.auth.getUser()
-      if (!user) throw new Error("Not authenticated")
+      } = await supabase.auth.getUser();
+      if (!user) throw new Error("Not authenticated");
 
-      const slug = slugify(form.title) + "-" + Date.now().toString(36)
+      const slug = slugify(form.title) + "-" + Date.now().toString(36);
 
       const { data: listing, error: listingError } = await supabase
         .from("listings")
@@ -153,34 +164,33 @@ export function NewListingForm() {
           status: "pending",
         })
         .select()
-        .single()
+        .single();
 
-      if (listingError) throw listingError
+      if (listingError) throw listingError;
 
       // Upload images
       for (let i = 0; i < imageFiles.length; i++) {
-        const file = imageFiles[i]
-        const fileExt = file.name.split(".").pop()
-        const filePath = `listings/${listing.id}/${i}.${fileExt}`
+        const file = imageFiles[i];
+        const fileExt = file.name.split(".").pop();
+        const filePath = `listings/${listing.id}/${i}.${fileExt}`;
 
         const { error: uploadError } = await supabase.storage
           .from("listing-images")
-          .upload(filePath, file)
+          .upload(filePath, file);
 
-          if (uploadError) alert(uploadError)
+        if (uploadError) alert(uploadError);
         if (!uploadError) {
           const {
             data: { publicUrl },
-          } = supabase.storage.from("listing-images").getPublicUrl(filePath)
+          } = supabase.storage.from("listing-images").getPublicUrl(filePath);
 
           await supabase.from("listing_images").insert({
             listing_id: listing.id,
             url: publicUrl,
             storage_path: filePath,
             display_order: i,
-          })
+          });
         }
-
       }
 
       // Link amenities
@@ -189,24 +199,24 @@ export function NewListingForm() {
           form.selectedAmenities.map((amenityId) => ({
             listing_id: listing.id,
             amenity_id: amenityId,
-          }))
-        )
+          })),
+        );
       }
 
-      toast.success("Listing created! It will be visible once approved.")
-      router.push("/dashboard")
+      toast.success("Listing created! It will be visible once approved.");
+      router.push("/dashboard");
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Failed to create listing"
-      )
+        error instanceof Error ? error.message : "Failed to create listing",
+      );
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const updateForm = (key: string, value: string) => {
-    setForm((prev) => ({ ...prev, [key]: value }))
-  }
+    setForm((prev) => ({ ...prev, [key]: value }));
+  };
 
   return (
     <form onSubmit={handleSubmit} className="grid gap-6 lg:grid-cols-3">
@@ -322,8 +332,8 @@ export function NewListingForm() {
                 <Select
                   value={form.district_id}
                   onValueChange={(v) => {
-                    updateForm("district_id", v)
-                    updateForm("city_id", "")
+                    updateForm("district_id", v);
+                    updateForm("city_id", "");
                   }}
                   required
                 >
@@ -350,7 +360,9 @@ export function NewListingForm() {
                   <SelectTrigger>
                     <SelectValue
                       placeholder={
-                        cities.length === 0 ? "Select district first" : "Select city"
+                        cities.length === 0
+                          ? "Select district first"
+                          : "Select city"
                       }
                     />
                   </SelectTrigger>
@@ -401,7 +413,7 @@ export function NewListingForm() {
                   </button>
                 </div>
               ))}
-              {imageFiles.length < 10 && (
+              {imageFiles.length < 5 && (
                 <label className="flex h-24 w-28 cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-border text-muted-foreground transition-colors hover:border-primary hover:text-primary">
                   <Upload className="mb-1 h-5 w-5" />
                   <span className="text-xs">Add Image</span>
@@ -416,7 +428,7 @@ export function NewListingForm() {
               )}
             </div>
             <p className="mt-2 text-xs text-muted-foreground">
-              Upload up to 10 images. First image will be the cover.
+              Upload up to 5 images. First image will be the cover.
             </p>
           </CardContent>
         </Card>
@@ -440,9 +452,9 @@ export function NewListingForm() {
                         selectedAmenities: checked
                           ? [...prev.selectedAmenities, amenity.id]
                           : prev.selectedAmenities.filter(
-                              (id) => id !== amenity.id
+                              (id) => id !== amenity.id,
                             ),
-                      }))
+                      }));
                     }}
                   />
                   <span className="text-foreground">{amenity.name}</span>
@@ -494,7 +506,8 @@ export function NewListingForm() {
             {listingCount >= 3 ? (
               <div className="space-y-4">
                 <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-500 text-xs font-bold">
-                  You have reached the free limit of 3 ads. A one-time payment of Rs. 1,000 is required for this listing.
+                  You have reached the free limit of 3 ads. A one-time payment
+                  of Rs. 750 is required for this listing.
                 </div>
                 <Button
                   type="submit"
@@ -504,14 +517,18 @@ export function NewListingForm() {
                   {paymentLoading ? (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   ) : showPayment ? (
-                    "Pay Rs. 1,000 & Post Ad"
+                    "Pay Rs. 750 & Post Ad"
                   ) : (
                     "Review & Pay"
                   )}
                 </Button>
               </div>
             ) : (
-              <Button type="submit" className="w-full text-white" disabled={loading}>
+              <Button
+                type="submit"
+                className="w-full text-white"
+                disabled={loading}
+              >
                 {loading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -529,5 +546,5 @@ export function NewListingForm() {
         </Card>
       </div>
     </form>
-  )
+  );
 }
