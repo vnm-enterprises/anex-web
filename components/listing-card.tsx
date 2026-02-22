@@ -1,24 +1,25 @@
-"use client"
+"use client";
 
-import Link from "next/link"
-import { Badge } from "@/components/ui/badge"
+import Link from "next/link";
+import { Badge } from "@/components/ui/badge";
 import {
   MapPin,
   Eye,
   Bolt,
+  Zap,
   Sparkles,
   ArrowUpRight,
   Users,
   Armchair,
-} from "lucide-react"
-import { formatPrice } from "@/lib/constants"
-import type { Listing } from "@/lib/types"
+} from "lucide-react";
+import { formatPrice } from "@/lib/constants";
+import type { Listing } from "@/lib/types";
 
 export function ListingCard({ listing }: { listing: Listing }) {
-  const mainImage = listing.listing_images?.[0]?.url
+  const mainImage = listing.listing_images?.[0]?.url;
 
   return (
-    <div className="group relative flex flex-col overflow-hidden rounded-[2.5rem] border border-border/50 bg-card transition-all duration-700 soft-shadow hover:shadow-2xl hover:-translate-y-2">
+    <div className="group relative flex flex-col h-full overflow-hidden rounded-[2.5rem] border border-border/50 bg-card transition-all duration-700 soft-shadow hover:shadow-2xl hover:-translate-y-2">
       {/* Image Section */}
       <div className="relative aspect-[4/3] overflow-hidden">
         {mainImage ? (
@@ -39,9 +40,9 @@ export function ListingCard({ listing }: { listing: Listing }) {
         {/* Badges */}
         <div className="absolute top-5 left-5 flex flex-col gap-2">
           {listing.is_boosted && (
-            <Badge className="bg-primary text-white border-none font-black uppercase tracking-widest text-[9px] px-3 py-1.5 shadow-xl backdrop-blur-md">
-              <Bolt className="h-3 w-3 mr-1 fill-current" />
-              Boosted
+            <Badge className="bg-primary text-white border-none font-black uppercase tracking-widest text-[10px] px-3 py-1 shadow-lg backdrop-blur-sm">
+              <Zap className="h-3 w-3 mr-1 fill-current" />
+              Priority Choice
             </Badge>
           )}
           {listing.is_featured && (
@@ -55,10 +56,14 @@ export function ListingCard({ listing }: { listing: Listing }) {
         {/* Bottom Info Overlay */}
         <div className="absolute bottom-6 left-6 right-6 flex items-end justify-between text-white">
           <div className="flex flex-col">
-            <span className="text-[10px] font-black text-white/70 uppercase tracking-[0.2em] mb-1">Monthly Rent</span>
+            <span className="text-[10px] font-black text-white/70 uppercase tracking-[0.2em] mb-1">
+              Monthly Rent
+            </span>
             <span className="text-3xl font-black tracking-tighter">
               {formatPrice(listing.price)}
-              <span className="text-sm font-medium text-white/60 ml-1.5 italic">/mo</span>
+              <span className="text-sm font-medium text-white/60 ml-1.5 italic">
+                /mo
+              </span>
             </span>
           </div>
           <Link
@@ -95,7 +100,10 @@ export function ListingCard({ listing }: { listing: Listing }) {
         {listing.listing_amenities && listing.listing_amenities.length > 0 && (
           <div className="flex flex-wrap gap-1.5 mb-6">
             {listing.listing_amenities.slice(0, 3).map((item, i) => (
-              <span key={i} className="text-[9px] font-bold px-2 py-0.5 rounded-lg bg-muted text-muted-foreground uppercase tracking-wider">
+              <span
+                key={i}
+                className="text-[9px] font-bold px-2 py-0.5 rounded-lg bg-muted text-muted-foreground uppercase tracking-wider"
+              >
                 {item.amenities?.name}
               </span>
             ))}
@@ -113,8 +121,12 @@ export function ListingCard({ listing }: { listing: Listing }) {
               <Armchair className="h-5 w-5" />
             </div>
             <div className="flex flex-col">
-              <span className="text-[8px] font-black text-muted-foreground uppercase tracking-widest">Furnishing</span>
-              <span className="text-xs font-bold text-foreground capitalize truncate">{listing.furnished.replace("-", " ")}</span>
+              <span className="text-[8px] font-black text-muted-foreground uppercase tracking-widest">
+                Furnishing
+              </span>
+              <span className="text-xs font-bold text-foreground capitalize truncate">
+                {listing.furnished.replace("-", " ")}
+              </span>
             </div>
           </div>
 
@@ -123,8 +135,12 @@ export function ListingCard({ listing }: { listing: Listing }) {
               <Users className="h-5 w-5" />
             </div>
             <div className="flex flex-col">
-              <span className="text-[8px] font-black text-muted-foreground uppercase tracking-widest">Preference</span>
-              <span className="text-xs font-bold text-foreground capitalize truncate">{listing.gender_preference}</span>
+              <span className="text-[8px] font-black text-muted-foreground uppercase tracking-widest">
+                Preference
+              </span>
+              <span className="text-xs font-bold text-foreground capitalize truncate">
+                {listing.gender_preference}
+              </span>
             </div>
           </div>
         </div>
@@ -133,5 +149,5 @@ export function ListingCard({ listing }: { listing: Listing }) {
       {/* Hover Background Effect */}
       <div className="absolute inset-0 bg-primary/0 group-hover:bg-primary/[0.02] transition-colors pointer-events-none" />
     </div>
-  )
+  );
 }
