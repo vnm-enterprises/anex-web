@@ -50,16 +50,28 @@ export function DistrictsSection() {
           "kalutara",
           "kurunegala",
         ];
-        const enriched = districtsData
-          .map((d) => ({ ...d, slug: d.slug.toLowerCase() }))
-          .filter((d) => prominentSlugs.includes(d.slug))
-          .map((d) => ({
-            ...d,
-            count: Math.floor(Math.random() * 200) + 50,
-            image:
-              districtImages[d.slug] ||
-              `https://images.unsplash.com/photo-1580000000000?auto=format&fit=crop&q=80&w=800`,
-          }));
+
+        const enriched = await Promise.all(
+          districtsData
+            .map((d) => ({ ...d, slug: d.slug.toLowerCase() }))
+            .filter((d) => prominentSlugs.includes(d.slug))
+            .map(async (d) => {
+              // Fetch listing count for this district
+              const { count } = await supabase
+                .from("listings")
+                .select("*", { count: "exact", head: true })
+                .eq("district_id", d.id)
+                .eq("status", "approved");
+
+              return {
+                ...d,
+                count: count || 0,
+                image:
+                  districtImages[d.slug] ||
+                  `https://images.unsplash.com/photo-1580000000000?auto=format&fit=crop&q=80&w=800`,
+              };
+            })
+        );
         setDistricts(enriched);
       }
     }
