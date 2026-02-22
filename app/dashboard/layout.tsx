@@ -11,10 +11,10 @@ export default function DashboardLayout({
   children: React.ReactNode
 }) {
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex min-h-screen flex-col bg-background">
       <SiteHeader />
-      <main className="flex-1 bg-muted/30 ">
-        <div className="mx-auto max-w-7xl px-4 py-8 lg:px-6 mt-20">
+      <main className="flex-1 bg-muted/40 backdrop-blur-sm">
+        <div className="mx-auto max-w-7xl px-6 py-12 lg:px-8 mt-16 animate-fade-in">
           {children}
         </div>
       </main>
