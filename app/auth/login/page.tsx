@@ -6,10 +6,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { Loader2, Home } from "lucide-react";
 
-export default function LoginPage() {
+function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -43,6 +43,66 @@ export default function LoginPage() {
   };
 
   return (
+    <div className="max-w-md w-full mx-auto">
+      <h1 className="text-3xl font-bold mb-2 text-foreground">
+        Welcome back
+      </h1>
+      <p className="text-muted-foreground mb-8">
+        Sign in to manage your listings and dashboard.
+      </p>
+
+      <form onSubmit={handleLogin} className="space-y-5">
+        <div>
+          <Label>Email</Label>
+          <Input
+            type="email"
+            placeholder="you@example.com"
+            required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="mt-2"
+          />
+        </div>
+
+        <div>
+          <Label>Password</Label>
+          <Input
+            type="password"
+            required
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="mt-2"
+          />
+        </div>
+
+        <div className="text-right text-sm">
+          <Link
+            href="/auth/forgot-password"
+            className="text-primary font-medium hover:underline"
+          >
+            Forgot password?
+          </Link>
+        </div>
+
+        {error && <p className="text-sm text-destructive">{error}</p>}
+
+        <Button type="submit" className="w-full mt-2" disabled={isLoading}>
+          {isLoading ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Signing in...
+            </>
+          ) : (
+            "Sign In"
+          )}
+        </Button>
+      </form>
+    </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
     <div className="flex min-h-screen w-full bg-background-light dark:bg-background-dark">
       {/* LEFT SIDE - FORM */}
       <div className="w-full lg:w-1/2 flex flex-col justify-between p-8 lg:p-16 xl:p-20 bg-white dark:bg-slate-900 overflow-y-auto">
@@ -66,61 +126,13 @@ export default function LoginPage() {
         </div>
 
         {/* Form Section */}
-        <div className="max-w-md w-full mx-auto">
-          <h1 className="text-3xl font-bold mb-2 text-foreground">
-            Welcome back
-          </h1>
-          <p className="text-muted-foreground mb-8">
-            Sign in to manage your listings and dashboard.
-          </p>
-
-          <form onSubmit={handleLogin} className="space-y-5">
-            <div>
-              <Label>Email</Label>
-              <Input
-                type="email"
-                placeholder="you@example.com"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="mt-2"
-              />
-            </div>
-
-            <div>
-              <Label>Password</Label>
-              <Input
-                type="password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="mt-2"
-              />
-            </div>
-
-            <div className="text-right text-sm">
-              <Link
-                href="/auth/forgot-password"
-                className="text-primary font-medium hover:underline"
-              >
-                Forgot password?
-              </Link>
-            </div>
-
-            {error && <p className="text-sm text-destructive">{error}</p>}
-
-            <Button type="submit" className="w-full mt-2" disabled={isLoading}>
-              {isLoading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Signing in...
-                </>
-              ) : (
-                "Sign In"
-              )}
-            </Button>
-          </form>
-        </div>
+        <Suspense fallback={
+          <div className="max-w-md w-full mx-auto flex items-center justify-center py-20">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          </div>
+        }>
+          <LoginForm />
+        </Suspense>
 
         {/* Footer (Same as Signup) */}
         <div className="mt-12 text-xs text-muted-foreground text-center">
