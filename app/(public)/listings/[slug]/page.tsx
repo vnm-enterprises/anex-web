@@ -4,6 +4,7 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { formatPrice } from "@/lib/constants"
 import { ListingDetail } from "./listing-detail"
+import { ListingCard } from "@/components/listing-card"
 
 interface Props {
   params: Promise<{ slug: string }>
@@ -136,41 +137,25 @@ export default async function ListingPage({ params }: Props) {
       <ListingDetail listing={listingData} />
 
       {similar.length > 0 && (
-        <section className="mt-20">
-          <div className="container mx-auto px-4">
-            <h2 className="text-2xl md:text-3xl font-bold mb-8">
-              Similar Properties in {listingData.cities?.name}
-            </h2>
+        <section className="mt-20 border-t border-border pt-20">
+          <div className="mx-auto max-w-7xl px-6 lg:px-8">
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+               <div>
+                  <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] font-black uppercase tracking-widest mb-3">
+                    Recommendations
+                  </span>
+                  <h2 className="text-4xl font-black text-foreground tracking-tighter">
+                    Similar Properties in <span className="text-primary italic">{listingData.cities?.name}</span>
+                  </h2>
+               </div>
+               <Link href="/search" className="text-sm font-black text-primary hover:underline underline-offset-4">
+                 View all listings
+               </Link>
+            </div>
 
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
               {similar.map((item) => (
-                <Link
-                  key={item.id}
-                  href={`/listings/${item.slug}`}
-                  className="group rounded-2xl border border-border overflow-hidden hover:shadow-xl transition-all duration-300 bg-background"
-                >
-                  <div className="h-52 w-full overflow-hidden">
-                    <img
-                      src={item.listing_images?.[0]?.url ?? "/placeholder.jpg"}
-                      alt={item.title}
-                      className="h-full w-full object-cover group-hover:scale-105 transition duration-300"
-                    />
-                  </div>
-
-                  <div className="p-5 space-y-2">
-                    <p className="font-semibold line-clamp-1">
-                      {item.title}
-                    </p>
-
-                    <p className="text-sm text-muted-foreground">
-                      {item.cities?.name}
-                    </p>
-
-                    <p className="font-bold text-primary">
-                      {formatPrice(item.price)}
-                    </p>
-                  </div>
-                </Link>
+                <ListingCard key={item.id} listing={item} />
               ))}
             </div>
           </div>
