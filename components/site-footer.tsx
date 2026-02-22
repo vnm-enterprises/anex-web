@@ -9,113 +9,138 @@ import {
 
 export function SiteFooter() {
   return (
-    <footer className="bg-white dark:bg-background border-t border-slate-200 dark:border-slate-800 pt-16 pb-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-
+    <footer className="bg-muted border-t border-border pt-20 pb-10">
+      <div className="max-w-7xl mx-auto px-6">
         {/* ================= TOP GRID ================= */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
-
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
           {/* Brand Section */}
-          <div>
-            <Link href="/" className="flex items-center gap-2 mb-6">
-              <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-white">
-                <Home className="h-4 w-4" />
+          <div className="space-y-6">
+            <Link href="/" className="flex items-center gap-2.5 group">
+              <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-primary-foreground shadow-lg group-hover:scale-105 transition-transform">
+                <Home className="h-5 w-5" />
               </div>
-              <span className="font-extrabold text-2xl tracking-tight text-slate-900 dark:text-white">
-                Annex<span className="text-primary">.lk</span>
+              <span className="font-extrabold text-2xl tracking-tighter text-foreground">
+                Annex<span className="text-primary italic">.lk</span>
               </span>
             </Link>
 
-            <p className="text-slate-500 dark:text-slate-400 text-sm mb-6 leading-relaxed">
-              Sri Lanka's #1 marketplace for long-term rentals.
-              Connecting tenants with verified owners for a seamless rental experience.
+            <p className="text-muted-foreground text-sm leading-relaxed max-w-xs">
+              Sri Lanka's premier marketplace for long-term rentals. Connecting
+              verified tenants with trusted landlords since 2024.
             </p>
 
             {/* Social Icons */}
             <div className="flex gap-4">
-              <a className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-primary hover:text-white transition-colors">
-                <Facebook size={16} />
-              </a>
-              <a className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-primary hover:text-white transition-colors">
-                <Twitter size={16} />
-              </a>
-              <a className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-primary hover:text-white transition-colors">
-                <Instagram size={16} />
-              </a>
+              {[
+                { Icon: Facebook, label: "Facebook" },
+                { Icon: Twitter, label: "Twitter" },
+                { Icon: Instagram, label: "Instagram" }
+              ].map((social, i) => (
+                <a
+                  key={i}
+                  href="#"
+                  aria-label={`Follow us on ${social.label}`}
+                  className="w-12 h-12 rounded-2xl bg-card border border-border/50 flex items-center justify-center text-muted-foreground hover:bg-primary hover:text-white hover:border-primary transition-all duration-500 soft-shadow"
+                >
+                  <social.Icon size={20} />
+                </a>
+              ))}
             </div>
           </div>
 
           {/* Explore */}
           <div>
-            <h4 className="font-bold text-slate-900 dark:text-white mb-6">
-              Explore
+            <h4 className="font-bold text-foreground mb-6 uppercase text-xs tracking-widest">
+              Explore Locations
             </h4>
-            <ul className="space-y-3 text-sm text-slate-500 dark:text-slate-400">
-              <li><Link href="/search?district=colombo" className="hover:text-primary transition-colors">Colombo Rentals</Link></li>
-              <li><Link href="/search?district=kandy" className="hover:text-primary transition-colors">Kandy Rentals</Link></li>
-              <li><Link href="/search?district=galle" className="hover:text-primary transition-colors">Galle Rentals</Link></li>
-              <li><Link href="/search?type=apartment" className="hover:text-primary transition-colors">Apartments for Rent</Link></li>
-              <li><Link href="/search?type=house" className="hover:text-primary transition-colors">Houses for Rent</Link></li>
+            <ul className="space-y-4 text-sm text-muted-foreground">
+              {[
+                { name: "Colombo Rentals", href: "/search?district=colombo" },
+                { name: "Kandy Rentals", href: "/search?district=kandy" },
+                { name: "Galle Rentals", href: "/search?district=galle" },
+                { name: "Apartments", href: "/search?type=apartment" },
+                { name: "Houses", href: "/search?type=house" },
+              ].map((item) => (
+                <li key={item.name}>
+                  <Link
+                    href={item.href}
+                    className="hover:text-primary transition-colors flex items-center group"
+                  >
+                    <span>{item.name}</span>
+                    <ArrowRight className="h-3 w-3 ml-2 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 
           {/* Company */}
           <div>
-            <h4 className="font-bold text-slate-900 dark:text-white mb-6">
+            <h4 className="font-bold text-foreground mb-6 uppercase text-xs tracking-widest">
               Company
             </h4>
-            <ul className="space-y-3 text-sm text-slate-500 dark:text-slate-400">
-              <li><Link href="/about" className="hover:text-primary transition-colors">About Us</Link></li>
-              <li><Link href="/contact" className="hover:text-primary transition-colors">Contact Support</Link></li>
-              <li><Link href="/terms" className="hover:text-primary transition-colors">Terms of Service</Link></li>
-              <li><Link href="/privacy" className="hover:text-primary transition-colors">Privacy Policy</Link></li>
-              <li><Link href="/blog" className="hover:text-primary transition-colors">Blog</Link></li>
+            <ul className="space-y-4 text-sm text-muted-foreground">
+              {[
+                "About Us",
+                "Contact Support",
+                "Terms of Service",
+                "Privacy Policy",
+                "Blog",
+              ].map((name) => (
+                <li key={name}>
+                  <Link
+                    href={`/${name.toLowerCase().replace(/ /g, "-")}`}
+                    className="hover:text-primary transition-colors"
+                  >
+                    {name}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 
           {/* Newsletter */}
-          <div>
-            <h4 className="font-bold text-slate-900 dark:text-white mb-6">
-              Stay Updated
-            </h4>
-            <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">
+          <div className="bg-background p-6 rounded-2xl border border-border shadow-soft">
+            <h4 className="font-bold text-foreground mb-2">Stay Updated</h4>
+            <p className="text-xs text-muted-foreground mb-6">
               Get the latest listings delivered to your inbox.
             </p>
             <form className="flex flex-col gap-3">
               <input
                 type="email"
-                placeholder="Enter your email"
-                className="w-full px-4 py-3 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm"
+                placeholder="email@example.com"
+                className="w-full px-4 py-3 rounded-xl bg-muted border border-border focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-sm"
               />
               <button
                 type="button"
-                className="bg-primary hover:bg-primary/90 text-white font-semibold py-3 px-4 rounded-lg transition-colors text-sm"
+                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold py-3 px-4 rounded-xl transition-all shadow-md active:scale-[0.98] text-sm"
               >
-                Subscribe
+                Join Newsletter
               </button>
             </form>
           </div>
         </div>
 
         {/* ================= BOTTOM BAR ================= */}
-        <div className="border-t border-slate-100 dark:border-slate-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-
-          <p className="text-slate-400 text-xs">
-            © {new Date().getFullYear()} Annex.lk. All rights reserved.
+        <div className="border-t border-border pt-8 flex flex-col md:flex-row justify-between items-center gap-6">
+          <p className="text-muted-foreground text-[10px] uppercase tracking-widest">
+            © {new Date().getFullYear()} Annex.lk — Crafted in Sri Lanka
           </p>
 
-          <div className="flex gap-6 text-xs text-slate-400">
-            <Link href="/privacy" className="hover:text-primary">
+          <div className="flex gap-8 text-[10px] items-center uppercase tracking-widest text-muted-foreground font-semibold">
+            <Link href="/privacy" className="hover:text-primary transition-colors">
               Privacy
             </Link>
-            <Link href="/terms" className="hover:text-primary">
+            <Link href="/terms" className="hover:text-primary transition-colors">
               Terms
             </Link>
-            <Link href="/sitemap" className="hover:text-primary flex items-center gap-1">
+            <Link
+              href="/sitemap"
+              className="hover:text-primary transition-colors flex items-center gap-2"
+            >
               Sitemap <ArrowRight size={12} />
             </Link>
           </div>
-
         </div>
       </div>
     </footer>
