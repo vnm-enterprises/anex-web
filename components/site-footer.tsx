@@ -1,11 +1,5 @@
-import Link from "next/link"
-import {
-  Home,
-  Facebook,
-  Twitter,
-  Instagram,
-  ArrowRight,
-} from "lucide-react"
+import Link from "next/link";
+import { Home, Facebook, Twitter, Instagram, ArrowRight } from "lucide-react";
 
 export function SiteFooter() {
   return (
@@ -34,7 +28,7 @@ export function SiteFooter() {
               {[
                 { Icon: Facebook, label: "Facebook" },
                 { Icon: Twitter, label: "Twitter" },
-                { Icon: Instagram, label: "Instagram" }
+                { Icon: Instagram, label: "Instagram" },
               ].map((social, i) => (
                 <a
                   key={i}
@@ -128,14 +122,20 @@ export function SiteFooter() {
           </p>
 
           <div className="flex gap-8 text-[10px] items-center uppercase tracking-widest text-muted-foreground font-semibold">
-            <Link href="/privacy" className="hover:text-primary transition-colors">
+            <Link
+              href="/privacy-policy"
+              className="hover:text-primary transition-colors"
+            >
               Privacy
             </Link>
-            <Link href="/terms" className="hover:text-primary transition-colors">
+            <Link
+              href="/terms-of-service"
+              className="hover:text-primary transition-colors"
+            >
               Terms
             </Link>
             <Link
-              href="/sitemap"
+              href="/sitemap.xml"
               className="hover:text-primary transition-colors flex items-center gap-2"
             >
               Sitemap <ArrowRight size={12} />
@@ -144,5 +144,5 @@ export function SiteFooter() {
         </div>
       </div>
     </footer>
-  )
+  );
 }
