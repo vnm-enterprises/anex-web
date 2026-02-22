@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import { useState, useEffect, useCallback } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
@@ -324,141 +325,162 @@ export function SearchClient() {
   )
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 lg:px-6 mt-20">
-      <div className="mb-8">
-        <h1 className="font-display text-3xl font-bold text-foreground">
-          Search Rentals
-        </h1>
-        <p className="mt-1 text-muted-foreground">
-          {totalCount} {totalCount === 1 ? "property" : "properties"} found
-        </p>
+    <div className="mx-auto max-w-7xl px-6 py-12 lg:px-8 mt-16 animate-fade-in">
+      <div className="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div>
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] font-black uppercase tracking-widest mb-3">
+             <Search className="h-3 w-3" />
+             Property Search
+          </div>
+          <h1 className="text-4xl md:text-5xl font-black text-foreground tracking-tighter">
+            Find your <span className="text-primary italic">Perfect Place</span>
+          </h1>
+          <p className="mt-2 text-muted-foreground font-medium">
+             {totalCount} {totalCount === 1 ? "property" : "properties"} available for rent
+          </p>
+        </div>
+
+        <div className="flex items-center gap-3">
+           <Select value={sort} onValueChange={(v) => { setSort(v); setPage(1) }}>
+            <SelectTrigger className="w-48 h-12 rounded-2xl border-border bg-card hidden md:flex font-bold">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent className="rounded-2xl border-border shadow-2xl">
+              {SORT_OPTIONS.map((s) => (
+                <SelectItem key={s.value} value={s.value} className="font-medium">
+                  {s.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button variant="outline" size="icon" className="h-12 w-12 rounded-2xl shrink-0 lg:hidden shadow-sm">
+                <SlidersHorizontal className="h-5 w-5" />
+                <span className="sr-only">Filters</span>
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="left" className="w-full sm:max-w-md border-r-0 rounded-r-[2rem]">
+              <SheetHeader className="mb-6">
+                <SheetTitle className="text-2xl font-black tracking-tighter">Adjust Filters</SheetTitle>
+              </SheetHeader>
+              <div className="pb-10 overflow-y-auto h-full">{filterContent}</div>
+            </SheetContent>
+          </Sheet>
+        </div>
       </div>
 
-      <div className="mb-6 flex items-center gap-3">
-        <form onSubmit={handleSearch} className="flex flex-1 gap-2">
+      <div className="mb-10 group">
+        <form onSubmit={handleSearch} className="flex gap-4">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Search className="absolute left-5 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground group-focus-within:text-primary transition-colors" />
             <Input
-              placeholder="Search keywords..."
+              placeholder="Search by keywords, location, or school name..."
               value={keyword}
               onChange={(e) => setKeyword(e.target.value)}
-              className="pl-10"
+              className="h-16 pl-14 pr-6 rounded-[2rem] text-lg font-medium border-border/50 bg-card shadow-lg shadow-black/5 focus-visible:ring-primary/20"
             />
           </div>
-          <Button type="submit" variant="outline">
-            Search
+          <Button type="submit" size="lg" className="h-16 px-10 rounded-[2rem] font-black text-lg shadow-xl shadow-primary/20 group-hover:scale-[1.02] transition-all">
+            Search Now
           </Button>
         </form>
-
-        <Select value={sort} onValueChange={(v) => { setSort(v); setPage(1) }}>
-          <SelectTrigger className="w-48 hidden md:flex">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {SORT_OPTIONS.map((s) => (
-              <SelectItem key={s.value} value={s.value}>
-                {s.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-
-        <Sheet>
-          <SheetTrigger asChild>
-            <Button variant="outline" size="icon" className="shrink-0 lg:hidden">
-              <SlidersHorizontal className="h-4 w-4" />
-              <span className="sr-only">Filters</span>
-            </Button>
-          </SheetTrigger>
-          <SheetContent side="left">
-            <SheetHeader>
-              <SheetTitle>Filters</SheetTitle>
-            </SheetHeader>
-            <div className="mt-6">{filterContent}</div>
-          </SheetContent>
-        </Sheet>
       </div>
 
       {hasFilters && (
-        <div className="mb-6 flex flex-wrap items-center gap-2">
-          <span className="text-sm text-muted-foreground">Active:</span>
+        <div className="mb-8 flex flex-wrap items-center gap-3 animate-fade-in">
+          <span className="text-xs font-black text-muted-foreground uppercase tracking-widest mr-1">Active Filters:</span>
           {keyword && (
-            <Badge variant="secondary" className="gap-1">
+            <Badge variant="secondary" className="gap-2 px-4 py-1.5 rounded-full border-border bg-card text-sm font-bold soft-shadow">
               {`"${keyword}"`}
-              <button onClick={() => setKeyword("")}><X className="h-3 w-3" /></button>
+              <button onClick={() => setKeyword("")} className="hover:text-primary transition-colors"><X className="h-4 w-4" /></button>
             </Badge>
           )}
           {district && (
-            <Badge variant="secondary" className="gap-1 capitalize">
+            <Badge variant="secondary" className="gap-2 px-4 py-1.5 rounded-full border-border bg-card text-sm font-bold soft-shadow capitalize">
               {district}
-              <button onClick={() => { setDistrict(""); setCity("") }}><X className="h-3 w-3" /></button>
+              <button onClick={() => { setDistrict(""); setCity("") }} className="hover:text-primary transition-colors"><X className="h-4 w-4" /></button>
             </Badge>
           )}
           {propertyType && (
-            <Badge variant="secondary" className="gap-1 capitalize">
+            <Badge variant="secondary" className="gap-2 px-4 py-1.5 rounded-full border-border bg-card text-sm font-bold soft-shadow capitalize">
               {propertyType}
-              <button onClick={() => setPropertyType("")}><X className="h-3 w-3" /></button>
+              <button onClick={() => setPropertyType("")} className="hover:text-primary transition-colors"><X className="h-4 w-4" /></button>
             </Badge>
           )}
+          <Button variant="link" onClick={clearFilters} className="text-xs font-black text-primary p-0 h-auto hover:no-underline">Reset All</Button>
         </div>
       )}
 
-      <div className="flex gap-8">
-        <aside className="hidden w-72 shrink-0 lg:block">
-          <div className="sticky top-24 rounded-xl border border-border bg-card p-5">
-            <h3 className="mb-4 font-semibold text-foreground">Filters</h3>
+      <div className="flex flex-col lg:flex-row gap-10">
+        <aside className="hidden w-80 shrink-0 lg:block">
+          <div className="sticky top-24 rounded-[2.5rem] border border-border/50 bg-card p-8 soft-shadow">
+            <h3 className="mb-8 font-black text-xl tracking-tighter text-foreground flex items-center gap-2">
+              <SlidersHorizontal className="h-5 w-5 text-primary" />
+              Advanced Filters
+            </h3>
             {filterContent}
           </div>
         </aside>
 
         <div className="flex-1">
           {loading ? (
-            <div className="flex h-64 items-center justify-center">
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <div className="flex h-[500px] flex-col items-center justify-center gap-4 bg-muted/20 rounded-[3rem] border border-dashed border-border">
+              <Loader2 className="h-12 w-12 animate-spin text-primary" />
+              <p className="text-muted-foreground font-bold tracking-tight">Updating results...</p>
             </div>
           ) : listings.length === 0 ? (
-            <div className="flex h-64 flex-col items-center justify-center rounded-xl border border-dashed border-border text-center">
-              <Search className="mb-3 h-10 w-10 text-muted-foreground/40" />
-              <p className="font-medium text-foreground">No listings found</p>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Try adjusting your filters or search terms
+            <div className="flex h-[500px] flex-col items-center justify-center rounded-[3rem] border-2 border-dashed border-border bg-muted/10 text-center px-10">
+              <div className="p-8 rounded-full bg-muted shadow-inner mb-8">
+                <Search className="h-16 w-16 text-muted-foreground/30" />
+              </div>
+              <h3 className="text-3xl font-black text-foreground tracking-tight">No properties found</h3>
+              <p className="mt-2 text-muted-foreground font-medium max-w-sm text-lg">
+                We couldn't find any listings matching your search. Try broadening your criteria or resetting filters.
               </p>
-              <Button variant="outline" className="mt-4" onClick={clearFilters}>
-                Clear Filters
+              <Button asChild onClick={clearFilters} className="mt-10 rounded-2xl h-14 px-10 font-black shadow-xl">
+                 <Link href="/search">Clear All Filters</Link>
               </Button>
             </div>
           ) : (
-            <>
-              <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+            <div className="space-y-12">
+              <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-3">
                 {listings.map((listing) => (
                   <ListingCard key={listing.id} listing={listing} />
                 ))}
               </div>
 
               {totalPages > 1 && (
-                <div className="mt-8 flex items-center justify-center gap-2">
+                <div className="flex items-center justify-center gap-4 py-10">
                   <Button
                     variant="outline"
-                    size="sm"
+                    className="h-12 w-12 rounded-2xl border-border hover:bg-primary hover:text-white transition-all shadow-sm"
                     disabled={page <= 1}
                     onClick={() => setPage(page - 1)}
+                    aria-label="Previous Page"
                   >
-                    Previous
+                    <SlidersHorizontal className="h-5 w-5 rotate-90" />
                   </Button>
-                  <span className="px-4 text-sm text-muted-foreground">
-                    Page {page} of {totalPages}
-                  </span>
+
+                  <div className="flex items-center gap-2 bg-muted/50 px-6 py-2 rounded-2xl border border-border/50">
+                    <span className="text-sm font-black text-foreground">Page</span>
+                    <span className="h-8 w-8 flex items-center justify-center bg-primary text-white rounded-lg text-sm font-black shadow-lg shadow-primary/20">{page}</span>
+                    <span className="text-sm font-black text-muted-foreground">of {totalPages}</span>
+                  </div>
+
                   <Button
                     variant="outline"
-                    size="sm"
+                    className="h-12 w-12 rounded-2xl border-border hover:bg-primary hover:text-white transition-all shadow-sm"
                     disabled={page >= totalPages}
                     onClick={() => setPage(page + 1)}
+                    aria-label="Next Page"
                   >
-                    Next
+                    <SlidersHorizontal className="h-5 w-5 -rotate-90" />
                   </Button>
                 </div>
               )}
-            </>
+            </div>
           )}
         </div>
       </div>
