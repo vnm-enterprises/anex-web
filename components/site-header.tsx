@@ -14,15 +14,36 @@ import {
   User,
   LogOut,
   Shield,
+  ChevronDown,
+  Settings,
 } from "lucide-react";
 import type { Profile } from "@/lib/types";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { ProfileModal } from "./dashboard/profile-modal";
+import { Separator } from "@/components/ui/separator";
 
 export function SiteHeader() {
   const [user, setUser] = useState<Profile | null>(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [isPostAdLoading, setIsPostAdLoading] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
   const supabase = createClient();
+
+  useEffect(() => {
+    const handleOpenProfile = () => setIsProfileModalOpen(true);
+    window.addEventListener('open-profile-modal', handleOpenProfile);
+    return () => window.removeEventListener('open-profile-modal', handleOpenProfile);
+  }, []);
 
   useEffect(() => {
     async function getUser() {
@@ -53,161 +74,225 @@ export function SiteHeader() {
 
   return (
     <nav
-      className={`absolute top-0 left-0 w-full z-50 ${pathname === "/" ? "bg-black/30 backdrop-blur-xl" : "bg-white text-black"} border-b border-white/10`}
+      className={`sticky top-0 left-0 w-full z-50 transition-all duration-300 ${
+        pathname === "/" ? "glass soft-shadow" : "bg-background/95 backdrop-blur-md border-b"
+      }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-20 items-center">
           {/* Logo */}
-          <Link
-            href="/"
-            className="flex-shrink-0 flex items-center gap-2 cursor-pointer"
-          >
-            <div
-              className={`w-8 h-8 rounded-lg bg-primary flex items-center justify-center  text-white font-bold text-lg`}
-            >
-              <Home className="h-4 w-4" />
+          <Link href="/" className="flex-shrink-0 flex items-center gap-2.5 group" aria-label="Annex.lk Home">
+            <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-primary-foreground font-bold text-lg shadow-lg group-hover:scale-110 transition-transform duration-300" aria-hidden="true">
+              <Home className="h-5 w-5" />
             </div>
-            <span
-              className={`font-extrabold text-2xl tracking-tight ${pathname === "/" ? "text-white" : "text-black"}`}
-            >
-              Annex<span className="text-primary">.lk</span>
+            <span className="font-extrabold text-2xl tracking-tighter text-foreground">
+              Annex<span className="text-primary italic">.lk</span>
             </span>
           </Link>
 
           {/* Right Side */}
-          <div className="flex items-center gap-8">
+          <div className="flex items-center gap-6">
             {/* Desktop Navigation */}
-            <div className="hidden md:flex space-x-8 items-center">
-               <Link
-                href="/"
-                className={`text-sm font-medium ${pathname === "/" ? "text-white/80 hover:text-white" : "text-black/80 hover:text-black"}  transition-colors`}
-              >
-                Home
-              </Link>
-              <Link
-                href="/search"
-                className={`text-sm font-medium ${pathname === "/" ? "text-white/80 hover:text-white" : "text-black/80 hover:text-black"}  transition-colors`}
-              >
-                Rentals
-              </Link>
-
-              <Link
-                href="/pricing"
-                className={`text-sm font-medium ${pathname === "/" ? "text-white/80 hover:text-white" : "text-black/80 hover:text-black"} transition-colors`}
-              >
-                Pricing
-              </Link>
+            <div className="hidden md:flex space-x-1 items-center">
+              {[
+                { name: "Home", href: "/" },
+                { name: "Rentals", href: "/search" },
+                { name: "Pricing", href: "/pricing" },
+              ].map((item) => (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all hover:bg-muted ${
+                    pathname === item.href ? "text-primary bg-primary/5" : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  {item.name}
+                </Link>
+              ))}
             </div>
-            {user ? (
-              <>
-                <Link
-                  href="/dashboard"
-                  className={`hidden md:flex items-center gap-2 text-sm font-semibold ${pathname === "/" ? "text-white/80 hover:text-white" : "text-black/80 hover:text-black"}  transition`}
-                >
-                  <LayoutDashboard className="h-4 w-4" />
-                  {/* <img src={user.avatar_url || 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSy_JmafxKbli9Es5QUvL6d-qIdOd5RmExsvA&s'} className="rounded-full w-5 h-5"/> */}
-                  Dashboard
-                </Link>
 
-                {user.role === "admin" && (
+            <div className="flex items-center gap-3">
+              {user ? (
+                <>
                   <Link
-                    href="/admin"
-                    className={`hidden md:flex items-center gap-2 text-sm font-semibold ${pathname === "/" ? "text-white/80 hover:text-white" : "text-black/80 hover:text-black"}  transition`}
+                    href="/dashboard/listings/new"
+                    className="hidden sm:flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-2.5 rounded-xl text-sm font-bold transition-all shadow-md hover:shadow-lg active:scale-95"
                   >
-                    <Shield className="h-4 w-4" />
-                    Admin
+                    <Plus className="h-4 w-4" />
+                    Post an Ad
                   </Link>
-                )}
 
-                <button
-                  onClick={handleLogout}
-                  className={`hidden md:flex items-center gap-2 text-sm font-semibold ${pathname === "/" ? "text-white/80 hover:text-white" : "text-black/80 hover:text-black"}  transition`}
-                >
-                  <LogOut className="h-4 w-4" />
-                  Log out
-                </button>
-
-                <Link
-                  href="/dashboard/listings/new"
-                  className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/40 px-5 py-2.5 rounded-full text-sm font-semibold transition-all shadow-lg shadow-primary/20"
-                >
-                  <Plus className="h-4 w-4" />
-                  Post an Ad
-                </Link>
-              </>
-            ) : (
-              <>
-                <Link
-                  href="/auth/login"
-                  className={`hidden md:block text-sm font-semibold ${pathname === "/" ? "text-white/80 " : "text-black/80"} dark:text-slate-300 hover:text-primary transition`}
-                >
-                  Log in
-                </Link>
-
-                <Link
-                  href="/auth/sign-up"
-                  className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-white px-5 py-2.5 rounded-full text-sm font-semibold transition-all shadow-lg shadow-primary/20"
-                >
-                  <Plus className="h-4 w-4" />
-                  Post an Ad
-                </Link>
-              </>
-            )}
-
-            {/* Mobile Toggle */}
-            <button
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="md:hidden text-white"
-            >
-              {isMenuOpen ? (
-                <X className="h-6 w-6" />
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button className="flex items-center gap-2 p-1 rounded-2xl hover:bg-muted transition-all outline-none">
+                        <Avatar className="h-10 w-10 border border-border shadow-sm">
+                          <AvatarImage src={user.avatar_url || ""} />
+                          <AvatarFallback className="bg-primary text-white font-black">
+                            {user.full_name?.charAt(0).toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
+                        <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="w-56 rounded-2xl border-none soft-shadow p-2 mt-2" align="end">
+                      <DropdownMenuLabel className="font-medium p-3">
+                        <div className="flex flex-col">
+                          <span className="text-sm font-black tracking-tight">{user.full_name}</span>
+                          <span className="text-xs text-muted-foreground font-bold uppercase tracking-widest mt-0.5">{user.role} Account</span>
+                        </div>
+                      </DropdownMenuLabel>
+                      <DropdownMenuSeparator className="bg-border/50" />
+                      <DropdownMenuItem
+                        onClick={() => setIsProfileModalOpen(true)}
+                        className="rounded-xl py-2.5 cursor-pointer font-bold focus:bg-primary/5 focus:text-primary transition-colors"
+                      >
+                        <Settings className="mr-3 h-4 w-4" />
+                        Edit Profile
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        asChild
+                        className="rounded-xl py-2.5 cursor-pointer font-bold focus:bg-primary/5 focus:text-primary transition-colors"
+                      >
+                        <Link href="/dashboard">
+                          <LayoutDashboard className="mr-3 h-4 w-4" />
+                          Dashboard
+                        </Link>
+                      </DropdownMenuItem>
+                      {user.role === "admin" && (
+                        <DropdownMenuItem
+                          asChild
+                          className="rounded-xl py-2.5 cursor-pointer font-bold focus:bg-primary/5 focus:text-primary transition-colors"
+                        >
+                          <Link href="/admin">
+                            <Shield className="mr-3 h-4 w-4" />
+                            Admin Panel
+                          </Link>
+                        </DropdownMenuItem>
+                      )}
+                      <DropdownMenuSeparator className="bg-border/50" />
+                      <DropdownMenuItem
+                        onClick={handleLogout}
+                        className="rounded-xl py-2.5 cursor-pointer font-bold text-destructive focus:bg-destructive/5 focus:text-destructive transition-colors"
+                      >
+                        <LogOut className="mr-3 h-4 w-4" />
+                        Logout
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </>
               ) : (
-                <Menu className="h-6 w-6" />
+                <>
+                  <Link
+                    href="/auth/login"
+                    className="hidden md:block text-sm font-semibold text-muted-foreground hover:text-primary transition-colors"
+                  >
+                    Log in
+                  </Link>
+
+                  <Link
+                    href="/auth/sign-up"
+                    className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-2.5 rounded-xl text-sm font-bold transition-all shadow-md hover:shadow-lg active:scale-95"
+                  >
+                    <Plus className="h-4 w-4" />
+                    Post an Ad
+                  </Link>
+                </>
               )}
-            </button>
+
+              {/* Mobile Toggle */}
+              <button
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                className="md:hidden w-10 h-10 flex items-center justify-center rounded-lg hover:bg-muted transition-colors"
+                aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+                aria-expanded={isMenuOpen}
+              >
+                {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+              </button>
+            </div>
           </div>
         </div>
       </div>
 
       {/* Mobile Menu */}
       {isMenuOpen && (
-        <div className="md:hidden border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-background px-4 py-4 space-y-4">
-          <Link href="/search" className="block text-sm font-medium">
-            Rentals
+        <div className="md:hidden border-t border-border bg-card text-foreground px-4 py-4 space-y-4 animate-in fade-in slide-in-from-top-4">
+          <Link href="/search" className="block text-sm font-bold hover:text-primary transition-colors">
+            Explore Rentals
           </Link>
-          <Link href="/pricing" className="block text-sm font-medium">
-            Pricing
+          <Link href="/pricing" className="block text-sm font-bold hover:text-primary transition-colors">
+            Pricing Plans
           </Link>
 
+          <Separator className="bg-border/50" />
+
           {user ? (
-            <>
-              <Link href="/dashboard" className="block text-sm font-medium">
-                Dashboard
-              </Link>
-              {user.role === "admin" && (
-                <Link href="/admin" className="block text-sm font-medium">
-                  Admin Panel
-                </Link>
-              )}
-              <button
+            <div className="space-y-4">
+              <div className="flex items-center gap-3 p-2 rounded-xl bg-muted/30">
+                <Avatar className="h-10 w-10 border border-border shadow-sm">
+                  <AvatarImage src={user.avatar_url || ""} />
+                  <AvatarFallback className="bg-primary text-white font-black">
+                    {user.full_name?.charAt(0).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex flex-col">
+                  <span className="text-sm font-black">{user.full_name}</span>
+                  <span className="text-[10px] text-muted-foreground font-black uppercase tracking-widest">
+                    {user.role} Account
+                  </span>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => setIsProfileModalOpen(true)}
+                  className="rounded-xl font-bold justify-start"
+                  size="sm"
+                >
+                  <Settings className="mr-2 h-4 w-4" />
+                  Profile
+                </Button>
+                <Button
+                  variant="outline"
+                  asChild
+                  className="rounded-xl font-bold justify-start"
+                  size="sm"
+                >
+                  <Link href="/dashboard">
+                    <LayoutDashboard className="mr-2 h-4 w-4" />
+                    Dashboard
+                  </Link>
+                </Button>
+              </div>
+
+              <Button
+                variant="destructive"
                 onClick={handleLogout}
-                className="block text-sm font-medium text-left"
+                className="w-full rounded-xl font-bold"
               >
+                <LogOut className="mr-2 h-4 w-4" />
                 Logout
-              </button>
-            </>
+              </Button>
+            </div>
           ) : (
-            <>
-              <Link href="/auth/login" className="block text-sm font-medium">
-                Login
-              </Link>
-              <Link href="/auth/sign-up" className="block text-sm font-medium">
-                Sign Up
-              </Link>
-            </>
+            <div className="grid grid-cols-2 gap-4">
+              <Button variant="outline" asChild className="rounded-xl font-black">
+                <Link href="/auth/login">Login</Link>
+              </Button>
+              <Button asChild className="rounded-xl font-black">
+                <Link href="/auth/sign-up">Sign Up</Link>
+              </Button>
+            </div>
           )}
         </div>
       )}
+
+      <ProfileModal
+        isOpen={isProfileModalOpen}
+        onClose={() => setIsProfileModalOpen(false)}
+        profile={user}
+        onUpdate={(updated) => setUser(updated)}
+      />
     </nav>
   );
 }
