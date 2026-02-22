@@ -2,118 +2,136 @@
 
 import Link from "next/link"
 import { Badge } from "@/components/ui/badge"
-import { Card, CardContent } from "@/components/ui/card"
 import {
   MapPin,
-  Sparkles,
-  Zap,
   Eye,
-  Home,
-  BedDouble,
-  Warehouse,
-  Building2,
+  Bolt,
+  Sparkles,
+  ArrowUpRight,
+  Users,
+  Armchair,
 } from "lucide-react"
-import { formatPrice, formatDate } from "@/lib/constants"
+import { formatPrice } from "@/lib/constants"
 import type { Listing } from "@/lib/types"
 
-const propertyIcons: Record<string, React.ElementType> = {
-  annex: Home,
-  boarding: BedDouble,
-  house: Warehouse,
-  apartment: Building2,
-}
-
 export function ListingCard({ listing }: { listing: Listing }) {
-  const PropertyIcon = propertyIcons[listing.property_type] || Home
   const mainImage = listing.listing_images?.[0]?.url
 
   return (
-    <Link href={`/listings/${listing.slug}`}>
-      <Card className="group h-full overflow-hidden border-border transition-all hover:border-primary/30 hover:shadow-lg">
-        <div className="relative aspect-[4/3] overflow-hidden bg-muted">
-          {mainImage ? (
-            <img
-              src={mainImage}
-              alt={listing.title}
-              className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-              loading="lazy"
-            />
-          ) : (
-            <div className="flex h-full w-full items-center justify-center bg-muted">
-              <PropertyIcon className="h-12 w-12 text-muted-foreground/40" />
-            </div>
-          )}
-
-          <div className="absolute left-3 top-3 flex flex-wrap gap-1.5">
-            {listing.is_featured && (
-              <Badge className="bg-accent text-accent-foreground text-xs font-semibold shadow-sm">
-                <Sparkles className="mr-1 h-3 w-3" />
-                Featured
-              </Badge>
-            )}
-            {listing.is_boosted && (
-              <Badge className="bg-primary text-primary-foreground text-xs font-semibold shadow-sm">
-                <Zap className="mr-1 h-3 w-3" />
-                Boosted
-              </Badge>
-            )}
+    <div className="group relative flex flex-col overflow-hidden rounded-[2.5rem] border border-border/50 bg-card transition-all duration-700 soft-shadow hover:shadow-2xl hover:-translate-y-2">
+      {/* Image Section */}
+      <div className="relative aspect-[4/3] overflow-hidden">
+        {mainImage ? (
+          <img
+            src={mainImage}
+            alt={listing.title}
+            className="h-full w-full object-cover transition-transform duration-1000 group-hover:scale-110"
+          />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center bg-muted/30">
+            <Sparkles className="h-10 w-10 text-muted-foreground/20" />
           </div>
+        )}
 
-          <div className="absolute bottom-3 right-3">
-            <Badge
-              variant="secondary"
-              className="bg-card/90 text-foreground backdrop-blur text-xs capitalize shadow-sm"
-            >
-              <PropertyIcon className="mr-1 h-3 w-3" />
-              {listing.property_type}
+        {/* Overlays */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-60 transition-opacity duration-500 group-hover:opacity-80" />
+
+        {/* Badges */}
+        <div className="absolute top-5 left-5 flex flex-col gap-2">
+          {listing.is_boosted && (
+            <Badge className="bg-primary text-white border-none font-black uppercase tracking-widest text-[9px] px-3 py-1.5 shadow-xl backdrop-blur-md">
+              <Bolt className="h-3 w-3 mr-1 fill-current" />
+              Boosted
             </Badge>
+          )}
+          {listing.is_featured && (
+            <Badge className="bg-amber-500 text-white border-none font-black uppercase tracking-widest text-[9px] px-3 py-1.5 shadow-xl backdrop-blur-md">
+              <Sparkles className="h-3 w-3 mr-1 fill-current" />
+              Featured
+            </Badge>
+          )}
+        </div>
+
+        {/* Bottom Info Overlay */}
+        <div className="absolute bottom-6 left-6 right-6 flex items-end justify-between text-white">
+          <div className="flex flex-col">
+            <span className="text-[10px] font-black text-white/70 uppercase tracking-[0.2em] mb-1">Monthly Rent</span>
+            <span className="text-3xl font-black tracking-tighter">
+              {formatPrice(listing.price)}
+              <span className="text-sm font-medium text-white/60 ml-1.5 italic">/mo</span>
+            </span>
+          </div>
+          <Link
+            href={`/listings/${listing.slug}`}
+            className="h-12 w-12 rounded-2xl bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center text-white transition-all hover:bg-white hover:text-primary hover:scale-110 shadow-lg"
+          >
+            <ArrowUpRight className="h-6 w-6" />
+          </Link>
+        </div>
+      </div>
+
+      {/* Content Section */}
+      <div className="flex flex-1 flex-col p-8">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-primary/5 border border-primary/10 text-[10px] font-black uppercase tracking-widest text-primary">
+            <MapPin className="h-3 w-3" />
+            {listing.cities?.name}
+          </div>
+          <div className="flex items-center gap-1.5 text-[10px] font-bold text-muted-foreground/60">
+            <Eye className="h-4 w-4" />
+            {listing.views_count.toLocaleString()}
           </div>
         </div>
 
-        <CardContent className="flex flex-col gap-2 p-4">
-          <div className="flex items-start justify-between gap-2">
-            <h3 className="line-clamp-1 text-base font-semibold text-foreground group-hover:text-primary">
-              {listing.title}
-            </h3>
+        <h3 className="mb-3 line-clamp-1 text-2xl font-black text-foreground tracking-tight group-hover:text-primary transition-colors">
+          <Link href={`/listings/${listing.slug}`}>{listing.title}</Link>
+        </h3>
+
+        <p className="text-xs font-medium text-muted-foreground line-clamp-2 leading-relaxed mb-6">
+          {listing.description}
+        </p>
+
+        {/* Amenities Preview */}
+        {listing.listing_amenities && listing.listing_amenities.length > 0 && (
+          <div className="flex flex-wrap gap-1.5 mb-6">
+            {listing.listing_amenities.slice(0, 3).map((item, i) => (
+              <span key={i} className="text-[9px] font-bold px-2 py-0.5 rounded-lg bg-muted text-muted-foreground uppercase tracking-wider">
+                {item.amenities?.name}
+              </span>
+            ))}
+            {listing.listing_amenities.length > 3 && (
+              <span className="text-[9px] font-bold px-2 py-0.5 rounded-lg bg-primary/5 text-primary uppercase tracking-wider">
+                +{listing.listing_amenities.length - 3} more
+              </span>
+            )}
           </div>
+        )}
 
-          <p className="text-xl font-bold text-primary">
-            {formatPrice(listing.price)}
-            <span className="text-sm font-normal text-muted-foreground">
-              /month
-            </span>
-          </p>
-
-          <div className="flex items-center gap-1 text-sm text-muted-foreground">
-            <MapPin className="h-3.5 w-3.5 shrink-0" />
-            <span className="truncate">
-              {listing.cities?.name}
-              {listing.districts ? `, ${listing.districts.name}` : ""}
-            </span>
-          </div>
-
-          <div className="mt-1 flex items-center justify-between border-t border-border pt-2">
-            <div className="flex items-center gap-3">
-              <Badge variant="outline" className="text-xs capitalize">
-                {listing.furnished.replace("-", " ")}
-              </Badge>
-              {listing.gender_preference !== "any" && (
-                <Badge variant="outline" className="text-xs capitalize">
-                  {listing.gender_preference}
-                </Badge>
-              )}
+        <div className="grid grid-cols-2 gap-4 pt-6 border-t border-border/50 mt-auto">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-xl bg-muted/50 flex items-center justify-center text-primary/60">
+              <Armchair className="h-5 w-5" />
             </div>
-            <div className="flex items-center gap-1 text-xs text-muted-foreground">
-              <Eye className="h-3 w-3" />
-              {listing.views_count}
+            <div className="flex flex-col">
+              <span className="text-[8px] font-black text-muted-foreground uppercase tracking-widest">Furnishing</span>
+              <span className="text-xs font-bold text-foreground capitalize truncate">{listing.furnished.replace("-", " ")}</span>
             </div>
           </div>
 
-          <p className="text-xs text-muted-foreground">
-            {formatDate(listing.created_at)}
-          </p>
-        </CardContent>
-      </Card>
-    </Link>
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-xl bg-muted/50 flex items-center justify-center text-primary/60">
+              <Users className="h-5 w-5" />
+            </div>
+            <div className="flex flex-col">
+              <span className="text-[8px] font-black text-muted-foreground uppercase tracking-widest">Preference</span>
+              <span className="text-xs font-bold text-foreground capitalize truncate">{listing.gender_preference}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Hover Background Effect */}
+      <div className="absolute inset-0 bg-primary/0 group-hover:bg-primary/[0.02] transition-colors pointer-events-none" />
+    </div>
   )
 }
