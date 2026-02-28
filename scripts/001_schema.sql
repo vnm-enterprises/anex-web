@@ -97,6 +97,8 @@ CREATE TABLE IF NOT EXISTS public.listings (
   featured_weight INTEGER NOT NULL DEFAULT 0,
   views_count INTEGER NOT NULL DEFAULT 0,
   inquiries_count INTEGER NOT NULL DEFAULT 0,
+  payment_status TEXT NOT NULL DEFAULT 'free' CHECK (payment_status IN ('free', 'pending', 'paid', 'unpaid')),
+  lemon_squeezy_order_id TEXT UNIQUE,
   expires_at TIMESTAMPTZ NOT NULL DEFAULT (now() + interval '30 days'),
   search_vector tsvector,
   created_at TIMESTAMPTZ DEFAULT now(),
@@ -163,8 +165,26 @@ CREATE TABLE IF NOT EXISTS public.boosts (
   starts_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   expires_at TIMESTAMPTZ NOT NULL,
   status TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'expired')),
+  lemon_squeezy_order_id TEXT UNIQUE,
   created_at TIMESTAMPTZ DEFAULT now()
 );
+
+-- 12.5. Payments
+CREATE TABLE IF NOT EXISTS public.payments (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
+  listing_id UUID REFERENCES public.listings(id) ON DELETE SET NULL,
+  boost_id UUID REFERENCES public.boosts(id) ON DELETE SET NULL,
+  lemon_squeezy_order_id TEXT UNIQUE,
+  amount INTEGER NOT NULL,
+  status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'paid', 'failed')),
+  payment_type TEXT NOT NULL CHECK (payment_type IN ('ad_listing', 'boost')),
+  variant_id TEXT NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT now(),
+  updated_at TIMESTAMPTZ DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS idx_payments_user ON public.payments(user_id);
+CREATE INDEX IF NOT EXISTS idx_payments_order ON public.payments(lemon_squeezy_order_id);
 
 -- 13. Ads
 CREATE TABLE IF NOT EXISTS public.ads (
