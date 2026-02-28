@@ -162,6 +162,7 @@ export function NewListingForm() {
           contact_phone: form.contact_phone,
           contact_email: form.contact_email || null,
           status: "pending",
+          payment_status: listingCount >= 3 ? "unpaid" : "free",
         })
         .select()
         .single();
@@ -203,8 +204,32 @@ export function NewListingForm() {
         );
       }
 
-      toast.success("Listing created! It will be visible once approved.");
-      router.push("/dashboard");
+      if (listingCount >= 3) {
+        setPaymentLoading(true);
+        try {
+          const res = await fetch("/api/payments/checkout", {
+            method: "POST",
+            body: JSON.stringify({
+              listing_id: listing.id,
+              type: "ad_listing",
+            }),
+          });
+          const { url, error } = await res.json();
+          if (error) throw new Error(error);
+          window.location.href = url;
+          return;
+        } catch (err) {
+          toast.error(
+            "Failed to initiate payment. Please try again from dashboard.",
+          );
+          router.push("/dashboard");
+        } finally {
+          setPaymentLoading(false);
+        }
+      } else {
+        toast.success("Listing created! It will be visible once approved.");
+        router.push("/dashboard");
+      }
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Failed to create listing",
