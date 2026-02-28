@@ -39,7 +39,7 @@ export function BoostModal({
   const handleBoost = async () => {
     setLoading(true);
     try {
-      const response = await fetch("/api/boosts", {
+      const response = await fetch("/api/payments/checkout", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -47,16 +47,17 @@ export function BoostModal({
         body: JSON.stringify({
           listing_id: listingId,
           plan_slug: selectedPlan,
+          type: "boost",
         }),
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to apply boost");
+        throw new Error(errorData.error || "Failed to initiate checkout");
       }
 
-      setStep("success");
-      onSuccess();
+      const { url } = await response.json();
+      window.location.href = url;
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "An error occurred");
     } finally {
