@@ -116,9 +116,288 @@ CROSS JOIN (VALUES
   ('Kalutara City', 'kalutara-city'),
   ('Beruwala', 'beruwala'),
   ('Horana', 'horana'),
-  ('Bandaragama', 'bandaragama')
+  ('Bandaragama', 'bandaragama'),
+  ('Wadduwa', 'wadduwa'),
+  ('Alutgama', 'alutgama')
 ) AS c(name, slug)
 WHERE d.slug = 'kalutara'
+ON CONFLICT (slug) DO NOTHING;
+
+-- Cities for Matale district
+INSERT INTO public.cities (district_id, name, slug)
+SELECT d.id, c.name, c.slug
+FROM public.districts d
+CROSS JOIN (VALUES
+  ('Matale City', 'matale-city'),
+  ('Dambulla', 'dambulla'),
+  ('Sigiriya', 'sigiriya'),
+  ('Kishiri-ela', 'kishiri-ela'),
+  ('Rattota', 'rattota')
+) AS c(name, slug)
+WHERE d.slug = 'matale'
+ON CONFLICT (slug) DO NOTHING;
+
+-- Cities for Nuwara Eliya district
+INSERT INTO public.cities (district_id, name, slug)
+SELECT d.id, c.name, c.slug
+FROM public.districts d
+CROSS JOIN (VALUES
+  ('Nuwara Eliya City', 'nuwara-eliya-city'),
+  ('Hatton', 'hatton'),
+  ('Talawakele', 'talawakele'),
+  ('Nanu Oya', 'nanu-oya'),
+  ('Hanguranketha', 'hanguranketha')
+) AS c(name, slug)
+WHERE d.slug = 'nuwara-eliya'
+ON CONFLICT (slug) DO NOTHING;
+
+-- Cities for Matara district
+INSERT INTO public.cities (district_id, name, slug)
+SELECT d.id, c.name, c.slug
+FROM public.districts d
+CROSS JOIN (VALUES
+  ('Matara City', 'matara-city'),
+  ('Weligama', 'weligama'),
+  ('Dikwella', 'dikwella'),
+  ('Hakmana', 'hakmana'),
+  ('Deniyaya', 'deniyaya'),
+  ('Akuressa', 'akuressa')
+) AS c(name, slug)
+WHERE d.slug = 'matara'
+ON CONFLICT (slug) DO NOTHING;
+
+-- Cities for Hambantota district
+INSERT INTO public.cities (district_id, name, slug)
+SELECT d.id, c.name, c.slug
+FROM public.districts d
+CROSS JOIN (VALUES
+  ('Hambantota City', 'hambantota-city'),
+  ('Tangalle', 'tangalle'),
+  ('Tissamaharama', 'tissamaharama'),
+  ('Ambalantota', 'ambalantota'),
+  ('Beliatta', 'beliatta')
+) AS c(name, slug)
+WHERE d.slug = 'hambantota'
+ON CONFLICT (slug) DO NOTHING;
+
+-- Cities for Jaffna district
+INSERT INTO public.cities (district_id, name, slug)
+SELECT d.id, c.name, c.slug
+FROM public.districts d
+CROSS JOIN (VALUES
+  ('Jaffna City', 'jaffna-city'),
+  ('Chavakachcheri', 'chavakachcheri'),
+  ('Point Pedro', 'point-pedro'),
+  ('Karainagar', 'karainagar'),
+  ('Nallur', 'nallur')
+) AS c(name, slug)
+WHERE d.slug = 'jaffna'
+ON CONFLICT (slug) DO NOTHING;
+
+-- Cities for Kilinochchi district
+INSERT INTO public.cities (district_id, name, slug)
+SELECT d.id, c.name, c.slug
+FROM public.districts d
+CROSS JOIN (VALUES
+  ('Kilinochchi Town', 'kilinochchi-town'),
+  ('Pallai', 'pallai'),
+  ('Pooneryn', 'pooneryn')
+) AS c(name, slug)
+WHERE d.slug = 'kilinochchi'
+ON CONFLICT (slug) DO NOTHING;
+
+-- Cities for Mannar district
+INSERT INTO public.cities (district_id, name, slug)
+SELECT d.id, c.name, c.slug
+FROM public.districts d
+CROSS JOIN (VALUES
+  ('Mannar Town', 'mannar-town'),
+  ('Nanattan', 'nanattan'),
+  ('Madhu', 'madhu')
+) AS c(name, slug)
+WHERE d.slug = 'mannar'
+ON CONFLICT (slug) DO NOTHING;
+
+-- Cities for Mullaitivu district
+INSERT INTO public.cities (district_id, name, slug)
+SELECT d.id, c.name, c.slug
+FROM public.districts d
+CROSS JOIN (VALUES
+  ('Mullaitivu Town', 'mullaitivu-town'),
+  ('Puthukkudiyiruppu', 'puthukkudiyiruppu'),
+  ('Oddusuddan', 'oddusuddan')
+) AS c(name, slug)
+WHERE d.slug = 'mullaitivu'
+ON CONFLICT (slug) DO NOTHING;
+
+-- Cities for Vavuniya district
+INSERT INTO public.cities (district_id, name, slug)
+SELECT d.id, c.name, c.slug
+FROM public.districts d
+CROSS JOIN (VALUES
+  ('Vavuniya Town', 'vavuniya-town'),
+  ('Nedunkeni', 'nedunkeni'),
+  ('Cheddikulam', 'cheddikulam')
+) AS c(name, slug)
+WHERE d.slug = 'vavuniya'
+ON CONFLICT (slug) DO NOTHING;
+
+-- Cities for Batticaloa district
+INSERT INTO public.cities (district_id, name, slug)
+SELECT d.id, c.name, c.slug
+FROM public.districts d
+CROSS JOIN (VALUES
+  ('Batticaloa City', 'batticaloa-city'),
+  ('Eravur', 'eravur'),
+  ('Kattankudy', 'kattankudy'),
+  ('Valaichchenai', 'valaichchenai')
+) AS c(name, slug)
+WHERE d.slug = 'batticaloa'
+ON CONFLICT (slug) DO NOTHING;
+
+-- Cities for Ampara district
+INSERT INTO public.cities (district_id, name, slug)
+SELECT d.id, c.name, c.slug
+FROM public.districts d
+CROSS JOIN (VALUES
+  ('Ampara Town', 'ampara-town'),
+  ('Kalmunai', 'kalmunai'),
+  ('Akkaraipattu', 'akkaraipattu'),
+  ('Sainthamaruthu', 'sainthamaruthu'),
+  ('Pottuvil', 'pottuvil')
+) AS c(name, slug)
+WHERE d.slug = 'ampara'
+ON CONFLICT (slug) DO NOTHING;
+
+-- Cities for Trincomalee district
+INSERT INTO public.cities (district_id, name, slug)
+SELECT d.id, c.name, c.slug
+FROM public.districts d
+CROSS JOIN (VALUES
+  ('Trincomalee Town', 'trincomalee-town'),
+  ('Kinniya', 'kinniya'),
+  ('Mutur', 'mutur'),
+  ('Kuchchaveli', 'kuchchaveli')
+) AS c(name, slug)
+WHERE d.slug = 'trincomalee'
+ON CONFLICT (slug) DO NOTHING;
+
+-- Cities for Kurunegala district
+INSERT INTO public.cities (district_id, name, slug)
+SELECT d.id, c.name, c.slug
+FROM public.districts d
+CROSS JOIN (VALUES
+  ('Kurunegala City', 'kurunegala-city'),
+  ('Kuliyapitiya', 'kuliyapitiya'),
+  ('Pannala', 'pannala'),
+  ('Narammala', 'narammala'),
+  ('Wariyapola', 'wariyapola'),
+  ('Maho', 'maho')
+) AS c(name, slug)
+WHERE d.slug = 'kurunegala'
+ON CONFLICT (slug) DO NOTHING;
+
+-- Cities for Puttalam district
+INSERT INTO public.cities (district_id, name, slug)
+SELECT d.id, c.name, c.slug
+FROM public.districts d
+CROSS JOIN (VALUES
+  ('Puttalam Town', 'puttalam-town'),
+  ('Chilaw', 'chilaw'),
+  ('Marawila', 'marawila'),
+  ('Dankotuwa', 'dankotuwa'),
+  ('Nattandiya', 'nattandiya'),
+  ('Kalpitiya', 'kalpitiya')
+) AS c(name, slug)
+WHERE d.slug = 'puttalam'
+ON CONFLICT (slug) DO NOTHING;
+
+-- Cities for Anuradhapura district
+INSERT INTO public.cities (district_id, name, slug)
+SELECT d.id, c.name, c.slug
+FROM public.districts d
+CROSS JOIN (VALUES
+  ('Anuradhapura City', 'anuradhapura-city'),
+  ('Kekirawa', 'kekirawa'),
+  ('Eppawala', 'eppawala'),
+  ('Medawachchiya', 'medawachchiya'),
+  ('Thalawa', 'thalawa'),
+  ('Nochchiyagama', 'nochchiyagama')
+) AS c(name, slug)
+WHERE d.slug = 'anuradhapura'
+ON CONFLICT (slug) DO NOTHING;
+
+-- Cities for Polonnaruwa district
+INSERT INTO public.cities (district_id, name, slug)
+SELECT d.id, c.name, c.slug
+FROM public.districts d
+CROSS JOIN (VALUES
+  ('Polonnaruwa City', 'polonnaruwa-city'),
+  ('Kaduruwela', 'kaduruwela'),
+  ('Hingurakgoda', 'hingurakgoda'),
+  ('Medirigiriya', 'medirigiriya')
+) AS c(name, slug)
+WHERE d.slug = 'polonnaruwa'
+ON CONFLICT (slug) DO NOTHING;
+
+-- Cities for Badulla district
+INSERT INTO public.cities (district_id, name, slug)
+SELECT d.id, c.name, c.slug
+FROM public.districts d
+CROSS JOIN (VALUES
+  ('Badulla City', 'badulla-city'),
+  ('Bandarawela', 'bandarawela'),
+  ('Hali-Ela', 'hali-ela'),
+  ('Ella', 'ella'),
+  ('Haputale', 'haputale'),
+  ('Welimada', 'welimada'),
+  ('Mahiyanganaya', 'mahiyanganaya')
+) AS c(name, slug)
+WHERE d.slug = 'badulla'
+ON CONFLICT (slug) DO NOTHING;
+
+-- Cities for Monaragala district
+INSERT INTO public.cities (district_id, name, slug)
+SELECT d.id, c.name, c.slug
+FROM public.districts d
+CROSS JOIN (VALUES
+  ('Monaragala Town', 'monaragala-town'),
+  ('Wellawaya', 'wellawaya'),
+  ('Buttala', 'buttala'),
+  ('Bibile', 'bibile'),
+  ('Kataragama', 'kataragama')
+) AS c(name, slug)
+WHERE d.slug = 'monaragala'
+ON CONFLICT (slug) DO NOTHING;
+
+-- Cities for Ratnapura district
+INSERT INTO public.cities (district_id, name, slug)
+SELECT d.id, c.name, c.slug
+FROM public.districts d
+CROSS JOIN (VALUES
+  ('Ratnapura City', 'ratnapura-city'),
+  ('Balangoda', 'balangoda'),
+  ('Eheliyagoda', 'eheliyagoda'),
+  ('Kuruwita', 'kuruwita'),
+  ('Pelmadulla', 'pelmadulla'),
+  ('Embilipitiya', 'embilipitiya')
+) AS c(name, slug)
+WHERE d.slug = 'ratnapura'
+ON CONFLICT (slug) DO NOTHING;
+
+-- Cities for Kegalle district
+INSERT INTO public.cities (district_id, name, slug)
+SELECT d.id, c.name, c.slug
+FROM public.districts d
+CROSS JOIN (VALUES
+  ('Kegalle City', 'kegalle-city'),
+  ('Mawanella', 'mawanella'),
+  ('Warakapola', 'warakapola'),
+  ('Rambukkana', 'rambukkana'),
+  ('Ruwanwella', 'ruwanwella'),
+  ('Deraniyagala', 'deraniyagala')
+) AS c(name, slug)
+WHERE d.slug = 'kegalle'
 ON CONFLICT (slug) DO NOTHING;
 
 -- Amenities
