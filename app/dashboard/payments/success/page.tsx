@@ -11,18 +11,38 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+//import { updateListingStatusAfterPayment } from "./actions";
 
 export default function PaymentSuccessPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [countdown, setCountdown] = useState(5);
+  const listingId = searchParams.get("listing_id");
+  const orderId = searchParams.get("order_id");
+
+  // useEffect(() => {
+  //   async function updateStatus() {
+  //     const uuidRegex =
+  //       /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  //     if (listingId && uuidRegex.test(listingId)) {
+  //       console.log(`[SuccessPage] Updating status for listing ${listingId}`);
+  //       const result = await updateListingStatusAfterPayment(
+  //         listingId,
+  //         orderId,
+  //       );
+  //       if (result.success) {
+  //         router.refresh();
+  //       }
+  //     }
+  //   }
+  //   updateStatus();
+  // }, [listingId, orderId, router]);
 
   useEffect(() => {
     const timer = setInterval(() => {
       setCountdown((prev) => {
         if (prev <= 1) {
           clearInterval(timer);
-          router.push("/dashboard");
           return 0;
         }
         return prev - 1;
@@ -30,7 +50,14 @@ export default function PaymentSuccessPage() {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [router]);
+  }, []);
+
+  useEffect(() => {
+    if (countdown === 0) {
+      router.refresh();
+      router.push("/dashboard");
+    }
+  }, [countdown, router]);
 
   return (
     <div className="flex min-h-[80vh] items-center justify-center p-4">
