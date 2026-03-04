@@ -1,11 +1,26 @@
-import { createClient } from "@/lib/supabase/server"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Users, FileText, MessageCircle, Eye, Shield, ArrowRight, ArrowLeft, LayoutDashboard } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import Link from "next/link"
+import { createClient } from "@/lib/supabase/server";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Users,
+  FileText,
+  MessageCircle,
+  Eye,
+  Shield,
+  ArrowRight,
+  ArrowLeft,
+  LayoutDashboard,
+  DollarSign,
+  TrendingUp,
+  Download,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 export default async function AdminPage() {
-  const supabase = await createClient()
+  const supabase = await createClient();
+
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
   const [
     { count: totalUsers },
@@ -13,6 +28,8 @@ export default async function AdminPage() {
     { count: pendingListings },
     { count: approvedListings },
     { count: totalInquiries },
+    { data: paymentsData },
+    { count: userGrowth },
   ] = await Promise.all([
     supabase.from("profiles").select("*", { count: "exact", head: true }),
     supabase.from("listings").select("*", { count: "exact", head: true }),
@@ -25,35 +42,52 @@ export default async function AdminPage() {
       .select("*", { count: "exact", head: true })
       .eq("status", "approved"),
     supabase.from("inquiries").select("*", { count: "exact", head: true }),
-  ])
+    supabase.from("payments").select("amount").eq("status", "paid"),
+    supabase
+      .from("profiles")
+      .select("*", { count: "exact", head: true })
+      .gte("created_at", thirtyDaysAgo.toISOString()),
+  ]);
+
+  const totalRevenue = paymentsData?.reduce((sum, p) => sum + p.amount, 0) || 0;
 
   const stats = [
     {
+      label: "Total Revenue",
+      value: `LKR ${totalRevenue.toLocaleString()}`,
+      icon: DollarSign,
+    },
+    {
+      label: "User Growth (30d)",
+      value: `+${userGrowth || 0}`,
+      icon: TrendingUp,
+    },
+    {
       label: "Total Users",
-      value: totalUsers || 0,
+      value: (totalUsers || 0).toLocaleString(),
       icon: Users,
     },
     {
       label: "Total Listings",
-      value: totalListings || 0,
+      value: (totalListings || 0).toLocaleString(),
       icon: FileText,
     },
     {
       label: "Pending Review",
-      value: pendingListings || 0,
+      value: (pendingListings || 0).toLocaleString(),
       icon: Eye,
     },
     {
       label: "Live Listings",
-      value: approvedListings || 0,
+      value: (approvedListings || 0).toLocaleString(),
       icon: FileText,
     },
     {
       label: "Total Inquiries",
-      value: totalInquiries || 0,
+      value: (totalInquiries || 0).toLocaleString(),
       icon: MessageCircle,
     },
-  ]
+  ];
 
   return (
     <div className="space-y-12">
@@ -70,8 +104,8 @@ export default async function AdminPage() {
             Back to Dashboard
           </Link>
           <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] font-black uppercase tracking-widest mb-3 w-fit">
-             <Shield className="h-3 w-3" />
-             Admin Control Center
+            <Shield className="h-3 w-3" />
+            Admin Control Center
           </div>
           <h1 className="text-4xl font-black text-foreground tracking-tighter">
             Platform <span className="text-primary">Overview</span>
@@ -80,10 +114,31 @@ export default async function AdminPage() {
             Monitor system performance and manage pending actions
           </p>
         </div>
+
+        <div className="flex gap-3">
+          <Button
+            variant="outline"
+            className="rounded-2xl h-12 px-6 font-bold"
+            asChild
+          >
+            <Link href="/api/admin/reports/export?type=listings">
+              <Download className="mr-2 h-4 w-4" /> Listings CSV
+            </Link>
+          </Button>
+          <Button
+            variant="outline"
+            className="rounded-2xl h-12 px-6 font-bold"
+            asChild
+          >
+            <Link href="/api/admin/reports/export?type=payments">
+              <Download className="mr-2 h-4 w-4" /> Payments CSV
+            </Link>
+          </Button>
+        </div>
       </div>
 
-       {/* Pending Alerts Banner */}
-       {(pendingListings || 0) > 0 && (
+      {/* Pending Alerts Banner */}
+      {(pendingListings || 0) > 0 && (
         <Card className="border-none bg-gradient-to-r from-amber-500/10 via-amber-200/5 to-transparent soft-shadow rounded-[2rem] overflow-hidden group">
           <CardContent className="flex flex-col md:flex-row items-center gap-6 py-8 px-10">
             <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-500 text-white shadow-lg shadow-amber-500/30 animate-pulse">
@@ -91,13 +146,17 @@ export default async function AdminPage() {
             </div>
             <div className="flex-1 text-center md:text-left">
               <h3 className="text-xl font-black text-foreground tracking-tight">
-                {pendingListings} listing{pendingListings !== 1 ? "s" : ""} awaiting your review
+                {pendingListings} listing{pendingListings !== 1 ? "s" : ""}{" "}
+                awaiting your review
               </h3>
               <p className="text-muted-foreground font-medium mt-1">
                 Maintain platform quality by reviewing new submissions promptly.
               </p>
             </div>
-            <Button asChild className="rounded-2xl h-12 px-8 bg-amber-500 hover:bg-amber-600 text-white shadow-xl shadow-amber-500/20">
+            <Button
+              asChild
+              className="rounded-2xl h-12 px-8 bg-amber-500 hover:bg-amber-600 text-white shadow-xl shadow-amber-500/20"
+            >
               <a href="/admin/listings?status=pending">
                 Review Now <ArrowRight className="ml-2 h-4 w-4" />
               </a>
@@ -109,25 +168,30 @@ export default async function AdminPage() {
       {/* Main Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
         {stats.map((stat, i) => (
-          <Card key={stat.label} className="group border-none soft-shadow bg-card hover:shadow-xl transition-all duration-300 rounded-[2rem] overflow-hidden">
+          <Card
+            key={stat.label}
+            className="group border-none soft-shadow bg-card hover:shadow-xl transition-all duration-300 rounded-[2rem] overflow-hidden"
+          >
             <CardContent className="p-6">
-               <div className="flex justify-between items-start mb-6">
-                  <div className={`p-3 rounded-2xl bg-muted/50 text-primary group-hover:scale-110 group-hover:bg-primary group-hover:text-white transition-all duration-300`}>
-                    <stat.icon className="h-6 w-6" />
-                  </div>
-               </div>
-               <div>
-                  <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-1 leading-none">
-                    {stat.label}
-                  </p>
-                  <h3 className="text-3xl font-black text-foreground tracking-tighter">
-                    {stat.value.toLocaleString()}
-                  </h3>
-               </div>
+              <div className="flex justify-between items-start mb-6">
+                <div
+                  className={`p-3 rounded-2xl bg-muted/50 text-primary group-hover:scale-110 group-hover:bg-primary group-hover:text-white transition-all duration-300`}
+                >
+                  <stat.icon className="h-6 w-6" />
+                </div>
+              </div>
+              <div>
+                <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-1 leading-none">
+                  {stat.label}
+                </p>
+                <h3 className="text-3xl font-black text-foreground tracking-tighter">
+                  {stat.value.toLocaleString()}
+                </h3>
+              </div>
             </CardContent>
           </Card>
         ))}
       </div>
     </div>
-  )
+  );
 }
