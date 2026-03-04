@@ -1,8 +1,7 @@
-
-import { createClient } from "@/lib/supabase/server"
-import { redirect } from "next/navigation"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
+import { createClient } from "@/lib/supabase/server";
+import { redirect } from "next/navigation";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import {
   Home,
   Eye,
@@ -19,76 +18,79 @@ import {
   Settings,
   Bolt,
   MapPin,
-} from "lucide-react"
-import Link from "next/link"
-import { formatPrice, formatDate } from "@/lib/constants"
-import type { Listing } from "@/lib/types"
-import EditProfileButton from "./profile/EditProfileButton"
+} from "lucide-react";
+import Link from "next/link";
+import { formatPrice, formatDate } from "@/lib/constants";
+import type { Listing } from "@/lib/types";
+import EditProfileButton from "./profile/EditProfileButton";
+import { ProfileModalWrapper } from "@/components/dashboard/profile-modal-wrapper";
 
 export default async function DashboardPage() {
-  const supabase = await createClient()
+  const supabase = await createClient();
   const {
     data: { user },
-  } = await supabase.auth.getUser()
+  } = await supabase.auth.getUser();
 
-  if (!user) redirect("/auth/login")
+  if (!user) redirect("/auth/login");
 
   const { data: profile } = await supabase
     .from("profiles")
     .select("*")
     .eq("id", user.id)
-    .single()
+    .single();
 
   const { data: listings } = await supabase
     .from("listings")
-    .select("*, districts(name), cities(name), listing_images(url)")
+    .select(
+      "*, districts(name), cities(name), custom_city, listing_images(url)",
+    )
     .eq("user_id", user.id)
     .order("created_at", { ascending: false })
-    .limit(10)
+    .limit(10);
 
   const { count: totalListings } = await supabase
     .from("listings")
     .select("*", { count: "exact", head: true })
-    .eq("user_id", user.id)
+    .eq("user_id", user.id);
 
   // Get all listing IDs for the user
   const { data: userListingIds } = await supabase
     .from("listings")
     .select("id")
-    .eq("user_id", user.id)
+    .eq("user_id", user.id);
 
-  const listingIds = (userListingIds || []).map(l => l.id)
+  const listingIds = (userListingIds || []).map((l) => l.id);
 
   const { count: totalInquiries } = await supabase
     .from("inquiries")
     .select("*", { count: "exact", head: true })
-    .in("listing_id", listingIds)
+    .in("listing_id", listingIds);
 
   const { count: unreadInquiries } = await supabase
     .from("inquiries")
     .select("*", { count: "exact", head: true })
     .in("listing_id", listingIds)
-    .eq("is_read", false)
+    .eq("is_read", false);
 
   const totalViews = (listings || []).reduce(
     (sum: number, l: Listing) => sum + l.views_count,
-    0
-  )
+    0,
+  );
 
   const statusIcon = (status: string) => {
     switch (status) {
       case "approved":
-        return <CheckCircle className="h-4 w-4 text-primary" />
+        return <CheckCircle className="h-4 w-4 text-primary" />;
       case "pending":
-        return <Clock className="h-4 w-4 text-accent" />
+        return <Clock className="h-4 w-4 text-accent" />;
       case "rejected":
-        return <XCircle className="h-4 w-4 text-destructive" />
+        return <XCircle className="h-4 w-4 text-destructive" />;
       case "expired":
-        return <AlertCircle className="h-4 w-4 text-muted-foreground" />
+        return <AlertCircle className="h-4 w-4 text-muted-foreground" />;
       default:
-        return null
+        return null;
     }
-  }
+  };
 
   return (
     <div className="space-y-10">
@@ -100,13 +102,20 @@ export default async function DashboardPage() {
             User Dashboard
           </div>
           <h1 className="text-4xl font-black text-foreground tracking-tighter">
-            Welcome back, <span className="text-primary">{profile?.full_name?.split(' ')[0] || "there"}</span>
+            Welcome back,{" "}
+            <span className="text-primary">
+              {profile?.full_name?.split(" ")[0] || "there"}
+            </span>
           </h1>
           <p className="mt-2 text-muted-foreground font-medium">
             Manage your listings and track your performance
           </p>
         </div>
-        <Button asChild size="lg" className="rounded-2xl shadow-xl shadow-primary/20">
+        <Button
+          asChild
+          size="lg"
+          className="rounded-2xl shadow-xl shadow-primary/20"
+        >
           <Link href="/dashboard/listings/new">
             <PlusCircle className="mr-2 h-5 w-5" />
             Post New Listing
@@ -117,22 +126,55 @@ export default async function DashboardPage() {
       {/* Stats Overview */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {[
-          { label: "Total Listings", value: totalListings || 0, icon: Home, color: "text-blue-500", bg: "bg-blue-500/10" },
-          { label: "Total Views", value: totalViews, icon: Eye, color: "text-emerald-500", bg: "bg-emerald-500/10" },
-          { label: "Active Inquiries", value: totalInquiries || 0, icon: MessageCircle, color: "text-amber-500", bg: "bg-amber-500/10", unread: unreadInquiries },
-          { label: "Current Plan", value: "Premium Early Bird", icon: Sparkles, color: "text-primary", bg: "bg-primary/10", sub: "Upgrade" }
+          {
+            label: "Total Listings",
+            value: totalListings || 0,
+            icon: Home,
+            color: "text-blue-500",
+            bg: "bg-blue-500/10",
+          },
+          {
+            label: "Total Views",
+            value: totalViews,
+            icon: Eye,
+            color: "text-emerald-500",
+            bg: "bg-emerald-500/10",
+          },
+          {
+            label: "Active Inquiries",
+            value: totalInquiries || 0,
+            icon: MessageCircle,
+            color: "text-amber-500",
+            bg: "bg-amber-500/10",
+            unread: unreadInquiries,
+          },
+          {
+            label: "Current Plan",
+            value: "Premium Early Bird",
+            icon: Sparkles,
+            color: "text-primary",
+            bg: "bg-primary/10",
+            sub: "Upgrade",
+          },
         ].map((stat, i) => (
-          <Card key={i} className="group border-none soft-shadow bg-card hover:shadow-xl transition-all duration-300 rounded-3xl overflow-hidden relative">
+          <Card
+            key={i}
+            className="group border-none soft-shadow bg-card hover:shadow-xl transition-all duration-300 rounded-3xl overflow-hidden relative"
+          >
             <CardContent className="p-6">
               <div className="flex justify-between items-start mb-4">
-                <div className={`p-3 rounded-2xl ${stat.bg} ${stat.color} group-hover:scale-110 transition-transform`}>
+                <div
+                  className={`p-3 rounded-2xl ${stat.bg} ${stat.color} group-hover:scale-110 transition-transform`}
+                >
                   <stat.icon className="h-6 w-6" />
                 </div>
-                {stat.unread !== undefined && stat.unread !== null && stat.unread > 0 && (
-                  <span className="bg-destructive text-white text-[10px] font-black px-2 py-0.5 rounded-full animate-bounce">
-                    {stat.unread} New
-                  </span>
-                )}
+                {stat.unread !== undefined &&
+                  stat.unread !== null &&
+                  stat.unread > 0 && (
+                    <span className="bg-destructive text-white text-[10px] font-black px-2 py-0.5 rounded-full animate-bounce">
+                      {stat.unread} New
+                    </span>
+                  )}
               </div>
               <div>
                 <p className="text-sm font-bold text-muted-foreground uppercase tracking-wider mb-1">
@@ -140,10 +182,15 @@ export default async function DashboardPage() {
                 </p>
                 <div className="flex items-baseline gap-2">
                   <h3 className="text-3xl font-black text-foreground tracking-tighter">
-                    {typeof stat.value === 'number' ? stat.value.toLocaleString() : stat.value}
+                    {typeof stat.value === "number"
+                      ? stat.value.toLocaleString()
+                      : stat.value}
                   </h3>
                   {stat.sub && (
-                    <Link href="/pricing" className="text-xs font-bold text-primary hover:underline">
+                    <Link
+                      href="/pricing"
+                      className="text-xs font-bold text-primary hover:underline"
+                    >
                       {stat.sub}
                     </Link>
                   )}
@@ -151,10 +198,16 @@ export default async function DashboardPage() {
               </div>
             </CardContent>
             {stat.label === "Active Inquiries" && (
-              <Link href="/dashboard/all-inquiries" className="absolute inset-0 z-10" />
+              <Link
+                href="/dashboard/all-inquiries"
+                className="absolute inset-0 z-10"
+              />
             )}
             {stat.label === "Total Listings" && (
-              <Link href="/dashboard/listings" className="absolute inset-0 z-10" />
+              <Link
+                href="/dashboard/listings"
+                className="absolute inset-0 z-10"
+              />
             )}
           </Card>
         ))}
@@ -169,7 +222,11 @@ export default async function DashboardPage() {
               <FileText className="h-6 w-6 text-primary" />
               Your Recent Listings
             </h2>
-            <Button variant="ghost" asChild className="font-bold text-primary hover:bg-primary/5">
+            <Button
+              variant="ghost"
+              asChild
+              className="font-bold text-primary hover:bg-primary/5"
+            >
               <Link href="/dashboard/listings">
                 View All <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
@@ -182,14 +239,19 @@ export default async function DashboardPage() {
                 <div className="p-6 rounded-full bg-muted/50 mb-6">
                   <Home className="h-12 w-12 text-muted-foreground/30" />
                 </div>
-                <h3 className="text-2xl font-black text-foreground tracking-tight">No listings yet</h3>
+                <h3 className="text-2xl font-black text-foreground tracking-tight">
+                  No listings yet
+                </h3>
                 <p className="mt-2 text-muted-foreground font-medium max-w-sm">
-                  Ready to rent out your property? Create your first listing and reach thousands of potential tenants.
+                  Ready to rent out your property? Create your first listing and
+                  reach thousands of potential tenants.
                 </p>
-                <Button asChild className="mt-8 rounded-2xl px-10 h-14" size="lg">
-                  <Link href="/dashboard/listings/new">
-                    Start Listing Now
-                  </Link>
+                <Button
+                  asChild
+                  className="mt-8 rounded-2xl px-10 h-14"
+                  size="lg"
+                >
+                  <Link href="/dashboard/listings/new">Start Listing Now</Link>
                 </Button>
               </CardContent>
             </Card>
@@ -230,27 +292,41 @@ export default async function DashboardPage() {
                     </div>
                     <div className="flex items-center justify-center md:justify-start gap-4 text-sm font-medium text-muted-foreground">
                       <span className="flex items-center gap-1.5 font-bold text-foreground">
-                         Rs {(listing.price / 1000).toFixed(0)}k <span className="text-[10px] text-muted-foreground">/mo</span>
+                        Rs {(listing.price / 1000).toFixed(0)}k{" "}
+                        <span className="text-[10px] text-muted-foreground">
+                          /mo
+                        </span>
                       </span>
                       <span className="h-1 w-1 rounded-full bg-border" />
                       <span className="flex items-center gap-1">
-                         <MapPin className="h-3 w-3 text-primary" /> {listing.cities?.name}
+                        <MapPin className="h-3 w-3 text-primary" />{" "}
+                        {listing.cities?.name ?? listing.custom_city}
                       </span>
                     </div>
                   </div>
 
                   <div className="flex items-center gap-4 px-6 md:border-x border-border">
                     <div className="text-center">
-                      <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-1">Views</p>
-                      <span className="text-xl font-black text-foreground leading-none">{listing.views_count}</span>
+                      <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-1">
+                        Views
+                      </p>
+                      <span className="text-xl font-black text-foreground leading-none">
+                        {listing.views_count}
+                      </span>
                     </div>
                   </div>
 
                   <div className="flex items-center gap-3 pr-2">
-                    <div className={`flex items-center gap-2 px-4 py-2 rounded-2xl text-xs font-black uppercase tracking-widest
-                      ${listing.status === 'approved' ? 'bg-primary/10 text-primary' :
-                        listing.status === 'pending' ? 'bg-amber-500/10 text-amber-500' :
-                        'bg-destructive/10 text-destructive'}`}>
+                    <div
+                      className={`flex items-center gap-2 px-4 py-2 rounded-2xl text-xs font-black uppercase tracking-widest
+                      ${
+                        listing.status === "approved"
+                          ? "bg-primary/10 text-primary"
+                          : listing.status === "pending"
+                            ? "bg-amber-500/10 text-amber-500"
+                            : "bg-destructive/10 text-destructive"
+                      }`}
+                    >
                       {statusIcon(listing.status)}
                       {listing.status}
                     </div>
@@ -282,28 +358,40 @@ export default async function DashboardPage() {
                   <div className="p-2 rounded-xl bg-white soft-shadow text-muted-foreground group-hover:text-primary transition-colors">
                     <MessageCircle className="h-5 w-5" />
                   </div>
-                  <span className="font-bold text-sm text-foreground group-hover:text-primary">All Inquiries</span>
+                  <span className="font-bold text-sm text-foreground group-hover:text-primary">
+                    All Inquiries
+                  </span>
                 </div>
                 <ArrowRight className="h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity" />
               </Link>
 
               <div className="flex items-center gap-4 pt-2">
                 <div className="h-16 w-16 rounded-2xl bg-primary flex items-center justify-center text-white text-2xl font-black shadow-lg shadow-primary/20">
-                  {profile?.full_name?.[0] || 'U'}
+                  {profile?.full_name?.[0] || "U"}
                 </div>
                 <div>
-                  <h4 className="font-bold text-foreground">{profile?.full_name || 'Anonymous User'}</h4>
-                  <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">{profile?.role || 'Basic'} User</p>
+                  <h4 className="font-bold text-foreground">
+                    {profile?.full_name || "Anonymous User"}
+                  </h4>
+                  <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
+                    {profile?.role || "Basic"} User
+                  </p>
                 </div>
               </div>
               <div className="space-y-3 pt-4 border-t border-border">
                 <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground font-medium">Account Status</span>
+                  <span className="text-muted-foreground font-medium">
+                    Account Status
+                  </span>
                   <span className="text-primary font-bold">Active</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground font-medium">Joined</span>
-                  <span className="text-foreground font-bold">{formatDate(profile?.created_at)}</span>
+                  <span className="text-muted-foreground font-medium">
+                    Joined
+                  </span>
+                  <span className="text-foreground font-bold">
+                    {formatDate(profile?.created_at)}
+                  </span>
                 </div>
               </div>
               <EditProfileButton />
@@ -312,9 +400,12 @@ export default async function DashboardPage() {
 
           <Card className="border-none soft-shadow bg-gradient-to-br from-primary to-emerald-600 rounded-3xl overflow-hidden text-white">
             <CardContent className="p-8">
-              <h3 className="text-2xl font-black tracking-tighter mb-4">Grow your business</h3>
+              <h3 className="text-2xl font-black tracking-tighter mb-4">
+                Grow your business
+              </h3>
               <p className="text-white/80 font-medium text-sm mb-6 leading-relaxed">
-                Boost your listings to appear at the top of search results and get up to 10x more inquiries.
+                Boost your listings to appear at the top of search results and
+                get up to 10x more inquiries.
               </p>
               <Button className="w-full bg-white text-primary hover:bg-white/90 rounded-2xl font-black h-12 shadow-xl">
                 Explore Boosting
@@ -323,6 +414,8 @@ export default async function DashboardPage() {
           </Card>
         </div>
       </div>
+
+      <ProfileModalWrapper initialProfile={profile} />
     </div>
-  )
+  );
 }
