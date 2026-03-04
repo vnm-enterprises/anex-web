@@ -24,14 +24,13 @@ import { Search, Filter, CreditCard, ExternalLink } from "lucide-react";
 
 interface Payment {
   id: string;
-  lemon_squeezy_order_id: string;
+  lemonsqueezy_order_id: string;
   amount: number;
   status: string;
   payment_type: string;
   created_at: string;
   profiles: {
     full_name: string | null;
-    email: string | null;
   } | null;
   listings: {
     title: string;
@@ -52,13 +51,12 @@ export function AdminPaymentsClient({
 
   const filteredPayments = payments.filter((payment) => {
     const matchesSearch =
-      payment.lemon_squeezy_order_id
+      payment.lemonsqueezy_order_id
         .toLowerCase()
         .includes(search.toLowerCase()) ||
       payment.profiles?.full_name
         ?.toLowerCase()
         .includes(search.toLowerCase()) ||
-      payment.profiles?.email?.toLowerCase().includes(search.toLowerCase()) ||
       payment.listings?.title.toLowerCase().includes(search.toLowerCase());
 
     const matchesStatus =
@@ -153,7 +151,7 @@ export function AdminPaymentsClient({
                   >
                     <TableCell className="py-4 px-6">
                       <div className="flex items-center gap-2 font-black text-foreground">
-                        {payment.lemon_squeezy_order_id}
+                        {payment.lemonsqueezy_order_id}
                         <ExternalLink className="h-3 w-3 text-muted-foreground hover:text-primary cursor-pointer" />
                       </div>
                     </TableCell>
