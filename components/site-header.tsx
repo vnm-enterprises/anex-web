@@ -41,8 +41,9 @@ export function SiteHeader() {
 
   useEffect(() => {
     const handleOpenProfile = () => setIsProfileModalOpen(true);
-    window.addEventListener('open-profile-modal', handleOpenProfile);
-    return () => window.removeEventListener('open-profile-modal', handleOpenProfile);
+    window.addEventListener("open-profile-modal", handleOpenProfile);
+    return () =>
+      window.removeEventListener("open-profile-modal", handleOpenProfile);
   }, []);
 
   useEffect(() => {
@@ -75,14 +76,23 @@ export function SiteHeader() {
   return (
     <nav
       className={`sticky top-0 left-0 w-full z-50 transition-all duration-300 ${
-        pathname === "/" ? "glass soft-shadow" : "bg-background/95 backdrop-blur-md border-b"
+        pathname === "/"
+          ? "glass soft-shadow"
+          : "bg-background/95 backdrop-blur-md border-b"
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-20 items-center">
           {/* Logo */}
-          <Link href="/" className="flex-shrink-0 flex items-center gap-2.5 group" aria-label="Annex.lk Home">
-            <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-primary-foreground font-bold text-lg shadow-lg group-hover:scale-110 transition-transform duration-300" aria-hidden="true">
+          <Link
+            href="/"
+            className="flex-shrink-0 flex items-center gap-2.5 group"
+            aria-label="Annex.lk Home"
+          >
+            <div
+              className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-primary-foreground font-bold text-lg shadow-lg group-hover:scale-110 transition-transform duration-300"
+              aria-hidden="true"
+            >
               <Home className="h-5 w-5" />
             </div>
             <span className="font-extrabold text-2xl tracking-tighter text-foreground">
@@ -91,7 +101,7 @@ export function SiteHeader() {
           </Link>
 
           {/* Right Side */}
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-4 md:gap-6">
             {/* Desktop Navigation */}
             <div className="hidden md:flex space-x-1 items-center">
               {[
@@ -103,7 +113,9 @@ export function SiteHeader() {
                   key={item.name}
                   href={item.href}
                   className={`px-4 py-2 rounded-lg text-sm font-medium transition-all hover:bg-muted ${
-                    pathname === item.href ? "text-primary bg-primary/5" : "text-muted-foreground hover:text-foreground"
+                    pathname === item.href
+                      ? "text-primary bg-primary/5"
+                      : "text-muted-foreground hover:text-foreground"
                   }`}
                 >
                   {item.name}
@@ -116,10 +128,10 @@ export function SiteHeader() {
                 <>
                   <Link
                     href="/dashboard/listings/new"
-                    className="hidden sm:flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-2.5 rounded-xl text-sm font-bold transition-all shadow-md hover:shadow-lg active:scale-95"
+                    className="hidden xs:flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground px-4 sm:px-6 py-2.5 rounded-xl text-sm font-bold transition-all shadow-md hover:shadow-lg active:scale-95"
                   >
                     <Plus className="h-4 w-4" />
-                    Post an Ad
+                    <span className="hidden sm:inline">Post an Ad</span>
                   </Link>
 
                   <DropdownMenu>
@@ -134,11 +146,18 @@ export function SiteHeader() {
                         <ChevronDown className="h-4 w-4 text-muted-foreground" />
                       </button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent className="w-56 rounded-2xl border-none soft-shadow p-2 mt-2" align="end">
+                    <DropdownMenuContent
+                      className="w-56 rounded-2xl border-none soft-shadow p-2 mt-2"
+                      align="end"
+                    >
                       <DropdownMenuLabel className="font-medium p-3">
                         <div className="flex flex-col">
-                          <span className="text-sm font-black tracking-tight">{user.full_name}</span>
-                          <span className="text-xs text-muted-foreground font-bold uppercase tracking-widest mt-0.5">{user.role} Account</span>
+                          <span className="text-sm font-black tracking-tight">
+                            {user.full_name}
+                          </span>
+                          <span className="text-xs text-muted-foreground font-bold uppercase tracking-widest mt-0.5">
+                            {user.role} Account
+                          </span>
                         </div>
                       </DropdownMenuLabel>
                       <DropdownMenuSeparator className="bg-border/50" />
@@ -191,10 +210,10 @@ export function SiteHeader() {
 
                   <Link
                     href="/auth/sign-up"
-                    className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-2.5 rounded-xl text-sm font-bold transition-all shadow-md hover:shadow-lg active:scale-95"
+                    className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground px-4 sm:px-6 py-2.5 rounded-xl text-sm font-bold transition-all shadow-md hover:shadow-lg active:scale-95"
                   >
                     <Plus className="h-4 w-4" />
-                    Post an Ad
+                    <span className="hidden sm:inline">Post an Ad</span>
                   </Link>
                 </>
               )}
@@ -206,7 +225,11 @@ export function SiteHeader() {
                 aria-label={isMenuOpen ? "Close menu" : "Open menu"}
                 aria-expanded={isMenuOpen}
               >
-                {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+                {isMenuOpen ? (
+                  <X className="h-6 w-6" />
+                ) : (
+                  <Menu className="h-6 w-6" />
+                )}
               </button>
             </div>
           </div>
@@ -216,10 +239,16 @@ export function SiteHeader() {
       {/* Mobile Menu */}
       {isMenuOpen && (
         <div className="md:hidden border-t border-border bg-card text-foreground px-4 py-4 space-y-4 animate-in fade-in slide-in-from-top-4">
-          <Link href="/search" className="block text-sm font-bold hover:text-primary transition-colors">
+          <Link
+            href="/search"
+            className="block text-sm font-bold hover:text-primary transition-colors"
+          >
             Explore Rentals
           </Link>
-          <Link href="/pricing" className="block text-sm font-bold hover:text-primary transition-colors">
+          <Link
+            href="/pricing"
+            className="block text-sm font-bold hover:text-primary transition-colors"
+          >
             Pricing Plans
           </Link>
 
@@ -276,7 +305,11 @@ export function SiteHeader() {
             </div>
           ) : (
             <div className="grid grid-cols-2 gap-4">
-              <Button variant="outline" asChild className="rounded-xl font-black">
+              <Button
+                variant="outline"
+                asChild
+                className="rounded-xl font-black"
+              >
                 <Link href="/auth/login">Login</Link>
               </Button>
               <Button asChild className="rounded-xl font-black">
