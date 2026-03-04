@@ -51,7 +51,6 @@ export function HeroSection() {
 
   return (
     <section className="relative w-full min-h-[95vh] flex items-center justify-center overflow-hidden pt-20">
-
       {/* Background */}
       <div className="absolute inset-0 z-0">
         <img
@@ -66,7 +65,6 @@ export function HeroSection() {
 
       {/* Content */}
       <div className="relative z-10 max-w-7xl mx-auto px-6 w-full text-center text-white">
-
         {/* Badge */}
         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/20 text-white text-[10px] font-black uppercase tracking-[0.2em] mb-10 backdrop-blur-md">
           <Sparkles className="h-3 w-3" />
@@ -74,9 +72,9 @@ export function HeroSection() {
         </div>
 
         {/* Headline */}
-        <h1 className="text-5xl md:text-7xl lg:text-8xl font-black leading-[0.95] tracking-[-0.04em] mb-8">
-          Find your <span className="text-primary italic">next</span>
-          <br />
+        <h1 className="text-5xl md:text-7xl lg:text-8xl font-black leading-none md:leading-[0.95] tracking-normal md:tracking-[-0.04em] mb-8">
+          Find your <span className="text-primary italic">next</span>{" "}
+          <br className="hidden md:block" />
           living space.
         </h1>
 
@@ -90,10 +88,9 @@ export function HeroSection() {
         <div className="max-w-4xl mx-auto">
           <form
             onSubmit={handleSearch}
-            className="relative bg-white/10 backdrop-blur-2xl border border-white/20 p-2 md:p-3 rounded-[2.5rem] shadow-[0_20px_60px_rgba(0,0,0,0.5)]"
+            className="relative bg-white/10 backdrop-blur-2xl border border-white/20 p-2 md:p-3 rounded-3xl md:rounded-[2.5rem] shadow-[0_20px_60px_rgba(0,0,0,0.5)]"
           >
             <div className="flex flex-col md:flex-row items-center gap-2">
-
               {/* Keyword */}
               <div className="flex-1 w-full relative">
                 <Search className="absolute left-6 top-1/2 -translate-y-1/2 h-5 w-5 text-white/50" />
@@ -101,7 +98,7 @@ export function HeroSection() {
                   placeholder="Where would you like to live?"
                   value={keyword}
                   onChange={(e) => setKeyword(e.target.value)}
-                  className="w-full h-16 pl-14 bg-transparent border-none text-lg font-bold text-white placeholder:text-white/50 focus-visible:ring-0"
+                  className="w-full h-14 md:h-16 pl-14 bg-transparent border-none text-base md:text-lg font-bold text-white placeholder:text-white/50 focus-visible:ring-0"
                 />
               </div>
 
@@ -111,7 +108,7 @@ export function HeroSection() {
               {/* District Select */}
               <div className="w-full md:w-64">
                 <Select value={district} onValueChange={setDistrict}>
-                  <SelectTrigger className="h-16 border-none bg-transparent text-white hover:bg-white/10 rounded-2xl px-6 focus:ring-0">
+                  <SelectTrigger className="h-14 md:h-16 border-none bg-transparent text-white hover:bg-white/10 rounded-2xl px-6 focus:ring-0">
                     <div className="flex items-center gap-3 font-bold">
                       <MapPin className="h-4 w-4 text-primary" />
                       <SelectValue placeholder="All Districts" />
@@ -135,18 +132,17 @@ export function HeroSection() {
               <Button
                 type="submit"
                 size="lg"
-                className="w-full md:w-auto h-16 px-10 rounded-[1.75rem] bg-primary hover:bg-primary/90 text-primary-foreground font-black text-lg shadow-xl shadow-primary/30 active:scale-95 flex items-center gap-2"
+                className="w-full md:w-auto h-14 md:h-16 px-10 rounded-2xl md:rounded-[1.75rem] bg-primary hover:bg-primary/90 text-primary-foreground font-black text-lg shadow-xl shadow-primary/30 active:scale-95 flex items-center justify-center gap-2"
               >
                 Search
                 <ArrowRight className="h-5 w-5" />
               </Button>
-
             </div>
           </form>
         </div>
 
         {/* Trust Markers */}
-        <div className="mt-20 flex flex-wrap justify-center items-center gap-12 text-white/60 font-black uppercase tracking-[0.3em] text-[10px]">
+        <div className="mt-12 md:mt-20 flex flex-wrap justify-center items-center gap-6 md:gap-12 text-white/60 font-black uppercase tracking-[0.3em] text-[10px]">
           <div className="flex items-center gap-2">
             <Warehouse className="h-5 w-5" /> 2,000+ Listings
           </div>
@@ -157,13 +153,11 @@ export function HeroSection() {
             <Home className="h-5 w-5" /> Secure Rentals
           </div>
         </div>
-
       </div>
 
       {/* Decorative Blur Effects */}
       <div className="absolute top-1/4 -left-20 w-64 h-64 bg-primary/20 rounded-full blur-[120px] pointer-events-none" />
       <div className="absolute bottom-1/4 -right-20 w-96 h-96 bg-emerald-500/20 rounded-full blur-[150px] pointer-events-none" />
-
     </section>
   );
 }
