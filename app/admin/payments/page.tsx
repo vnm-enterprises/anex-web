@@ -9,7 +9,7 @@ export default async function AdminPaymentsPage() {
     .select(
       `
       *,
-      profiles:user_id (full_name, email),
+      profiles:user_id (full_name),
       listings:listing_id (title)
     `,
     )
