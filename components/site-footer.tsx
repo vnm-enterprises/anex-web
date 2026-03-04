@@ -58,6 +58,7 @@ export function SiteFooter() {
                 <li key={item.name}>
                   <Link
                     href={item.href}
+                    prefetch={false}
                     className="hover:text-primary transition-colors flex items-center group"
                   >
                     <span>{item.name}</span>
