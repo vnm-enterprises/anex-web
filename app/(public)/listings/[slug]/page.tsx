@@ -27,6 +27,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       price,
       districts!listings_district_id_fkey(name),
       cities!listings_city_id_fkey(name),
+      custom_city,
       listing_images(url)
       `,
     )
@@ -40,7 +41,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const data = listing as any;
   const imageUrl = data.listing_images?.[0]?.url;
-  const description = `${listing.title} for Rs. ${listing.price?.toLocaleString()}/month in ${data.cities?.name}, ${data.districts?.name}. ${listing.description?.slice(0, 140)}`;
+  const description = `${listing.title} for Rs. ${listing.price?.toLocaleString()}/month in ${data.cities?.name ?? data.custom_city}, ${data.districts?.name}. ${listing.description?.slice(0, 140)}`;
 
   return {
     title: `${listing.title} | Annex.lk`,
@@ -83,6 +84,7 @@ export default async function ListingPage({ params }: Props) {
       *,
       districts!listings_district_id_fkey(*),
       cities!listings_city_id_fkey(*),
+      custom_city,
       listing_images(*),
       listing_amenities(
         amenities(*)
@@ -113,7 +115,7 @@ export default async function ListingPage({ params }: Props) {
     image: listingData.listing_images?.map((img: any) => img.url) || [],
     address: {
       "@type": "PostalAddress",
-      addressLocality: listingData.cities?.name,
+      addressLocality: listingData.cities?.name ?? listingData.custom_city,
       addressRegion: listingData.districts?.name,
       addressCountry: "LK",
     },
@@ -155,6 +157,7 @@ export default async function ListingPage({ params }: Props) {
       slug,
       title,
       price,
+      custom_city,
       listing_images(url),
       cities!listings_city_id_fkey(name)
       `,
@@ -190,7 +193,7 @@ export default async function ListingPage({ params }: Props) {
                 <h2 className="text-4xl font-black text-foreground tracking-tighter">
                   Similar Properties in{" "}
                   <span className="text-primary italic">
-                    {listingData.cities?.name}
+                    {listingData.cities?.name ?? listingData.custom_city}
                   </span>
                 </h2>
               </div>
