@@ -1,6 +1,16 @@
-import { createClient } from "@/lib/supabase/server";
+export const runtime = "nodejs";
+
+import { createClient } from "@supabase/supabase-js";
 import { NextRequest, NextResponse } from "next/server";
 import { verifyLemonSqueezyWebhook } from "@/lib/lemonsqueezy";
+import { sendPaymentSuccessEmail } from "@/lib/email";
+
+
+// Initialize Supabase with Service Role Key to bypass RLS
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!,
+);
 
 export async function POST(request: NextRequest) {
   try {
@@ -9,136 +19,168 @@ export async function POST(request: NextRequest) {
     const secret = process.env.LEMON_SQUEEZY_WEBHOOK_SECRET || "";
 
     if (!verifyLemonSqueezyWebhook(rawBody, signature, secret)) {
+      console.error("[Webhook] Invalid signature");
       return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
     }
 
     const payload = JSON.parse(rawBody);
     const eventName = payload.meta.event_name;
-    const customData = payload.meta.custom_data;
+
+    // Extract custom data, checking both meta and attributes (for some event types)
+    const customData =
+      payload.meta.custom_data || payload.data.attributes.custom_data;
+
+    console.log(`[Webhook] Received event: ${eventName}`, {
+      orderId: payload.data.id,
+      customData,
+    });
 
     if (!customData || !customData.listing_id || !customData.user_id) {
-      console.error("Missing custom data in webhook");
+      console.error("[Webhook] Missing custom data (listing_id or user_id).", {
+        meta: payload.meta,
+        attributes: payload.data.attributes,
+      });
       return NextResponse.json(
         { error: "Missing custom data" },
         { status: 400 },
       );
     }
 
-    const { listing_id, user_id, type, plan_slug } = customData;
+    const { listing_id, user_id, type } = customData;
     const orderId = payload.data.id;
-    const amount = payload.data.attributes.total;
-    const variantId = payload.data.attributes.variant_id;
-
-    const supabase = await createClient();
+    const orderAttributes = payload.data.attributes;
+    const amount = orderAttributes.total;
+    const currency = orderAttributes.currency || "LKR";
+    const variantId =
+      orderAttributes.first_order_item?.variant_id ||
+      orderAttributes.variant_id;
 
     if (eventName === "order_created" || eventName === "order_paid") {
-      // Record payment
+      console.log(
+        `[Webhook] Processing ${eventName} for listing ${listing_id} (User: ${user_id})`,
+      );
+
+      // 1. Record/Update payment record (Idempotency via upsert)
       const { error: paymentError } = await supabase.from("payments").upsert(
         {
-          lemon_squeezy_order_id: orderId,
+          lemonsqueezy_order_id: orderId.toString(),
           user_id,
           listing_id,
           amount,
-          status: eventName === "order_paid" ? "paid" : "pending",
+          status: "paid",
           payment_type: type,
+          currency,
           variant_id: variantId.toString(),
         },
-        { onConflict: "lemon_squeezy_order_id" },
+        { onConflict: "lemonsqueezy_order_id" },
       );
 
       if (paymentError) {
-        console.error("Error recording payment:", paymentError);
+        console.error(
+          "[Webhook] Error inserting/updating payment:",
+          paymentError,
+        );
+      } else {
+        console.log("[Webhook] Payment record processed successfully");
       }
-    }
 
-    if (eventName === "order_paid") {
-      if (type === "ad_listing") {
-        // Update listing status
-        const { error: listingError } = await supabase
+      // 2. Update Listing
+      const updateData: any = {};
+      const vIdString = variantId.toString();
+
+      if (vIdString === "1353811") {
+        // LEMON_VARIANT_AD_LISTING
+        updateData.payment_status = "paid";
+        updateData.status = "pending";
+      } else if (vIdString === "1353828") {
+        // LEMON_VARIANT_QUICK_BOOST
+        updateData.is_boosted = true;
+        updateData.boost_weight = 1;
+      } else if (vIdString === "1353831") {
+        // LEMON_VARIANT_PREMIUM_BOOST
+        updateData.is_boosted = true;
+        updateData.boost_weight = 2;
+      } else if (vIdString === "1353841") {
+        // LEMON_VARIANT_FEATURED_BOOST
+        updateData.is_boosted = true;
+        updateData.boost_weight = 3;
+        updateData.is_featured = true;
+        updateData.featured_weight = 1;
+      }
+
+      const { error: listingError } = await supabase
+        .from("listings")
+        .update(updateData)
+        .eq("id", listing_id);
+
+      if (listingError) {
+        console.error("[Webhook] Error updating listing:", listingError);
+      } else {
+        console.log("[Webhook] Listing updated successfully");
+      }
+
+      // 3. Send Success Email
+      try {
+        const { data: userData } = await supabase
+          .from("profiles")
+          .select("full_name")
+          .eq("id", user_id)
+          .single();
+
+        const { data: listingData } = await supabase
           .from("listings")
-          .update({
-            payment_status: "paid",
-            lemon_squeezy_order_id: orderId,
-          })
-          .eq("id", listing_id);
+          .select("title, contact_email")
+          .eq("id", listing_id)
+          .single();
 
-        if (listingError) {
-          console.error("Error updating listing payment status:", listingError);
+        const userEmail = listingData?.contact_email;
+
+        if (userEmail && listingData?.title) {
+          await sendPaymentSuccessEmail({
+            email: userEmail,
+            customerName: userData?.full_name || "User",
+            amount: amount / 100, // Lemon Squeezy attributes.total is in cents
+            listingTitle: listingData.title,
+            orderId: orderId.toString(),
+          });
+          console.log("[Webhook] Success email sent");
         }
-      } else if (type === "boost") {
-        // Create boost record and update listing
-        const BOOST_PLANS: Record<
-          string,
-          { price: number; duration: number; type: "boost" | "featured" }
-        > = {
-          quick: { price: 500, duration: 7, type: "boost" },
-          premium: { price: 900, duration: 14, type: "boost" },
-          featured: { price: 1500, duration: 30, type: "featured" },
-        };
-
-        const plan = BOOST_PLANS[plan_slug];
-        if (plan) {
-          const now = new Date();
-          const expiresAt = new Date(
-            now.getTime() + plan.duration * 24 * 60 * 60 * 1000,
-          );
-
-          const { data: boost, error: boostError } = await supabase
-            .from("boosts")
-            .insert({
-              listing_id,
-              user_id,
-              duration_days: plan.duration,
-              price: plan.price,
-              starts_at: now,
-              expires_at: expiresAt,
-              lemon_squeezy_order_id: orderId,
-            })
-            .select()
-            .single();
-
-          if (boostError) {
-            console.error("Error creating boost record:", boostError);
-          } else {
-            // Update listing boost fields
-            const updateData: any = {
-              is_boosted: true,
-              boost_expires_at: expiresAt,
-            };
-
-            if (plan_slug === "quick") {
-              updateData.boost_weight = 1;
-            } else if (plan_slug === "premium") {
-              updateData.boost_weight = 5;
-            } else if (plan_slug === "featured") {
-              updateData.is_featured = true;
-              updateData.featured_expires_at = expiresAt;
-              updateData.featured_weight = 10;
-              updateData.boost_weight = 10;
-            }
-
-            const { error: updateError } = await supabase
-              .from("listings")
-              .update(updateData)
-              .eq("id", listing_id);
-
-            if (updateError) {
-              console.error("Error updating listing boost info:", updateError);
-            }
-
-            // Also update the payment record with the boost_id
-            await supabase
-              .from("payments")
-              .update({ boost_id: boost.id })
-              .eq("lemon_squeezy_order_id", orderId);
-          }
-        }
+      } catch (emailErr) {
+        console.error("[Webhook] Email sending failed:", emailErr);
       }
+    } else if (eventName === "order_refunded") {
+      console.log(`[Webhook] Processing refund for order ${orderId}`);
+
+      const { error: refundPaymentError } = await supabase
+        .from("payments")
+        .update({ status: "refunded" })
+        .eq("lemonsqueezy_order_id", orderId.toString());
+
+      if (refundPaymentError) {
+        console.error(
+          "[Webhook] Error updating payment status for refund:",
+          refundPaymentError,
+        );
+      }
+
+      const { error: refundListingError } = await supabase
+        .from("listings")
+        .update({ payment_status: "refunded" })
+        .eq("id", listing_id);
+
+      if (refundListingError) {
+        console.error(
+          "[Webhook] Error updating listing status for refund:",
+          refundListingError,
+        );
+      }
+
+      console.log("[Webhook] Refund processed successfully");
     }
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("Webhook error:", error);
+    console.error("[Webhook] Global error:", error);
     return NextResponse.json(
       {
         error: error instanceof Error ? error.message : "Internal server error",
