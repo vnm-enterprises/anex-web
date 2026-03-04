@@ -1,13 +1,46 @@
-import { AdminListingsClient } from "./admin-listings-client"
-import type { Metadata } from "next"
-import Link from "next/link"
-import { ArrowLeft } from "lucide-react"
+import { AdminListingsClient } from "./admin-listings-client";
+import type { Metadata } from "next";
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
+import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
   title: "Manage Listings - Admin",
+};
+
+interface PageProps {
+  searchParams: Promise<{
+    status?: string;
+    page?: string;
+  }>;
 }
 
-export default function AdminListingsPage() {
+export default async function AdminListingsPage({ searchParams }: PageProps) {
+  const params = await searchParams;
+  const status = params.status || "all";
+
+  const supabase = await createClient();
+
+  let query = supabase
+    .from("listings")
+    .select(
+      `
+      *,
+      districts(name),
+      cities(name),
+      custom_city,
+      profiles!listings_user_id_fkey(full_name)
+    `,
+    )
+    .order("created_at", { ascending: false })
+    .limit(50);
+
+  if (status !== "all") {
+    query = query.eq("status", status);
+  }
+
+  const { data: listings } = await query;
+
   return (
     <div className="space-y-8">
       <Link
@@ -19,7 +52,10 @@ export default function AdminListingsPage() {
         </div>
         Back to Dashboard
       </Link>
-      <AdminListingsClient />
+      <AdminListingsClient
+        initialListings={listings || []}
+        statusFilter={status}
+      />
     </div>
-  )
+  );
 }
