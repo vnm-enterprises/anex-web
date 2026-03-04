@@ -53,6 +53,7 @@ export function NewListingForm() {
     contact_name: "",
     contact_phone: "",
     contact_email: "",
+    custom_city: "",
     selectedAmenities: [] as string[],
   });
 
@@ -142,6 +143,18 @@ export function NewListingForm() {
       } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 
+      if (!form.district_id) {
+        throw new Error("Please select a district");
+      }
+
+      if (form.city_id === "other" && !form.custom_city) {
+        throw new Error("Please enter your city/town");
+      }
+
+      if (!form.city_id) {
+        throw new Error("Please select a city or 'Other'");
+      }
+
       const slug = slugify(form.title) + "-" + Date.now().toString(36);
 
       const { data: listing, error: listingError } = await supabase
@@ -154,14 +167,15 @@ export function NewListingForm() {
           property_type: form.property_type,
           price: parseInt(form.price),
           district_id: form.district_id,
-          city_id: form.city_id,
+          city_id: form.city_id === "other" ? null : form.city_id,
+          custom_city: form.city_id === "other" ? form.custom_city : null,
           area: form.area || null,
           furnished: form.furnished,
           gender_preference: form.gender_preference,
           contact_name: form.contact_name || null,
           contact_phone: form.contact_phone,
           contact_email: form.contact_email || null,
-          status: "pending",
+          status: listingCount >= 3 ? "pending_payment" : "pending",
           payment_status: listingCount >= 3 ? "unpaid" : "free",
         })
         .select()
@@ -214,8 +228,19 @@ export function NewListingForm() {
               type: "ad_listing",
             }),
           });
-          const { url, error } = await res.json();
-          if (error) throw new Error(error);
+
+          if (!res.ok) {
+            // Cleanup the listing if checkout initiation fails
+            if (listing.id) {
+              await supabase.from("listings").delete().eq("id", listing.id);
+            }
+            const errorData = await res.json();
+            throw new Error(
+              errorData.error || "Failed to initiate payment. Listing removed.",
+            );
+          }
+
+          const { url } = await res.json();
           window.location.href = url;
           return;
         } catch (err) {
@@ -378,8 +403,10 @@ export function NewListingForm() {
                 <Label>City</Label>
                 <Select
                   value={form.city_id}
-                  onValueChange={(v) => updateForm("city_id", v)}
-                  required
+                  onValueChange={(v) => {
+                    updateForm("city_id", v);
+                    if (v !== "other") updateForm("custom_city", "");
+                  }}
                   disabled={cities.length === 0}
                 >
                   <SelectTrigger>
@@ -397,10 +424,26 @@ export function NewListingForm() {
                         {c.name}
                       </SelectItem>
                     ))}
+                    {cities.length > 0 && (
+                      <SelectItem value="other">Other / Not listed</SelectItem>
+                    )}
                   </SelectContent>
                 </Select>
               </div>
             </div>
+
+            {form.city_id === "other" && (
+              <div className="grid gap-2">
+                <Label htmlFor="custom_city">City / Town Name</Label>
+                <Input
+                  id="custom_city"
+                  required
+                  placeholder="Enter your city or area name"
+                  value={form.custom_city}
+                  onChange={(e) => updateForm("custom_city", e.target.value)}
+                />
+              </div>
+            )}
             <div className="grid gap-2">
               <Label htmlFor="area">Area / Neighborhood (optional)</Label>
               <Input
