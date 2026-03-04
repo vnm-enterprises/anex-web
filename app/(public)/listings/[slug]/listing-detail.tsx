@@ -1,13 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   MapPin,
   Phone,
@@ -22,7 +23,6 @@ import {
   Building2,
   ChevronLeft,
   ChevronRight,
-  Heart,
   Share2,
   Check,
   MessageCircle,
@@ -38,24 +38,6 @@ const propertyIcons: Record<string, React.ElementType> = {
   boarding: BedDouble,
   house: Warehouse,
   apartment: Building2,
-};
-
-const amenityIcons: Record<string, string> = {
-  wifi: "Wi-Fi",
-  wind: "AC",
-  car: "Parking",
-  flame: "Hot Water",
-  shirt: "Washing Machine",
-  "cooking-pot": "Kitchen",
-  tv: "TV",
-  shield: "Security",
-  camera: "CCTV",
-  zap: "Generator",
-  waves: "Pool",
-  dumbbell: "Gym",
-  trees: "Garden",
-  sofa: "Furnished",
-  fence: "Balcony",
 };
 
 export function ListingDetail({ listing }: { listing: Listing }) {
@@ -123,11 +105,14 @@ export function ListingDetail({ listing }: { listing: Listing }) {
             <div className="relative overflow-hidden rounded-[2.5rem] bg-muted soft-shadow">
               {images.length > 0 ? (
                 <>
-                  <div className="aspect-[16/10]">
-                    <img
+                  <div className="relative aspect-[16/10]">
+                    <Image
                       src={images[currentImage]?.url}
                       alt={`${listing.title} - Image ${currentImage + 1}`}
-                      className="h-full w-full object-cover transition-transform duration-[2s] hover:scale-110"
+                      fill
+                      priority
+                      sizes="(max-width: 1024px) 100vw, 66vw"
+                      className="object-cover transition-transform duration-2000 hover:scale-110"
                     />
                   </div>
                   {images.length > 1 && (
@@ -140,7 +125,7 @@ export function ListingDetail({ listing }: { listing: Listing }) {
                               : images.length - 1,
                           )
                         }
-                        className="absolute left-6 top-1/2 flex h-14 w-14 -translate-y-1/2 items-center justify-center rounded-2xl bg-white/90 text-primary shadow-xl backdrop-blur-md hover:bg-white transition-all active:scale-95"
+                        className="absolute left-6 top-1/2 flex h-14 w-14 -translate-y-1/2 items-center justify-center rounded-2xl bg-white/90 text-primary shadow-xl backdrop-blur-md hover:bg-white transition-all active:scale-95 z-10"
                         aria-label="Previous image"
                       >
                         <ChevronLeft className="h-6 w-6" />
@@ -153,7 +138,7 @@ export function ListingDetail({ listing }: { listing: Listing }) {
                               : 0,
                           )
                         }
-                        className="absolute right-6 top-1/2 flex h-14 w-14 -translate-y-1/2 items-center justify-center rounded-2xl bg-white/90 text-primary shadow-xl backdrop-blur-md hover:bg-white transition-all active:scale-95"
+                        className="absolute right-6 top-1/2 flex h-14 w-14 -translate-y-1/2 items-center justify-center rounded-2xl bg-white/90 text-primary shadow-xl backdrop-blur-md hover:bg-white transition-all active:scale-95 z-10"
                         aria-label="Next image"
                       >
                         <ChevronRight className="h-6 w-6" />
@@ -167,7 +152,7 @@ export function ListingDetail({ listing }: { listing: Listing }) {
                 </div>
               )}
 
-              <div className="absolute left-6 top-6 flex flex-col gap-2">
+              <div className="absolute left-6 top-6 flex flex-col gap-2 z-10">
                 {listing.is_boosted && (
                   <Badge className="bg-primary text-white border-none font-black uppercase tracking-widest text-[10px] px-3 py-1 shadow-lg backdrop-blur-sm">
                     <Zap className="h-3 w-3 mr-1 fill-current" />
@@ -190,16 +175,18 @@ export function ListingDetail({ listing }: { listing: Listing }) {
                   <button
                     key={img.id}
                     onClick={() => setCurrentImage(i)}
-                    className={`h-24 w-32 shrink-0 overflow-hidden rounded-2xl border-4 transition-all duration-300 ${
+                    className={`relative h-24 w-32 shrink-0 overflow-hidden rounded-2xl border-4 transition-all duration-300 ${
                       i === currentImage
                         ? "border-primary scale-105 shadow-lg"
                         : "border-transparent opacity-60 hover:opacity-100 hover:scale-105"
                     }`}
                   >
-                    <img
+                    <Image
                       src={img.url}
                       alt={`Thumbnail ${i + 1}`}
-                      className="h-full w-full object-cover"
+                      fill
+                      sizes="128px"
+                      className="object-cover"
                     />
                   </button>
                 ))}
@@ -239,7 +226,8 @@ export function ListingDetail({ listing }: { listing: Listing }) {
                 <div className="flex items-center gap-2 text-muted-foreground font-bold">
                   <MapPin className="h-5 w-5 text-primary" />
                   <span className="text-lg">
-                    {listing.cities?.name}, {listing.districts?.name}
+                    {listing.cities?.name ?? listing.custom_city},{" "}
+                    {listing.districts?.name}
                     {listing.area ? ` — ${listing.area}` : ""}
                   </span>
                 </div>
@@ -346,7 +334,7 @@ export function ListingDetail({ listing }: { listing: Listing }) {
               </div>
             </div>
 
-            <CardContent className="p-8 pt-10 flex flex-col gap-6">
+            <div className="p-8 pt-10 flex flex-col gap-6">
               {listing.profiles && (
                 <div className="flex items-center gap-4 rounded-[2rem] bg-muted/40 p-5 border border-border/50 transition-all hover:bg-muted duration-500">
                   <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary text-2xl font-black text-primary-foreground shadow-lg shadow-primary/20">
@@ -480,7 +468,7 @@ export function ListingDetail({ listing }: { listing: Listing }) {
                   </Button>
                 </form>
               )}
-            </CardContent>
+            </div>
           </Card>
         </div>
       </div>
