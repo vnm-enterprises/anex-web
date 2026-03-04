@@ -33,6 +33,7 @@ export async function GET(request: NextRequest) {
         `*,
         districts(name),
         cities(name),
+        custom_city,
         listing_images(url, storage_path),
         listing_amenities(amenities(id, name))`,
         { count: "exact" },
