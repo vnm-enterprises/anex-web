@@ -1,4 +1,5 @@
 import crypto from "crypto";
+import { fetchWithTimeout } from "./utils";
 
 const LEMON_SQUEEZY_API_BASE = "https://api.lemonsqueezy.com/v1";
 
@@ -29,48 +30,51 @@ export async function createLemonSqueezyCheckout({
     throw new Error("LEMON_SQUEEZY_API_KEY is not set");
   }
 
-  const response = await fetch(`${LEMON_SQUEEZY_API_BASE}/checkouts`, {
-    method: "POST",
-    headers: {
-      Accept: "application/vnd.api+json",
-      "Content-Type": "application/vnd.api+json",
-      Authorization: `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify({
-      data: {
-        type: "checkouts",
-        attributes: {
-          checkout_data: {
-            custom: {
-              listing_id: listingId,
-              user_id: userId,
-              type: type,
-              plan_slug: planSlug || "",
-            },
-            email: userEmail || "",
-            name: userName || "",
-          },
-          product_options: {
-            redirect_url: `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/dashboard/payments/success`,
-          },
-        },
-        relationships: {
-          store: {
-            data: {
-              type: "stores",
-              id: storeId,
-            },
-          },
-          variant: {
-            data: {
-              type: "variants",
-              id: variantId,
-            },
-          },
-        },
+  const response = await fetchWithTimeout(
+    `${LEMON_SQUEEZY_API_BASE}/checkouts`,
+    {
+      method: "POST",
+      headers: {
+        Accept: "application/vnd.api+json",
+        "Content-Type": "application/vnd.api+json",
+        Authorization: `Bearer ${apiKey}`,
       },
-    }),
-  });
+      body: JSON.stringify({
+        data: {
+          type: "checkouts",
+          attributes: {
+            checkout_data: {
+              custom: {
+                listing_id: listingId,
+                user_id: userId,
+                type: type,
+                plan_slug: planSlug || "",
+              },
+              email: userEmail || "",
+              name: userName || "",
+            },
+            product_options: {
+              redirect_url: `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/dashboard/payments/success?listing_id=${listingId}&order_id=[order_id]`,
+            },
+          },
+          relationships: {
+            store: {
+              data: {
+                type: "stores",
+                id: storeId,
+              },
+            },
+            variant: {
+              data: {
+                type: "variants",
+                id: variantId,
+              },
+            },
+          },
+        },
+      }),
+    },
+  );
 
   const data = await response.json();
 
@@ -80,6 +84,35 @@ export async function createLemonSqueezyCheckout({
   }
 
   return data.data.attributes.url;
+}
+
+export async function getLemonSqueezyOrder(orderId: string) {
+  const apiKey = process.env.LEMON_SQUEEZY_API_KEY;
+
+  if (!apiKey) {
+    throw new Error("LEMON_SQUEEZY_API_KEY is not set");
+  }
+
+  const response = await fetchWithTimeout(
+    `${LEMON_SQUEEZY_API_BASE}/orders/${orderId}`,
+    {
+      method: "GET",
+      headers: {
+        Accept: "application/vnd.api+json",
+        "Content-Type": "application/vnd.api+json",
+        Authorization: `Bearer ${apiKey}`,
+      },
+    },
+  );
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    console.error("Lemon Squeezy error:", data);
+    throw new Error(data.errors?.[0]?.detail || "Failed to fetch order");
+  }
+
+  return data.data;
 }
 
 export function verifyLemonSqueezyWebhook(
