@@ -1,6 +1,5 @@
-"use client";
-
 import Link from "next/link";
+import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import {
   MapPin,
@@ -11,22 +10,27 @@ import {
   ArrowUpRight,
   Users,
   Armchair,
+  CreditCard,
 } from "lucide-react";
 import { formatPrice } from "@/lib/constants";
 import type { Listing } from "@/lib/types";
 
 export function ListingCard({ listing }: { listing: Listing }) {
   const mainImage = listing.listing_images?.[0]?.url;
+  const isPriority = listing.is_boosted || listing.is_featured;
 
   return (
     <div className="group relative flex flex-col h-full overflow-hidden rounded-[2.5rem] border border-border/50 bg-card transition-all duration-700 soft-shadow hover:shadow-2xl hover:-translate-y-2">
       {/* Image Section */}
       <div className="relative aspect-[4/3] overflow-hidden">
         {mainImage ? (
-          <img
+          <Image
             src={mainImage}
             alt={listing.title}
-            className="h-full w-full object-cover transition-transform duration-1000 group-hover:scale-110"
+            fill
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            priority={isPriority}
+            className="object-cover transition-transform duration-1000 group-hover:scale-110"
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center bg-muted/30">
@@ -49,6 +53,12 @@ export function ListingCard({ listing }: { listing: Listing }) {
             <Badge className="bg-amber-500 text-white border-none font-black uppercase tracking-widest text-[9px] px-3 py-1.5 shadow-xl backdrop-blur-md">
               <Sparkles className="h-3 w-3 mr-1 fill-current" />
               Featured
+            </Badge>
+          )}
+          {listing.status === "pending_payment" && (
+            <Badge className="bg-amber-500 text-white border-none font-black uppercase tracking-widest text-[9px] px-3 py-1.5 shadow-xl backdrop-blur-md">
+              <CreditCard className="h-3 w-3 mr-1 fill-current" />
+              Pending Payment
             </Badge>
           )}
         </div>
@@ -80,7 +90,7 @@ export function ListingCard({ listing }: { listing: Listing }) {
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-primary/5 border border-primary/10 text-[10px] font-black uppercase tracking-widest text-primary">
             <MapPin className="h-3 w-3" />
-            {listing.cities?.name}
+            {listing.cities?.name ?? listing.custom_city}
           </div>
           <div className="flex items-center gap-1.5 text-[10px] font-bold text-muted-foreground/60">
             <Eye className="h-4 w-4" />
