@@ -96,6 +96,10 @@ const config: Config = {
         "accordion-up": "accordion-up 0.2s ease-out",
         "fade-in": "fade-in 0.5s ease-out forwards",
       },
+      transitionDuration: {
+        "2000": "2000ms",
+        "10000": "10s",
+      },
     },
   },
   plugins: [require("tailwindcss-animate")],
