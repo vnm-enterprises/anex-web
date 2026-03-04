@@ -5,6 +5,7 @@ A production-ready, monetized rental marketplace for Sri Lanka built with Next.j
 ## Features
 
 ### Core Functionality
+
 - **Property Listings**: Post and browse rentals (annexes, boarding, houses, apartments)
 - **Advanced Search**: Full-text search, filters by district, price, type, amenities
 - **User Accounts**: Sign up with email/password or Google OAuth
@@ -12,6 +13,7 @@ A production-ready, monetized rental marketplace for Sri Lanka built with Next.j
 - **Analytics**: Track views, inquiries, favorites per listing
 
 ### Monetization
+
 - **Free Tier**: 3 listings/month, 30-day expiry
 - **Paid Plans**: Basic, Pro, Business with increasing benefits
 - **Boost System**: 7/14/30-day boosts for higher visibility
@@ -19,6 +21,7 @@ A production-ready, monetized rental marketplace for Sri Lanka built with Next.j
 - **Ad System**: Admin-controlled banner ads
 
 ### Admin Features
+
 - **Listing Moderation**: Approve/reject user submissions
 - **Featured Management**: Promote listings to featured section
 - **Boost Administration**: Manage boost statuses
@@ -81,12 +84,14 @@ A production-ready, monetized rental marketplace for Sri Lanka built with Next.j
 ## API Routes
 
 ### Public
+
 - `GET /api/listings/search` - Search and filter listings
 - `GET /api/listings/[id]` - Get listing details
 - `POST /api/inquiries` - Send inquiry on listing
 - `POST /api/favorites` - Add/remove favorites
 
 ### Authenticated User
+
 - `POST /api/listings` - Create new listing
 - `PUT /api/listings/[id]` - Update listing
 - `GET /api/analytics` - Get user analytics
@@ -94,6 +99,7 @@ A production-ready, monetized rental marketplace for Sri Lanka built with Next.j
 - `POST /api/boosts` - Purchase listing boost
 
 ### Admin Only
+
 - `GET /api/admin/listings` - View all listings
 - `POST /api/admin/listings/[id]/approve` - Approve/reject listings
 - `POST /api/admin/featured` - Set featured listings
@@ -105,6 +111,7 @@ A production-ready, monetized rental marketplace for Sri Lanka built with Next.j
 ### Local Development
 
 1. **Clone and install**:
+
    ```bash
    git clone <repo>
    cd annexlk
@@ -112,9 +119,11 @@ A production-ready, monetized rental marketplace for Sri Lanka built with Next.j
    ```
 
 2. **Set up environment**:
+
    ```bash
    cp .env.example .env.local
    ```
+
    Add your Supabase credentials
 
 3. **Set up database**:
@@ -123,23 +132,40 @@ A production-ready, monetized rental marketplace for Sri Lanka built with Next.j
    - Run `scripts/002_seed.sql` for seed data
 
 4. **Run dev server**:
+
    ```bash
    npm run dev
    ```
 
 5. **Open browser**: `http://localhost:3000`
 
-### Test Accounts
+### Advanced Features Setup
 
-After seeding:
-- **Admin**: Set via Supabase Auth (update profile role to 'admin')
-- **User**: Sign up normally
+#### 1. Payment Integration (Lemon Squeezy)
+
+- Create a Lemon Squeezy store and get your `STORE_ID`.
+- Create products/variants for Ad Listings and Boosts.
+- Set up a webhook pointing to `your-url/api/webhooks/lemonsqueezy`.
+- Add `LEMON_SQUEEZY_API_KEY`, `LEMON_SQUEEZY_STORE_ID`, and `LEMON_SQUEEZY_WEBHOOK_SECRET` to `.env.local`.
+
+#### 2. Email Invoicing (Resend)
+
+- Sign up for Resend and verify your domain.
+- Add `RESEND_API_KEY` to `.env.local`.
+- If missing, the system will fall back to logging email content to the console for development.
+
+#### 3. Admin Analytics & Reports
+
+- Access the Admin Panel at `/admin` (requires 'admin' role in `profiles`).
+- View platform-wide revenue, user growth, and listing stats.
+- Export CSV reports for Listings and Payments directly from the overview.
 
 ## Deployment
 
 See [DEPLOYMENT.md](./DEPLOYMENT.md) for production deployment guide.
 
 Quick summary:
+
 1. Set up Supabase project and run schema migrations
 2. Configure environment variables
 3. Deploy to Vercel from GitHub
@@ -149,24 +175,28 @@ Quick summary:
 ## Key Features Explained
 
 ### Search System
+
 - Full-text search using PostgreSQL `tsvector`
 - Multi-filter support: district, city, type, price range, amenities, furnished, gender
 - Smart ranking: featured > boosted > newest
 - Pagination with configurable page size
 
 ### Subscription Model
+
 - Free: 3 listings/month
 - Basic: 5 listings/month
 - Pro: 20 listings/month + featured eligible
 - Business: Unlimited listings + analytics
 
 ### Boost Mechanism
+
 - 7/14/30 day durations at fixed prices
 - Automatic expiry and status update
 - Ranked above regular listings
 - Time countdown display
 
 ### Row Level Security (RLS)
+
 - Users can only see approved listings (or their own)
 - Users edit/delete only their content
 - Admins can access everything
@@ -227,4 +257,4 @@ Proprietary - Annex.lk
 ## Support
 
 For issues or questions, contact support@annex.lk
- : )
+: )
