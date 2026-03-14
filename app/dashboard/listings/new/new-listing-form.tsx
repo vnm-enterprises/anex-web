@@ -23,6 +23,7 @@ import {
   GENDER_OPTIONS,
   slugify,
 } from "@/lib/constants";
+import { processImage } from "@/lib/image-processing";
 import type { District, City, Amenity } from "@/lib/types";
 import { toast } from "sonner";
 
@@ -34,9 +35,10 @@ export function NewListingForm() {
   const [cities, setCities] = useState<City[]>([]);
   const [amenities, setAmenities] = useState<Amenity[]>([]);
   const [loading, setLoading] = useState(false);
-  const [imageFiles, setImageFiles] = useState<File[]>([]);
+  const [imageFiles, setImageFiles] = useState<Blob[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [listingCount, setListingCount] = useState(0);
+  const [freeLimit, setFreeLimit] = useState(3);
   const [showPayment, setShowPayment] = useState(false);
   const [paymentLoading, setPaymentLoading] = useState(false);
 
@@ -66,10 +68,24 @@ export function NewListingForm() {
       if (d) setDistricts(d);
       if (a) setAmenities(a);
 
-      // Check listing count
+      // Check listing count and platform tier
       const {
         data: { user },
       } = await supabase.auth.getUser();
+
+      // Get total users to determine free ad tier
+      const { count: totalUsers } = await supabase
+        .from("profiles")
+        .select("*", { count: "exact", head: true });
+
+      let limit = 3;
+      if (totalUsers) {
+        if (totalUsers <= 10) limit = 10;
+        else if (totalUsers <= 20) limit = 8;
+        else if (totalUsers <= 50) limit = 5;
+      }
+      setFreeLimit(limit);
+
       if (user) {
         const { count } = await supabase
           .from("listings")
@@ -87,9 +103,7 @@ export function NewListingForm() {
       return;
     }
     async function loadCities() {
-      // Clear current cities before loading new ones to avoid UI mismatch
       setCities([]);
-
       const { data, error } = await supabase
         .from("cities")
         .select("*")
@@ -100,37 +114,61 @@ export function NewListingForm() {
         toast.error("Failed to load cities for this district");
         return;
       }
-
       if (data) setCities(data);
     }
     loadCities();
   }, [form.district_id]);
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     if (imageFiles.length + files.length > 5) {
       toast.error("Maximum 5 images allowed");
       return;
     }
-    setImageFiles((prev) => [...prev, ...files]);
-    files.forEach((file) => {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setImagePreviews((prev) => [...prev, e.target?.result as string]);
-      };
-      reader.readAsDataURL(file);
-    });
+
+    setLoading(true);
+    const toastId = toast.loading("Processing images...");
+
+    try {
+      for (const file of files) {
+        if (file.size > 10 * 1024 * 1024) {
+          // 10MB soft limit for raw upload
+          toast.error(`${file.name} is too large. Max 10MB.`);
+          continue;
+        }
+
+        const processedBlob = await processImage(file);
+        setImageFiles((prev) => [...prev, processedBlob]);
+
+        const previewUrl = URL.createObjectURL(processedBlob);
+        setImagePreviews((prev) => [...prev, previewUrl]);
+      }
+      toast.success("Images processed successfully", { id: toastId });
+    } catch (error) {
+      console.error("Image processing error:", error);
+      toast.error("Failed to process images", { id: toastId });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const removeImage = (index: number) => {
     setImageFiles((prev) => prev.filter((_, i) => i !== index));
-    setImagePreviews((prev) => prev.filter((_, i) => i !== index));
+    setImagePreviews((prev) => {
+      URL.revokeObjectURL(prev[index]);
+      return prev.filter((_, i) => i !== index);
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (listingCount >= 3 && !showPayment) {
+    if (imageFiles.length === 0) {
+      toast.error("Please upload at least one image");
+      return;
+    }
+
+    if (listingCount >= freeLimit && !showPayment) {
       setShowPayment(true);
       return;
     }
@@ -143,17 +181,10 @@ export function NewListingForm() {
       } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 
-      if (!form.district_id) {
-        throw new Error("Please select a district");
-      }
-
-      if (form.city_id === "other" && !form.custom_city) {
+      if (!form.district_id) throw new Error("Please select a district");
+      if (form.city_id === "other" && !form.custom_city)
         throw new Error("Please enter your city/town");
-      }
-
-      if (!form.city_id) {
-        throw new Error("Please select a city or 'Other'");
-      }
+      if (!form.city_id) throw new Error("Please select a city or 'Other'");
 
       const slug = slugify(form.title) + "-" + Date.now().toString(36);
 
@@ -175,8 +206,11 @@ export function NewListingForm() {
           contact_name: form.contact_name || null,
           contact_phone: form.contact_phone,
           contact_email: form.contact_email || null,
-          status: listingCount >= 3 ? "pending_payment" : "pending",
-          payment_status: listingCount >= 3 ? "unpaid" : "free",
+          status: listingCount >= freeLimit ? "pending_payment" : "pending",
+          payment_status: listingCount >= freeLimit ? "unpaid" : "free",
+          expires_at: new Date(
+            Date.now() + 30 * 24 * 60 * 60 * 1000,
+          ).toISOString(),
         })
         .select()
         .single();
@@ -185,27 +219,28 @@ export function NewListingForm() {
 
       // Upload images
       for (let i = 0; i < imageFiles.length; i++) {
-        const file = imageFiles[i];
-        const fileExt = file.name.split(".").pop();
-        const filePath = `listings/${listing.id}/${i}.${fileExt}`;
+        const blob = imageFiles[i];
+        const filePath = `listings/${listing.id}/${i}.jpg`; // We know it's jpeg from processImage
 
         const { error: uploadError } = await supabase.storage
           .from("listing-images")
-          .upload(filePath, file);
+          .upload(filePath, blob, { contentType: "image/jpeg" });
 
-        if (uploadError) alert(uploadError);
-        if (!uploadError) {
-          const {
-            data: { publicUrl },
-          } = supabase.storage.from("listing-images").getPublicUrl(filePath);
-
-          await supabase.from("listing_images").insert({
-            listing_id: listing.id,
-            url: publicUrl,
-            storage_path: filePath,
-            display_order: i,
-          });
+        if (uploadError) {
+          console.error("Upload error:", uploadError);
+          continue;
         }
+
+        const {
+          data: { publicUrl },
+        } = supabase.storage.from("listing-images").getPublicUrl(filePath);
+
+        await supabase.from("listing_images").insert({
+          listing_id: listing.id,
+          url: publicUrl,
+          storage_path: filePath,
+          display_order: i,
+        });
       }
 
       // Link amenities
@@ -230,10 +265,8 @@ export function NewListingForm() {
           });
 
           if (!res.ok) {
-            // Cleanup the listing if checkout initiation fails
-            if (listing.id) {
+            if (listing.id)
               await supabase.from("listings").delete().eq("id", listing.id);
-            }
             const errorData = await res.json();
             throw new Error(
               errorData.error || "Failed to initiate payment. Listing removed.",
@@ -371,6 +404,7 @@ export function NewListingForm() {
           </CardContent>
         </Card>
 
+        {/* ... Location Card ... */}
         <Card className="border-border">
           <CardHeader>
             <CardTitle>Location</CardTitle>
@@ -431,7 +465,6 @@ export function NewListingForm() {
                 </Select>
               </div>
             </div>
-
             {form.city_id === "other" && (
               <div className="grid gap-2">
                 <Label htmlFor="custom_city">City / Town Name</Label>
@@ -496,7 +529,7 @@ export function NewListingForm() {
               )}
             </div>
             <p className="mt-2 text-xs text-muted-foreground">
-              Upload up to 5 images. First image will be the cover.
+              Upload up to 5 images. Compressed and watermarked automatically.
             </p>
           </CardContent>
         </Card>
@@ -568,14 +601,12 @@ export function NewListingForm() {
                 onChange={(e) => updateForm("contact_email", e.target.value)}
               />
             </div>
-
             <div className="mt-4 h-px bg-border" />
-
             {listingCount >= 3 ? (
               <div className="space-y-4">
                 <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-500 text-xs font-bold">
                   You have reached the free limit of 3 ads. A one-time payment
-                  of Rs. 750 is required for this listing.
+                  of Rs. 750 is required.
                 </div>
                 <Button
                   type="submit"
@@ -594,7 +625,7 @@ export function NewListingForm() {
             ) : (
               <Button
                 type="submit"
-                className="w-full text-white"
+                className="w-full text-white font-bold"
                 disabled={loading}
               >
                 {loading ? (
