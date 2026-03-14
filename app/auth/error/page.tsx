@@ -2,11 +2,12 @@
 'use client'
 
 import { useSearchParams } from 'next/navigation'
+import { Suspense } from 'react'
 import { Button } from "@/components/ui/button"
 import { AlertTriangle, Home } from "lucide-react"
 import Link from "next/link"
 
-export default function AuthErrorPage() {
+function AuthErrorContent() {
   const searchParams = useSearchParams()
   const error = searchParams?.get('error')
 
@@ -57,7 +58,7 @@ export default function AuthErrorPage() {
         </div>
       </div>
 
-      {/* RIGHT SIDE VISUAL - unchanged */}
+      {/* RIGHT SIDE VISUAL */}
       <div className="hidden lg:flex lg:w-1/2 relative bg-neutral-900 overflow-hidden">
         <img
           src="https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?q=80&w=2070"
@@ -89,5 +90,13 @@ export default function AuthErrorPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function AuthErrorPage() {
+  return (
+    <Suspense fallback={null}>
+      <AuthErrorContent />
+    </Suspense>
   )
 }
