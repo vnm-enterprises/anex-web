@@ -54,7 +54,7 @@ export function HeroSection() {
       {/* Background */}
       <div className="absolute inset-0 z-0">
         <img
-          src="https://images.unsplash.com/photo-1494526585095-c41746248156?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+          src="/media/images/hero.png"
           alt="Modern Architecture"
           className="w-full h-full object-cover"
         />
@@ -144,7 +144,7 @@ export function HeroSection() {
         {/* Trust Markers */}
         <div className="mt-12 md:mt-20 flex flex-wrap justify-center items-center gap-6 md:gap-12 text-white/60 font-black uppercase tracking-[0.3em] text-[10px]">
           <div className="flex items-center gap-2">
-            <Warehouse className="h-5 w-5" /> 2,000+ Listings
+            <Warehouse className="h-5 w-5" /> 100+ Listings
           </div>
           <div className="flex items-center gap-2">
             <Building2 className="h-5 w-5" /> 100% Verified
