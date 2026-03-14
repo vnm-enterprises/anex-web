@@ -23,23 +23,17 @@ export function DistrictsSection() {
 
       if (districtsData) {
         const districtImages: Record<string, string> = {
-          colombo:
-            "https://images.unsplash.com/photo-1623595289196-007a22dd8560?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+          colombo: "/media/images/colombo.png",
 
-          kandy:
-            "https://images.unsplash.com/photo-1665849050332-8d5d7e59afb6?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8a2FuZHl8ZW58MHx8MHx8fDA%3D",
+          kandy: "/media/images/kandy.png",
 
-          galle:
-            "https://images.unsplash.com/photo-1579989197111-928f586796a3?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8Z2FsbGV8ZW58MHx8MHx8fDA%3D",
+          galle: "/media/images/galle.png",
 
-          gampaha:
-            "https://images.unsplash.com/photo-1584211932359-513d7b58fe5f?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8Z2FtcGFoYXxlbnwwfHwwfHx8MA%3D%3D",
+          gampaha: "/media/images/gampaha.png",
 
-          kalutara:
-            "https://images.unsplash.com/photo-1697548532456-561b5f9a694d?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8a2FsdXRoYXJhfGVufDB8fDB8fHww",
+          kalutara: "/media/images/kalutara.png",
 
-          kurunegala:
-            "https://images.unsplash.com/photo-1707879255077-cd04f34b3643?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8a3VydW5lZ2FsYXxlbnwwfHwwfHx8MA%3D%3D",
+          kurunegala: "/media/images/kurunegala.png",
         };
 
         const prominentSlugs = [
@@ -70,7 +64,7 @@ export function DistrictsSection() {
                   districtImages[d.slug] ||
                   `https://images.unsplash.com/photo-1580000000000?auto=format&fit=crop&q=80&w=800`,
               };
-            })
+            }),
         );
         setDistricts(enriched);
       }
