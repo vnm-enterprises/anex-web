@@ -10,6 +10,8 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 
+import Autoplay from "embla-carousel-autoplay";
+
 interface ListingCarouselProps {
   listings: Listing[];
   accentColor?: "primary" | "rose";
@@ -28,6 +30,12 @@ export function ListingCarousel({
         align: "start",
         loop: true,
       }}
+      plugins={[
+        Autoplay({
+          delay: 4000,
+          stopOnInteraction: true,
+        }),
+      ]}
       className="w-full"
     >
       <CarouselContent className="-ml-10">
