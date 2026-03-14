@@ -1,15 +1,14 @@
 // app/auth/error/page.tsx
-'use client'  // ✅ Keep this - marks as Client Component
+'use client'
 
-import { useSearchParams } from 'next/navigation'  // ✅ Client-side hook for URL params
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { useSearchParams } from 'next/navigation'
 import { Button } from "@/components/ui/button"
 import { AlertTriangle, Home } from "lucide-react"
 import Link from "next/link"
 
-export default function AuthErrorPage() {  // ✅ Remove async
-  const searchParams = useSearchParams()  // ✅ Get params client-side
-  const error = searchParams?.get('error')  // ✅ Read error param
+export default function AuthErrorPage() {
+  const searchParams = useSearchParams()
+  const error = searchParams?.get('error')
 
   return (
     <div className="flex min-h-screen w-full bg-background-light dark:bg-background-dark">
