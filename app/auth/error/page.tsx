@@ -1,15 +1,17 @@
 // app/auth/error/page.tsx
-'use client'
-
-import { useSearchParams } from 'next/navigation'
-import { Suspense } from 'react'
 import { Button } from "@/components/ui/button"
 import { AlertTriangle, Home } from "lucide-react"
 import Link from "next/link"
 
-function AuthErrorContent() {
-  const searchParams = useSearchParams()
-  const error = searchParams?.get('error')
+interface AuthErrorPageProps {
+  searchParams: Promise<{
+    error?: string
+  }>
+}
+
+export default async function AuthErrorPage({ searchParams }: AuthErrorPageProps) {
+  const params = await searchParams
+  const error = params.error
 
   return (
     <div className="flex min-h-screen w-full bg-background-light dark:bg-background-dark">
@@ -90,13 +92,5 @@ function AuthErrorContent() {
         </div>
       </div>
     </div>
-  )
-}
-
-export default function AuthErrorPage() {
-  return (
-    <Suspense fallback={null}>
-      <AuthErrorContent />
-    </Suspense>
   )
 }
