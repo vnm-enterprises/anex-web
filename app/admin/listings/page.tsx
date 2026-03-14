@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
+import { Suspense } from "react";
 
 export const metadata: Metadata = {
   title: "Manage Listings - Admin",
@@ -52,10 +53,12 @@ export default async function AdminListingsPage({ searchParams }: PageProps) {
         </div>
         Back to Dashboard
       </Link>
-      <AdminListingsClient
-        initialListings={listings || []}
-        statusFilter={status}
-      />
+      <Suspense fallback={null}>
+        <AdminListingsClient
+          initialListings={listings || []}
+          statusFilter={status}
+        />
+      </Suspense>
     </div>
   );
 }
