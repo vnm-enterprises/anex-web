@@ -5,7 +5,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { verifyLemonSqueezyWebhook } from "@/lib/lemonsqueezy";
 import { sendPaymentSuccessEmail } from "@/lib/email";
 
-
 // Initialize Supabase with Service Role Key to bypass RLS
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -119,7 +118,43 @@ export async function POST(request: NextRequest) {
         console.log("[Webhook] Listing updated successfully");
       }
 
-      // 3. Send Success Email
+      // 3. Affiliate Commission Logic
+      try {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("referred_by_code")
+          .eq("id", user_id)
+          .single();
+
+        if (profile?.referred_by_code) {
+          const { data: affiliate } = await supabase
+            .from("affiliates")
+            .select("id, total_commission, commission_rate")
+            .eq("code", profile.referred_by_code)
+            .single();
+
+          if (affiliate) {
+            const commissionAmount =
+              (amount / 100) * (affiliate.commission_rate / 100);
+
+            await supabase
+              .from("affiliates")
+              .update({
+                total_commission:
+                  parseFloat(affiliate.total_commission) + commissionAmount,
+              })
+              .eq("id", affiliate.id);
+
+            console.log(
+              `[Webhook] Affiliate commission of Rs. ${commissionAmount} credited to code ${profile.referred_by_code}`,
+            );
+          }
+        }
+      } catch (affErr) {
+        console.error("[Webhook] Affiliate commission logic failed:", affErr);
+      }
+
+      // 4. Send Success Email
       try {
         const { data: userData } = await supabase
           .from("profiles")
