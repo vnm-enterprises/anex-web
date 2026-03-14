@@ -153,7 +153,7 @@ export default function AboutPage() {
           <div className="flex flex-col md:flex-row items-center gap-12 text-left">
             <div className="w-48 h-48 rounded-full overflow-hidden bg-slate-100 shrink-0 border-4 border-primary/20">
               <img
-                src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=1974"
+                src="/media/images/vihanga.png"
                 className="w-full h-full object-cover"
                 alt="Founder"
               />
