@@ -31,7 +31,7 @@ export function DistrictsSection() {
 
           gampaha: "/media/images/gampaha.png",
 
-          kalutara: "/media/images/kalutara.png",
+          kalutara: "/media/images/kaluthara.png",
 
           kurunegala: "/media/images/kurunegala.png",
         };
