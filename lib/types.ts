@@ -1,6 +1,6 @@
 export type PropertyType = "annex" | "boarding" | "house" | "apartment";
 export type FurnishedStatus = "furnished" | "semi-furnished" | "unfurnished";
-export type GenderPreference = "male" | "female" | "any";
+export type GenderPreference = "male" | "female" | "any" | "families";
 export type ListingStatus =
   | "pending"
   | "approved"
