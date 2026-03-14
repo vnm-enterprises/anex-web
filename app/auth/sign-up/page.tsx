@@ -1,40 +1,41 @@
-"use client"
+"use client";
 
-import { createClient } from "@/lib/supabase/client"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import Link from "next/link"
-import { useRouter } from "next/navigation"
-import { useState } from "react"
-import { Loader2, Home } from "lucide-react"
+import { createClient } from "@/lib/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { Loader2, Home } from "lucide-react";
 
 export default function SignUpPage() {
-  const [fullName, setFullName] = useState("")
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [confirmPassword, setConfirmPassword] = useState("")
-  const [phone, setPhone] = useState("")
-  const [error, setError] = useState<string | null>(null)
-  const [isLoading, setIsLoading] = useState(false)
-  const router = useRouter()
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [phone, setPhone] = useState("");
+  const [referredBy, setReferredBy] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
   const handleSignUp = async (e: React.FormEvent) => {
-    e.preventDefault()
-    const supabase = createClient()
-    setIsLoading(true)
-    setError(null)
+    e.preventDefault();
+    const supabase = createClient();
+    setIsLoading(true);
+    setError(null);
 
     if (password !== confirmPassword) {
-      setError("Passwords do not match")
-      setIsLoading(false)
-      return
+      setError("Passwords do not match");
+      setIsLoading(false);
+      return;
     }
 
     if (password.length < 6) {
-      setError("Password must be at least 6 characters")
-      setIsLoading(false)
-      return
+      setError("Password must be at least 6 characters");
+      setIsLoading(false);
+      return;
     }
 
     try {
@@ -48,24 +49,23 @@ export default function SignUpPage() {
           data: {
             full_name: fullName,
             phone,
+            referred_by_code: referredBy.trim() || null,
           },
         },
-      })
-      if (error) throw error
-      router.push("/auth/sign-up-success")
+      });
+      if (error) throw error;
+      router.push("/auth/sign-up-success");
     } catch (error: unknown) {
-      setError(error instanceof Error ? error.message : "An error occurred")
+      setError(error instanceof Error ? error.message : "An error occurred");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <div className="flex min-h-screen w-full bg-background-light dark:bg-background-dark">
-
       {/* LEFT SIDE - FORM */}
       <div className="w-full lg:w-1/2 flex flex-col justify-between p-8 lg:p-16 xl:p-20 bg-white dark:bg-slate-900 overflow-y-auto">
-
         {/* Logo */}
         <div className="flex justify-between items-center mb-10">
           <Link href="/" className="flex items-center gap-2">
@@ -95,7 +95,6 @@ export default function SignUpPage() {
           </p>
 
           <form onSubmit={handleSignUp} className="space-y-5">
-
             <div>
               <Label>Full Name</Label>
               <Input
@@ -130,6 +129,16 @@ export default function SignUpPage() {
             </div>
 
             <div>
+              <Label>Referral Code (Optional)</Label>
+              <Input
+                placeholder="REF123"
+                value={referredBy}
+                onChange={(e) => setReferredBy(e.target.value)}
+                className="mt-2"
+              />
+            </div>
+
+            <div>
               <Label>Password</Label>
               <Input
                 type="password"
@@ -151,15 +160,9 @@ export default function SignUpPage() {
               />
             </div>
 
-            {error && (
-              <p className="text-sm text-destructive">{error}</p>
-            )}
+            {error && <p className="text-sm text-destructive">{error}</p>}
 
-            <Button
-              type="submit"
-              className="w-full mt-4"
-              disabled={isLoading}
-            >
+            <Button type="submit" className="w-full mt-4" disabled={isLoading}>
               {isLoading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -189,9 +192,7 @@ export default function SignUpPage() {
         <div className="absolute inset-0 bg-gradient-to-t from-primary/80 to-transparent mix-blend-multiply" />
 
         <div className="relative z-10 flex flex-col justify-end p-16 text-white">
-          <h2 className="text-3xl font-bold mb-3">
-            Find your space.
-          </h2>
+          <h2 className="text-3xl font-bold mb-3">Find your space.</h2>
           <p className="text-white/80 max-w-md">
             Whether you're renting out your annex or searching for your next
             home, Annex.lk connects verified owners with trusted tenants.
@@ -220,5 +221,5 @@ export default function SignUpPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }
