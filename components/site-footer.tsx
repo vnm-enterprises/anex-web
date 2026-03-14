@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { Home, Facebook, Twitter, Instagram, ArrowRight } from "lucide-react";
+import { Home, Facebook, Instagram, ArrowRight } from "lucide-react";
+import { NewsletterForm } from "@/components/newsletter-form";
 
 export function SiteFooter() {
   return (
@@ -26,13 +27,22 @@ export function SiteFooter() {
             {/* Social Icons */}
             <div className="flex gap-4">
               {[
-                { Icon: Facebook, label: "Facebook" },
-                { Icon: Twitter, label: "Twitter" },
-                { Icon: Instagram, label: "Instagram" },
+                {
+                  Icon: Facebook,
+                  label: "Facebook",
+                  href: "https://web.facebook.com/profile.php?id=61584411886727",
+                },
+                {
+                  Icon: Instagram,
+                  label: "Instagram",
+                  href: "https://web.facebook.com/share/p/1CT27pDdPZ/",
+                },
               ].map((social, i) => (
                 <a
                   key={i}
-                  href="#"
+                  href={social.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   aria-label={`Follow us on ${social.label}`}
                   className="w-12 h-12 rounded-2xl bg-card border border-border/50 flex items-center justify-center text-muted-foreground hover:bg-primary hover:text-white hover:border-primary transition-all duration-500 soft-shadow"
                 >
@@ -100,19 +110,7 @@ export function SiteFooter() {
             <p className="text-xs text-muted-foreground mb-6">
               Get the latest listings delivered to your inbox.
             </p>
-            <form className="flex flex-col gap-3">
-              <input
-                type="email"
-                placeholder="email@example.com"
-                className="w-full px-4 py-3 rounded-xl bg-muted border border-border focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-sm"
-              />
-              <button
-                type="button"
-                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold py-3 px-4 rounded-xl transition-all shadow-md active:scale-[0.98] text-sm"
-              >
-                Join Newsletter
-              </button>
-            </form>
+            <NewsletterForm />
           </div>
         </div>
 
