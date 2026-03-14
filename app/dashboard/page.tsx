@@ -45,8 +45,7 @@ export default async function DashboardPage() {
       "*, districts(name), cities(name), custom_city, listing_images(url)",
     )
     .eq("user_id", user.id)
-    .order("created_at", { ascending: false })
-    .limit(10);
+    .order("created_at", { ascending: false });
 
   const { count: totalListings } = await supabase
     .from("listings")
@@ -149,12 +148,11 @@ export default async function DashboardPage() {
             unread: unreadInquiries,
           },
           {
-            label: "Current Plan",
-            value: "Premium Early Bird",
-            icon: Sparkles,
+            label: "Account Status",
+            value: profile?.role === "pro" ? "Verified Pro" : "Standard",
+            icon: Shield,
             color: "text-primary",
             bg: "bg-primary/10",
-            sub: "Upgrade",
           },
         ].map((stat, i) => (
           <Card
@@ -186,14 +184,6 @@ export default async function DashboardPage() {
                       ? stat.value.toLocaleString()
                       : stat.value}
                   </h3>
-                  {stat.sub && (
-                    <Link
-                      href="/pricing"
-                      className="text-xs font-bold text-primary hover:underline"
-                    >
-                      {stat.sub}
-                    </Link>
-                  )}
                 </div>
               </div>
             </CardContent>
@@ -215,12 +205,12 @@ export default async function DashboardPage() {
 
       {/* Main Content Area */}
       <div className="grid lg:grid-cols-3 gap-10">
-        {/* Recent Listings */}
+        {/* Listings */}
         <div className="lg:col-span-2 space-y-6">
           <div className="flex items-center justify-between">
             <h2 className="text-2xl font-black text-foreground tracking-tighter flex items-center gap-2">
               <FileText className="h-6 w-6 text-primary" />
-              Your Recent Listings
+              Your Listings
             </h2>
             <Button
               variant="ghost"
@@ -258,9 +248,8 @@ export default async function DashboardPage() {
           ) : (
             <div className="grid gap-4">
               {listings.map((listing: Listing) => (
-                <Link
+                <div
                   key={listing.id}
-                  href={`/dashboard/listings/${listing.id}`}
                   className="group flex flex-col md:flex-row items-center gap-6 rounded-[2rem] border border-border bg-card p-5 transition-all duration-300 soft-shadow hover:shadow-xl hover:border-primary/20"
                 >
                   <div className="h-24 w-32 shrink-0 overflow-hidden rounded-2xl bg-muted shadow-inner relative">
@@ -317,6 +306,19 @@ export default async function DashboardPage() {
                   </div>
 
                   <div className="flex items-center gap-3 pr-2">
+                    {!listing.is_boosted && listing.status === "approved" && (
+                      <Button
+                        asChild
+                        variant="ghost"
+                        size="sm"
+                        className="h-9 rounded-xl bg-primary/5 text-primary hover:bg-primary hover:text-white font-black text-[10px] uppercase tracking-widest border border-primary/20"
+                      >
+                        <Link href={`/dashboard/listings/${listing.id}/boost`}>
+                          <Bolt className="h-3 w-3 mr-1" />
+                          Boost Ad
+                        </Link>
+                      </Button>
+                    )}
                     <div
                       className={`flex items-center gap-2 px-4 py-2 rounded-2xl text-xs font-black uppercase tracking-widest
                       ${
@@ -330,11 +332,17 @@ export default async function DashboardPage() {
                       {statusIcon(listing.status)}
                       {listing.status}
                     </div>
-                    <div className="h-10 w-10 flex items-center justify-center rounded-xl bg-muted group-hover:bg-primary group-hover:text-white transition-all">
-                      <ArrowRight className="h-5 w-5" />
-                    </div>
+                    <Button
+                      asChild
+                      variant="ghost"
+                      className="h-10 w-10 p-0 rounded-xl bg-muted group-hover:bg-primary group-hover:text-white transition-all"
+                    >
+                      <Link href={`/dashboard/listings/${listing.id}`}>
+                        <ArrowRight className="h-5 w-5" />
+                      </Link>
+                    </Button>
                   </div>
-                </Link>
+                </div>
               ))}
             </div>
           )}
@@ -407,8 +415,11 @@ export default async function DashboardPage() {
                 Boost your listings to appear at the top of search results and
                 get up to 10x more inquiries.
               </p>
-              <Button className="w-full bg-white text-primary hover:bg-white/90 rounded-2xl font-black h-12 shadow-xl">
-                Explore Boosting
+              <Button
+                asChild
+                className="w-full bg-white text-primary hover:bg-white/90 rounded-2xl font-black h-12 shadow-xl"
+              >
+                <Link href="/pricing">Explore Boosting</Link>
               </Button>
             </CardContent>
           </Card>
