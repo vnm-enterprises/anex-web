@@ -1,19 +1,19 @@
-import { createClient } from '@/lib/supabase/server'
-import { NextRequest, NextResponse } from 'next/server'
-import { slugify } from '@/lib/constants'
+import { createClient } from "@/lib/supabase/server";
+import { NextRequest, NextResponse } from "next/server";
+import { slugify } from "@/lib/constants";
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await createClient()
+    const supabase = await createClient();
     const {
       data: { user },
-    } = await supabase.auth.getUser()
+    } = await supabase.auth.getUser();
 
     if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const body = await request.json()
+    const body = await request.json();
     const {
       title,
       description,
@@ -30,38 +30,46 @@ export async function POST(request: NextRequest) {
       contact_phone,
       contact_email,
       amenity_ids,
-    } = body
+    } = body;
 
     // Validate required fields
-    if (!title || !description || !property_type || !price || !district_id || !city_id || !contact_phone) {
+    if (
+      !title ||
+      !description ||
+      !property_type ||
+      !price ||
+      !district_id ||
+      !city_id ||
+      !contact_phone
+    ) {
       return NextResponse.json(
-        { error: 'Missing required fields' },
-        { status: 400 }
-      )
+        { error: "Missing required fields" },
+        { status: 400 },
+      );
     }
 
     // Generate unique slug
-    let slug = slugify(title)
-    let counter = 0
-    let isUnique = false
+    let slug = slugify(title);
+    let counter = 0;
+    let isUnique = false;
 
     while (!isUnique) {
       const { data: existing } = await supabase
-        .from('listings')
-        .select('id')
-        .eq('slug', counter === 0 ? slug : `${slug}-${counter}`)
-        .single()
+        .from("listings")
+        .select("id")
+        .eq("slug", counter === 0 ? slug : `${slug}-${counter}`)
+        .single();
 
       if (!existing) {
-        if (counter > 0) slug = `${slug}-${counter}`
-        isUnique = true
+        if (counter > 0) slug = `${slug}-${counter}`;
+        isUnique = true;
       }
-      counter++
+      counter++;
     }
 
     // Create listing
     const { data: listing, error: listingError } = await supabase
-      .from('listings')
+      .from("listings")
       .insert({
         user_id: user.id,
         title,
@@ -74,17 +82,23 @@ export async function POST(request: NextRequest) {
         area,
         latitude,
         longitude,
-        furnished: furnished || 'unfurnished',
-        gender_preference: gender_preference || 'any',
+        furnished: furnished || "unfurnished",
+        gender_preference: gender_preference || "any",
         contact_name,
         contact_phone,
         contact_email,
+        expires_at: new Date(
+          Date.now() + 30 * 24 * 60 * 60 * 1000,
+        ).toISOString(),
       })
       .select()
-      .single()
+      .single();
 
     if (listingError) {
-      return NextResponse.json({ error: listingError.message }, { status: 500 })
+      return NextResponse.json(
+        { error: listingError.message },
+        { status: 500 },
+      );
     }
 
     // Add amenities if provided
@@ -92,23 +106,23 @@ export async function POST(request: NextRequest) {
       const amenityRecords = amenity_ids.map((id: string) => ({
         listing_id: listing.id,
         amenity_id: id,
-      }))
+      }));
 
       const { error: amenityError } = await supabase
-        .from('listing_amenities')
-        .insert(amenityRecords)
+        .from("listing_amenities")
+        .insert(amenityRecords);
 
       if (amenityError) {
-        console.error('Error adding amenities:', amenityError)
+        console.error("Error adding amenities:", amenityError);
       }
     }
 
-    return NextResponse.json(listing)
+    return NextResponse.json(listing);
   } catch (error) {
-    console.error('Listings POST error:', error)
+    console.error("Listings POST error:", error);
     return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }
