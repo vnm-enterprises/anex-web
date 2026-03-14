@@ -12,6 +12,7 @@ import {
   Shield,
   ArrowLeft,
   CreditCard,
+  Gift,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -19,6 +20,7 @@ const navItems = [
   { href: "/admin", label: "Overview", icon: LayoutDashboard },
   { href: "/admin/listings", label: "Listings", icon: FileText },
   { href: "/admin/users", label: "Users", icon: Users },
+  { href: "/admin/affiliates", label: "Affiliates", icon: Gift },
   { href: "/admin/payments", label: "Payments", icon: CreditCard },
   { href: "/admin/analytics", label: "Analytics", icon: BarChart3 },
   // { href: "/admin/settings", label: "Settings", icon: Settings },
