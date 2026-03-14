@@ -1,4 +1,7 @@
-import Link from "next/link"
+"use client";
+
+import { useState } from "react";
+import Link from "next/link";
 import {
   ArrowDown,
   Verified,
@@ -9,12 +12,18 @@ import {
   Clock,
   Megaphone,
   Headphones,
-} from "lucide-react"
+} from "lucide-react";
+import { JobApplicationModal } from "@/components/jobs/job-application-modal";
 
 export default function AboutPage() {
+  const [isApplying, setIsApplying] = useState<string | null>(null);
+
   return (
     <main className="bg-background-light dark:bg-background-dark text-slate-800 dark:text-slate-200">
-
+      <JobApplicationModal
+        jobTitle={isApplying}
+        onClose={() => setIsApplying(null)}
+      />
       {/* ================= HERO ================= */}
       <section className="relative min-h-[600px] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0">
@@ -95,8 +104,9 @@ export default function AboutPage() {
             </h2>
 
             <p className="text-slate-600 dark:text-slate-400 text-lg mb-8">
-              Finding long-term rentals in Sri Lanka has historically been fragmented.
-              Annex.lk changes that with trust, transparency, and digital simplicity.
+              Finding long-term rentals in Sri Lanka has historically been
+              fragmented. Annex.lk changes that with trust, transparency, and
+              digital simplicity.
             </p>
 
             <div className="space-y-6">
@@ -107,7 +117,8 @@ export default function AboutPage() {
                 <div>
                   <h3 className="font-bold text-lg">Our Mission</h3>
                   <p className="text-slate-500">
-                    Create a transparent, efficient rental marketplace across Sri Lanka.
+                    Create a transparent, efficient rental marketplace across
+                    Sri Lanka.
                   </p>
                 </div>
               </div>
@@ -119,7 +130,8 @@ export default function AboutPage() {
                 <div>
                   <h3 className="font-bold text-lg">Our Vision</h3>
                   <p className="text-slate-500">
-                    Become the digital backbone of Sri Lankan residential real estate.
+                    Become the digital backbone of Sri Lankan residential real
+                    estate.
                   </p>
                 </div>
               </div>
@@ -128,39 +140,36 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* ================= TEAM ================= */}
+      {/* ================= THE FOUNDER ================= */}
       <section className="py-24 bg-white dark:bg-slate-900/40">
-        <div className="max-w-7xl mx-auto px-6 text-center mb-16">
+        <div className="max-w-4xl mx-auto px-6 text-center">
           <span className="text-primary uppercase text-sm font-semibold">
-            The Minds Behind the Platform
+            The Visionary Behind Annex.lk
           </span>
-          <h2 className="text-3xl md:text-4xl font-bold mt-4">
-            Meet the Team
+          <h2 className="text-3xl md:text-4xl font-bold mt-4 mb-12">
+            Independent & Driven
           </h2>
-        </div>
 
-        <div className="max-w-7xl mx-auto px-6 grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
-          {[
-            { name: "Arjuna Perera", role: "Founder & CEO" },
-            { name: "Sarah De Silva", role: "Chief Technology Officer" },
-            { name: "Kasun Jayawardena", role: "Head of Product" },
-            { name: "Nimali Fernando", role: "Lead Designer" },
-          ].map((member) => (
-            <div key={member.name} className="group text-center">
-              <div className="aspect-[4/5] rounded-xl overflow-hidden bg-slate-100 mb-4">
-                <img
-                  src="https://images.unsplash.com/photo-1527980965255-d3b416303d12?q=80&w=2070"
-                  className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition"
-                  alt={member.name}
-                />
-              </div>
-              <h3 className="font-bold">{member.name}</h3>
-              <p className="text-primary text-sm">{member.role}</p>
-              <a className="inline-flex items-center text-slate-400 hover:text-primary text-sm mt-2">
-                LinkedIn <Linkedin size={14} className="ml-1" />
-              </a>
+          <div className="flex flex-col md:flex-row items-center gap-12 text-left">
+            <div className="w-48 h-48 rounded-full overflow-hidden bg-slate-100 shrink-0 border-4 border-primary/20">
+              <img
+                src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=1974"
+                className="w-full h-full object-cover"
+                alt="Founder"
+              />
             </div>
-          ))}
+            <div>
+              <p className="text-lg text-slate-600 dark:text-slate-400 leading-relaxed mb-6">
+                "Annex.lk was born out of a personal frustration with the
+                fragmented rental market in Sri Lanka. As the sole owner and
+                developer, I am committed to building a platform that
+                prioritizes transparency, ease of use, and local needs above all
+                else."
+              </p>
+              <h4 className="font-bold text-xl">The Founder</h4>
+              <p className="text-primary">Annex.lk</p>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -180,9 +189,10 @@ export default function AboutPage() {
 
         <div className="max-w-5xl mx-auto px-6 space-y-4">
           {[
-            { title: "Senior Full Stack Developer", icon: Code },
+            { title: "Business Developer", icon: Megaphone },
+            { title: "Full Stack Developer", icon: Code },
+            { title: "Customer Specialist", icon: Headphones },
             { title: "Product Marketing Manager", icon: Megaphone },
-            { title: "Customer Success Specialist", icon: Headphones },
           ].map((job) => (
             <div
               key={job.title}
@@ -200,7 +210,10 @@ export default function AboutPage() {
                     </span>
                   </div>
                 </div>
-                <button className="px-6 py-2.5 bg-slate-100 dark:bg-slate-700 hover:bg-primary hover:text-white rounded-lg font-semibold transition">
+                <button
+                  onClick={() => setIsApplying(job.title)}
+                  className="px-6 py-2.5 bg-slate-100 dark:bg-slate-700 hover:bg-primary hover:text-white rounded-lg font-semibold transition"
+                >
                   Apply Now
                 </button>
               </div>
@@ -218,12 +231,14 @@ export default function AboutPage() {
               Send us your CV — we’re always looking for talent.
             </p>
           </div>
-          <button className="bg-white dark:bg-slate-800 text-primary hover:bg-primary hover:text-white border border-primary/30 px-6 py-3 rounded-lg font-semibold transition">
+          <button
+            onClick={() => setIsApplying("General Inquiry")}
+            className="bg-white dark:bg-slate-800 text-primary hover:bg-primary hover:text-white border border-primary/30 px-6 py-3 rounded-lg font-semibold transition"
+          >
             Send General Inquiry
           </button>
         </div>
       </section>
-
     </main>
-  )
+  );
 }
