@@ -6,6 +6,7 @@ import {
   Clock,
   ArrowRight,
 } from "lucide-react";
+import { ContactForm } from "@/components/contact-form";
 
 export default function ContactPage() {
   return (
@@ -34,16 +35,16 @@ export default function ContactPage() {
               {
                 icon: Mail,
                 title: "Email Support",
-                detail: "support@annex.lk",
+                detail: "annexlk1@gmail.com",
                 desc: "Average response time: 2 hours",
-                href: "mailto:support@annex.lk",
+                href: "mailto:annexlk1@gmail.com",
               },
               {
                 icon: Phone,
                 title: "Phone Support",
-                detail: "+94 77 123 4567",
+                detail: "+94 757529581",
                 desc: "Mon - Fri, 9am - 6pm SLST",
-                href: "tel:+94771234567",
+                href: "tel:+94757529581",
               },
               {
                 icon: MessageSquare,
@@ -74,59 +75,7 @@ export default function ContactPage() {
 
           <div className="grid lg:grid-cols-2 gap-16 items-start">
             {/* Form */}
-            <div className="bg-card rounded-[3rem] p-12 border border-border/50 shadow-2xl">
-              <h2 className="text-3xl font-black text-foreground tracking-tighter mb-8">
-                Send a <span className="text-primary italic">Message</span>
-              </h2>
-              <form className="space-y-6">
-                <div className="grid md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase tracking-widest ml-4">
-                      Name
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="Your Name"
-                      className="w-full h-14 rounded-2xl bg-muted/40 border-border/50 px-6 font-bold focus:ring-2 focus:ring-primary/20 outline-none transition-all"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase tracking-widest ml-4">
-                      Email
-                    </label>
-                    <input
-                      type="email"
-                      placeholder="email@example.com"
-                      className="w-full h-14 rounded-2xl bg-muted/40 border-border/50 px-6 font-bold focus:ring-2 focus:ring-primary/20 outline-none transition-all"
-                    />
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest ml-4">
-                    Subject
-                  </label>
-                  <select className="w-full h-14 rounded-2xl bg-muted/40 border-border/50 px-6 font-bold focus:ring-2 focus:ring-primary/20 outline-none transition-all appearance-none cursor-pointer">
-                    <option>General Inquiry</option>
-                    <option>Technical Issue</option>
-                    <option>Billing & Payments</option>
-                    <option>Report a Listing</option>
-                  </select>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest ml-4">
-                    Message
-                  </label>
-                  <textarea
-                    rows={5}
-                    placeholder="How can we help?"
-                    className="w-full rounded-2xl bg-muted/40 border-border/50 p-6 font-bold focus:ring-2 focus:ring-primary/20 outline-none transition-all"
-                  />
-                </div>
-                <button className="w-full h-16 rounded-2xl bg-primary text-white font-black text-lg shadow-xl shadow-primary/20 hover:scale-[1.02] transition-all">
-                  Send Message
-                </button>
-              </form>
-            </div>
+            <ContactForm />
 
             {/* Info */}
             <div className="space-y-12 py-12">
@@ -143,9 +92,9 @@ export default function ContactPage() {
                       Colombo HQ
                     </p>
                     <p className="text-muted-foreground leading-relaxed">
-                      Level 12, World Trade Center,
+                      glapoththta road , pore athurugiria ,
                       <br />
-                      Colombo 01, Sri Lanka.
+                      colombo sri lanka.
                     </p>
                   </div>
                 </div>
@@ -183,7 +132,7 @@ export default function ContactPage() {
                   credentials.
                 </p>
                 <a
-                  href="#"
+                  href="/safety-center"
                   className="inline-flex items-center gap-2 text-primary font-black uppercase tracking-widest text-xs hover:underline"
                 >
                   Visit Safety Center <ArrowRight size={14} />
