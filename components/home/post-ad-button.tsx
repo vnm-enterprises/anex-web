@@ -9,7 +9,13 @@ import { useAuthStore } from "@/stores/use-auth-store";
  * CTA button that routes authenticated users to dashboard and guests to login.
  * It waits for auth hydration to avoid mismatched redirects.
  */
-export function PostAdButton({ className }: { className?: string }) {
+export function PostAdButton({
+  className,
+  label = "Post Your Ad Free",
+}: {
+  className?: string;
+  label?: string;
+}) {
   const user = useAuthStore((state) => state.user);
   const isInitialized = useAuthStore((state) => state.isInitialized);
 
@@ -27,7 +33,7 @@ export function PostAdButton({ className }: { className?: string }) {
 
   return (
     <Button asChild size="lg" className={className}>
-      <Link href={href}>Post Your Ad Free</Link>
+      <Link href={href}>{label}</Link>
     </Button>
   );
 }
