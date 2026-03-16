@@ -3,11 +3,14 @@
 import { useState } from "react";
 import { Loader2, Star, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
+import { formatAtLeastHundred } from "@/hooks/use-marketplace-stats";
+import { useHomeHook } from "@/hooks/use-home-hook";
 
 export function NewsletterForm() {
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [subscribed, setSubscribed] = useState(false);
+  const { marketplaceStats } = useHomeHook();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -90,7 +93,7 @@ export function NewsletterForm() {
         )}
       </button>
       <p className="text-[10px] text-center text-muted-foreground px-4">
-        Join 5,000+ others receiving weekly property alerts.
+        Join {formatAtLeastHundred(marketplaceStats?.tenantsCount)} others receiving weekly property alerts.
       </p>
     </form>
   );
