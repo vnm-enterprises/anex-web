@@ -3,7 +3,7 @@ import { FeaturedListings } from "@/components/home/featured-listings";
 import { HandpickedListings } from "@/components/home/handpicked-listings";
 import { HeroSection } from "@/components/home/hero-section";
 import { Key, MessageCircle, Search } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { PostAdButton } from "@/components/home/post-ad-button";
 
 export default function HomePage() {
   return (
@@ -84,13 +84,7 @@ export default function HomePage() {
               </p>
             </div>
             <div className="shrink-0">
-              <Button
-                asChild
-                size="lg"
-                className="bg-white text-primary hover:bg-white/90 text-lg font-black h-16 px-12 rounded-2xl shadow-2xl shadow-black/20 transition-all hover:scale-105"
-              >
-                <a href="/dashboard/listings/new">Post Your Ad Free</a>
-              </Button>
+              <PostAdButton className="bg-white text-primary hover:bg-white/90 text-lg font-black h-16 px-12 rounded-2xl shadow-2xl shadow-black/20 transition-all hover:scale-105" />
             </div>
           </div>
         </section>
