@@ -14,9 +14,25 @@ import {
   Headphones,
 } from "lucide-react";
 import { JobApplicationModal } from "@/components/jobs/job-application-modal";
+import { useHomeHook } from "@/hooks/use-home-hook";
+import { formatAtLeastHundred } from "@/hooks/use-marketplace-stats";
 
 export default function AboutPage() {
   const [isApplying, setIsApplying] = useState<string | null>(null);
+  const { marketplaceStats } = useHomeHook();
+
+  const stats = [
+    {
+      value: formatAtLeastHundred(marketplaceStats?.listingsCount),
+      label: "Active Listings",
+    },
+    { value: "50+", label: "Cities Covered" },
+    {
+      value: formatAtLeastHundred(marketplaceStats?.tenantsCount),
+      label: "Happy Tenants",
+    },
+    { value: "24/7", label: "Support" },
+  ];
 
   return (
     <main className="bg-background-light dark:bg-background-dark text-slate-800 dark:text-slate-200">
@@ -71,12 +87,7 @@ export default function AboutPage() {
       {/* ================= STATS ================= */}
       <section className="-mt-12 relative z-20 max-w-6xl mx-auto px-6">
         <div className="bg-white dark:bg-slate-800 rounded-xl shadow-xl p-8 grid grid-cols-2 md:grid-cols-4 gap-8">
-          {[
-            { value: "5,000+", label: "Active Listings" },
-            { value: "50+", label: "Cities Covered" },
-            { value: "12k+", label: "Happy Tenants" },
-            { value: "24/7", label: "Support" },
-          ].map((stat) => (
+          {stats.map((stat) => (
             <div key={stat.label} className="text-center">
               <p className="text-3xl font-bold text-primary">{stat.value}</p>
               <p className="text-sm text-slate-500 dark:text-slate-400">
@@ -151,12 +162,18 @@ export default function AboutPage() {
           </h2>
 
           <div className="flex flex-col md:flex-row items-center gap-12 text-left">
-            <div className="w-48 h-48 rounded-full overflow-hidden bg-slate-100 shrink-0 border-4 border-primary/20">
-              <img
-                src="/media/images/vihanga.png"
-                className="w-full h-full object-cover"
-                alt="Founder"
-              />
+            <div className="w-48 h-48 rounded-3xl shrink-0 border-4 border-primary/20 bg-gradient-to-br from-primary/15 via-primary/5 to-transparent flex items-center justify-center text-center p-6">
+              <div>
+                <p className="text-xs uppercase tracking-[0.2em] text-primary/80 font-semibold mb-3">
+                  Founder Note
+                </p>
+                <p className="text-5xl leading-none font-black text-primary">"</p>
+                <p className="text-sm font-semibold text-slate-700 dark:text-slate-300 mt-2">
+                  Build local.
+                  <br />
+                  Serve global.
+                </p>
+              </div>
             </div>
             <div>
               <p className="text-lg text-slate-600 dark:text-slate-400 leading-relaxed mb-6">
