@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import { CheckCircle, Sparkles, Rocket } from "lucide-react"
+import { PostAdButton } from "@/components/home/post-ad-button"
 
 export const metadata: Metadata = {
   title: "Simple Pricing | Annex.lk",
@@ -128,9 +129,10 @@ export default function PricingPage() {
             <p className="text-white/80 text-lg md:text-xl font-medium mb-10 max-w-2xl mx-auto">
               Join thousands of landlords who trust Annex.lk to find verified tenants faster and safer.
             </p>
-            <button className="h-16 px-12 rounded-2xl bg-white text-primary text-xl font-black shadow-2xl shadow-black/20 hover:scale-105 active:scale-95 transition-all">
-               Post Your Free Ad Now
-            </button>
+            <PostAdButton
+              label="Post Your Free Ad Now"
+              className="h-16 px-12 rounded-2xl bg-white text-primary text-xl font-black shadow-2xl shadow-black/20 hover:scale-105 active:scale-95 transition-all"
+            />
           </div>
         </div>
       </section>
