@@ -1,8 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -21,25 +20,14 @@ import {
   Sparkles,
   ArrowRight,
 } from "lucide-react";
-import type { District } from "@/lib/types";
+import { formatAtLeastHundred } from "@/hooks/use-marketplace-stats";
+import { useHomeHook } from "@/hooks/use-home-hook";
 
 export function HeroSection() {
-  const [districts, setDistricts] = useState<District[]>([]);
   const [keyword, setKeyword] = useState("");
   const [district, setDistrict] = useState("");
+  const { heroDistricts, marketplaceStats } = useHomeHook();
   const router = useRouter();
-
-  useEffect(() => {
-    async function load() {
-      const supabase = createClient();
-      const { data } = await supabase
-        .from("districts")
-        .select("*")
-        .order("name");
-      if (data) setDistricts(data);
-    }
-    load();
-  }, []);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -115,7 +103,7 @@ export function HeroSection() {
                     </div>
                   </SelectTrigger>
                   <SelectContent className="rounded-2xl border-none shadow-xl p-2">
-                    {districts.map((d) => (
+                    {heroDistricts.map((d) => (
                       <SelectItem
                         key={d.id}
                         value={d.slug}
@@ -144,7 +132,7 @@ export function HeroSection() {
         {/* Trust Markers */}
         <div className="mt-12 md:mt-20 flex flex-wrap justify-center items-center gap-6 md:gap-12 text-white/60 font-black uppercase tracking-[0.3em] text-[10px]">
           <div className="flex items-center gap-2">
-            <Warehouse className="h-5 w-5" /> 100+ Listings
+            <Warehouse className="h-5 w-5" /> {formatAtLeastHundred(marketplaceStats?.listingsCount)} Listings
           </div>
           <div className="flex items-center gap-2">
             <Building2 className="h-5 w-5" /> 100% Verified
