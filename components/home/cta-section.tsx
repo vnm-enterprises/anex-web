@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { PlusCircle, Search } from "lucide-react"
+import { Search } from "lucide-react"
+import { PostAdButton } from "@/components/home/post-ad-button"
 
 export function CtaSection() {
   return (
@@ -20,12 +21,7 @@ export function CtaSection() {
               Browse Listings
             </Link>
           </Button>
-          <Button asChild variant="outline" size="lg" className="gap-2">
-            <Link href="/auth/sign-up">
-              <PlusCircle className="h-5 w-5" />
-              Post Your Property
-            </Link>
-          </Button>
+          <PostAdButton className="gap-2" />
         </div>
       </div>
     </section>
