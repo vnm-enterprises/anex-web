@@ -1,45 +1,15 @@
-import { createStaticClient } from "@/lib/supabase/server";
+"use client";
+
 import { Sparkles, ArrowRight, Home } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ListingCarousel } from "./listing-carousel";
-import { unstable_cache } from "next/cache";
+import { useHomeHook } from "@/hooks/use-home-hook";
 
-const getFeaturedListings = unstable_cache(
-  async () => {
-    const supabase = await createStaticClient();
-    let { data } = await supabase
-      .from("listings")
-      .select(
-        "*, districts(name), cities(name), listing_images(url), listing_amenities(amenities(name))",
-      )
-      .eq("status", "approved")
-      .eq("is_boosted", true)
-      .order("created_at", { ascending: false })
-      .limit(6);
+export function FeaturedListings() {
+  const { featuredListings, isFeaturedListingsLoading } = useHomeHook();
 
-    if (!data || data.length === 0) {
-      // Fallback to featured or just latest approved for demo
-      const { data: fallbackData } = await supabase
-        .from("listings")
-        .select(
-          "*, districts(name), cities(name), listing_images(url), listing_amenities(amenities(name))",
-        )
-        .eq("status", "approved")
-        .order("created_at", { ascending: false })
-        .limit(6);
-      data = fallbackData;
-    }
-    return data;
-  },
-  ["featured-listings-cache"],
-  { revalidate: 3600, tags: ["listings"] },
-);
-
-export async function FeaturedListings() {
-  const listings = await getFeaturedListings();
-
-  if (!listings || listings.length === 0) return null;
+  if (!isFeaturedListingsLoading && featuredListings.length === 0) return null;
 
   return (
     <section className="animate-fade-in [animation-delay:600ms]">
@@ -47,10 +17,10 @@ export async function FeaturedListings() {
         <div>
           <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-600 text-[10px] font-black uppercase tracking-widest mb-4">
             <Sparkles className="h-3 w-3" />
-            Spotlight Listings
+            Top Listings
           </span>
           <h2 className="text-4xl md:text-5xl font-black text-foreground tracking-tighter">
-            Handpicked for <span className="text-primary italic">You</span>
+            Top picks <span className="text-primary italic">right now</span>
           </h2>
         </div>
         <Button
@@ -65,10 +35,21 @@ export async function FeaturedListings() {
         </Button>
       </div>
 
-      <ListingCarousel listings={listings} accentColor="primary" />
+      {isFeaturedListingsLoading ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {[1, 2, 3].map((item) => (
+            <div
+              key={item}
+              className="h-[420px] rounded-[2rem] bg-muted/50 border border-border animate-pulse"
+            />
+          ))}
+        </div>
+      ) : (
+        <ListingCarousel listings={featuredListings} accentColor="primary" />
+      )}
 
       {/* Modern Empty State within section if no boosted listings (though we return null above) */}
-      {listings.length === 0 && (
+      {!isFeaturedListingsLoading && featuredListings.length === 0 && (
         <div className="flex flex-col items-center justify-center py-24 bg-muted/20 border border-dashed border-border rounded-[3rem]">
           <div className="h-20 w-20 rounded-[2rem] bg-muted flex items-center justify-center text-muted-foreground/30 mb-6">
             <Home size={40} />
