@@ -30,7 +30,7 @@ export async function sendPaymentSuccessEmail({
 
   try {
     const { data, error } = await resend.emails.send({
-      from: "Annex.lk <no-reply@annex.lk>", // Replace with your verified domain
+      from: "Annex.lk ", // Replace with your verified domain
       to: [email],
       subject: "Payment Confirmed - Your Listing is Now Pending Review",
       html: `
@@ -84,8 +84,8 @@ export async function sendJobApplicationEmail({
 
   try {
     const { data, error } = await resend.emails.send({
-      from: "Annex.lk Careers <no-reply@annex.lk>",
-      to: ["annexlk1@gmail.com"],
+      from: "Annex.lk Careers <onboarding@resend.dev>",
+      to: ["vihanganethusara00@gmail.com"],
       subject: `New Job Application: ${jobTitle} - ${fullName}`,
       attachments: attachment ? [attachment] : [],
       html: `
@@ -103,6 +103,8 @@ export async function sendJobApplicationEmail({
         </div>
       `,
     });
+
+   
 
     if (error) return { success: false, error };
     return { success: true, data };
