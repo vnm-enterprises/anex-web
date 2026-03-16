@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Home } from "lucide-react";
+import { formatAtLeastHundred, useMarketplaceStats } from "@/hooks/use-marketplace-stats";
 
 interface RouteConfig {
   topPrompt?: string;
@@ -87,6 +88,7 @@ const fallbackConfig: RouteConfig = {
 export function AuthLayoutShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const routeConfig = routeConfigMap[pathname] ?? fallbackConfig;
+  const { data: stats } = useMarketplaceStats();
 
   return (
     <div className="flex min-h-screen w-full bg-background-light dark:bg-background-dark">
@@ -129,11 +131,11 @@ export function AuthLayoutShell({ children }: { children: React.ReactNode }) {
 
           <div className="flex gap-8 mt-10 border-t border-white/20 pt-8">
             <div>
-              <p className="text-2xl font-bold">5,000+</p>
+              <p className="text-2xl font-bold">{formatAtLeastHundred(stats?.listingsCount)}</p>
               <p className="text-xs uppercase tracking-wide text-white/60">Active Listings</p>
             </div>
             <div>
-              <p className="text-2xl font-bold">12k+</p>
+              <p className="text-2xl font-bold">{formatAtLeastHundred(stats?.tenantsCount)}</p>
               <p className="text-xs uppercase tracking-wide text-white/60">Happy Tenants</p>
             </div>
             <div>
