@@ -1,78 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
 import { ArrowRight, MapPin, Sparkles } from "lucide-react";
-import type { District } from "@/lib/types";
+import { useHomeHook } from "@/hooks/use-home-hook";
 
 export function DistrictsSection() {
-  const [districts, setDistricts] = useState<
-    (District & { count?: number; image: string })[]
-  >([]);
-
-  useEffect(() => {
-    async function load() {
-      const supabase = createClient();
-
-      // Get districts
-      const { data: districtsData } = await supabase
-        .from("districts")
-        .select("*")
-        .order("name");
-
-      if (districtsData) {
-        const districtImages: Record<string, string> = {
-          colombo: "/media/images/colombo.png",
-
-          kandy: "/media/images/kandy.png",
-
-          galle: "/media/images/galle.png",
-
-          gampaha: "/media/images/gampaha.png",
-
-          kalutara: "/media/images/kaluthara.png",
-
-          kurunegala: "/media/images/kurunegala.png",
-        };
-
-        const prominentSlugs = [
-          "colombo",
-          "kandy",
-          "galle",
-          "gampaha",
-          "kalutara",
-          "kurunegala",
-        ];
-
-        const enriched = await Promise.all(
-          districtsData
-            .map((d) => ({ ...d, slug: d.slug.toLowerCase() }))
-            .filter((d) => prominentSlugs.includes(d.slug))
-            .map(async (d) => {
-              // Fetch listing count for this district
-              const { count } = await supabase
-                .from("listings")
-                .select("*", { count: "exact", head: true })
-                .eq("district_id", d.id)
-                .eq("status", "approved");
-
-              return {
-                ...d,
-                count: count || 0,
-                image:
-                  districtImages[d.slug] ||
-                  `https://images.unsplash.com/photo-1580000000000?auto=format&fit=crop&q=80&w=800`,
-              };
-            }),
-        );
-        setDistricts(enriched);
-      }
-    }
-    load();
-  }, []);
-
-  if (districts.length === 0) return null;
+  const { prominentDistricts, isProminentDistrictsLoading } = useHomeHook();
 
   return (
     <section className="animate-fade-in [animation-delay:400ms]">
@@ -96,7 +29,7 @@ export function DistrictsSection() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-        {districts.map((district, i) => (
+        {prominentDistricts.map((district, i) => (
           <Link
             key={district.id}
             href={`/search?district=${district.slug}`}
@@ -125,7 +58,9 @@ export function DistrictsSection() {
               </h3>
               <div className="flex items-center gap-2 text-xs font-bold text-white/60">
                 <Sparkles className="h-3 w-3 text-primary" />
-                {district.count} Listings available
+                {isProminentDistrictsLoading
+                  ? "Loading listings..."
+                  : `${district.count ?? 0} Listings available`}
               </div>
             </div>
 
