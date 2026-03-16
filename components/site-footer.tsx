@@ -21,7 +21,7 @@ export function SiteFooter() {
 
             <p className="text-muted-foreground text-sm leading-relaxed max-w-xs">
               Sri Lanka's premier marketplace for long-term rentals. Connecting
-              verified tenants with trusted landlords since 2024.
+              verified tenants with trusted landlords since 2026.
             </p>
 
             {/* Social Icons */}
