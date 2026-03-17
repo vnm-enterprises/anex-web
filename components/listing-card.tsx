@@ -20,7 +20,7 @@ export function ListingCard({ listing }: { listing: Listing }) {
   const isPriority = listing.is_boosted || listing.is_featured;
 
   return (
-    <div className="group relative flex flex-col h-full overflow-hidden rounded-[2.5rem] border border-border/50 bg-card transition-all duration-700 soft-shadow hover:shadow-2xl hover:-translate-y-2">
+    <div className="group relative flex flex-col h-full overflow-hidden rounded-[2.25rem] border border-border/50 bg-card transition-all duration-700 soft-shadow hover:shadow-2xl hover:-translate-y-2">
       {/* Image Section */}
       <div className="relative aspect-[4/3] overflow-hidden">
         {mainImage ? (
