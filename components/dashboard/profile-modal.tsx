@@ -70,7 +70,10 @@ export function ProfileModal({ isOpen, onClose, profile, onUpdate }: ProfileModa
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-[425px] rounded-[2rem] border-none soft-shadow p-8">
+      <DialogContent
+        overlayClassName="bg-black/70"
+        className="sm:max-w-[425px] rounded-[2rem] border-none soft-shadow p-8"
+      >
         <DialogHeader>
           <DialogTitle className="text-2xl font-black tracking-tighter">Edit Profile</DialogTitle>
           <DialogDescription className="font-medium">
