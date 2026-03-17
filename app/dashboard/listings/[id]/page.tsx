@@ -4,7 +4,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
-  Trash2,
   MapPin,
   Calendar,
   Home,
@@ -85,22 +84,6 @@ export default async function DashboardListingPage({
       .eq("id", inquiryId);
   }
 
-  /* ================= DELETE ================= */
-
-  async function deleteListing() {
-    "use server";
-
-    const supabase = await createClient();
-
-    await supabase
-      .from("listings")
-      .delete()
-      .eq("id", id)
-      .eq("user_id", user?.id);
-
-    redirect("/dashboard");
-  }
-
   const statusColor = {
     approved: "bg-primary/10 text-primary",
     pending: "bg-accent/10 text-accent",
@@ -161,12 +144,6 @@ export default async function DashboardListingPage({
           </div>
         </div>
 
-        <form action={deleteListing}>
-          <Button variant="destructive" className="rounded-xl px-6">
-            <Trash2 className="mr-2 h-4 w-4" />
-            Delete Listing
-          </Button>
-        </form>
       </div>
 
       {/* ================= MAIN GRID ================= */}
