@@ -9,6 +9,12 @@ import { ListingCard } from "@/components/listing-card";
 import { BoostModal } from "@/components/dashboard/boost-modal";
 import { useRouter } from "next/navigation";
 
+function getBoostTier(weight?: number | null): "Quick" | "Premium" | "Featured" {
+  if (weight === 3) return "Featured";
+  if (weight === 2) return "Premium";
+  return "Quick";
+}
+
 export function DashboardListingsClient({
   listings: initialListings,
 }: {
@@ -106,6 +112,11 @@ export function DashboardListingsClient({
           {listings.map((listing) => (
             <div key={listing.id} className="relative group">
               <ListingCard listing={listing} />
+              {listing.is_boosted && (
+                <span className="absolute top-6 left-6 z-20 bg-amber-500 text-white text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full shadow-xl">
+                  {getBoostTier(listing.boost_weight)} Boost
+                </span>
+              )}
               <div className="absolute top-6 right-6 z-20 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-all scale-95 group-hover:scale-100">
                 <Link
                   href={`/dashboard/listings/${listing.id}/edit`}
@@ -114,13 +125,13 @@ export function DashboardListingsClient({
                   Edit Details
                 </Link>
 
-                {listing.status === "approved" && !listing.is_boosted && (
+                {listing.status === "approved" && (
                   <button
                     onClick={() => handleBoostClick(listing.id)}
                     className="flex items-center justify-center h-10 px-4 bg-primary text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-primary/20 hover:bg-primary/90 transition-all whitespace-nowrap"
                   >
                     <Bolt className="h-3 w-3 mr-1.5 fill-current" />
-                    Boost Ad
+                    {listing.is_boosted ? "Re-Boost" : "Boost Ad"}
                   </button>
                 )}
 
