@@ -1,13 +1,8 @@
 "use client"
 
-import Link from "next/link"
-import { useState, useEffect, useCallback } from "react"
+import { useMemo, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
-import { createClient } from "@/lib/supabase/client"
-import { ListingCard } from "@/components/listing-card"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import {
   Select,
   SelectContent,
@@ -15,7 +10,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { Slider } from "@/components/ui/slider"
 import {
   Sheet,
   SheetContent,
@@ -23,34 +17,22 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet"
-import { Badge } from "@/components/ui/badge"
 import {
   Search,
   SlidersHorizontal,
-  X,
-  Loader2,
 } from "lucide-react"
 import {
-  PROPERTY_TYPES,
-  FURNISHED_OPTIONS,
-  GENDER_OPTIONS,
   SORT_OPTIONS,
   ITEMS_PER_PAGE,
-  formatPrice,
 } from "@/lib/constants"
-import type { District, City, Listing } from "@/lib/types"
+import { SearchBar, SearchFilters, ActiveFilters } from "./components/search-filters"
+import { SearchResults } from "./components/search-results"
+import { useSearchHook } from "@/hooks/use-search-hook"
+import { useDebounce } from "@/hooks/use-debounce"
 
 export function SearchClient() {
   const searchParams = useSearchParams()
   const router = useRouter()
-
-  const [districts, setDistricts] = useState<District[]>([])
-  const [cities, setCities] = useState<City[]>([])
-  const [listings, setListings] = useState<Listing[]>([])
-  const [boostedListings, setBoostedListings] = useState<Listing[]>([])
-
-  const [totalCount, setTotalCount] = useState(0)
-  const [loading, setLoading] = useState(true)
 
   const [keyword, setKeyword] = useState(searchParams.get("q") || "")
   const [district, setDistrict] = useState(searchParams.get("district") || "")
@@ -68,114 +50,24 @@ export function SearchClient() {
   ])
   const [sort, setSort] = useState(searchParams.get("sort") || "featured")
   const [page, setPage] = useState(Number(searchParams.get("page")) || 1)
+  const debouncedKeyword = useDebounce(keyword, 450)
 
-  useEffect(() => {
-    async function loadDistricts() {
-      const supabase = createClient()
-      const { data } = await supabase
-        .from("districts")
-        .select("*")
-        .order("name")
-      if (data) setDistricts(data)
-    }
-    loadDistricts()
-  }, [])
+  const searchFilters = useMemo(
+    () => ({
+      keyword: debouncedKeyword,
+      district,
+      city,
+      propertyType,
+      furnished,
+      gender,
+      priceRange,
+      sort,
+      page,
+    }),
+    [debouncedKeyword, district, city, propertyType, furnished, gender, priceRange, sort, page],
+  )
 
-  useEffect(() => {
-    if (!district) {
-      setCities([])
-      return
-    }
-    async function loadCities() {
-      const supabase = createClient()
-      const selectedDistrict = districts.find((d) => d.slug === district)
-      if (!selectedDistrict) return
-      const { data } = await supabase
-        .from("cities")
-        .select("*")
-        .eq("district_id", selectedDistrict.id)
-        .order("name")
-      if (data) setCities(data)
-    }
-    loadCities()
-  }, [district, districts])
-
-  const fetchListings = useCallback(async () => {
-    setLoading(true)
-    const supabase = createClient()
-
-    let query = supabase
-      .from("listings")
-      .select(
-        `*, districts(*), cities(*), listing_images(*)`,
-        { count: "exact" }
-      )
-      .eq("status", "approved")
-
-    if (keyword) {
-      query = query.textSearch("search_vector", keyword, {
-        type: "websearch",
-        config: "english",
-      })
-    }
-
-    if (district) {
-      const d = districts.find((x) => x.slug === district)
-      if (d) query = query.eq("district_id", d.id)
-    }
-
-    if (city) {
-      const c = cities.find((x) => x.slug === city)
-      if (c) query = query.eq("city_id", c.id)
-    }
-
-    if (propertyType) query = query.eq("property_type", propertyType)
-    if (furnished) query = query.eq("furnished", furnished)
-    if (gender && gender !== "any") query = query.eq("gender_preference", gender)
-    if (priceRange[0] > 0) query = query.gte("price", priceRange[0])
-    if (priceRange[1] < 200000) query = query.lte("price", priceRange[1])
-
-    switch (sort) {
-      case "newest":
-        query = query.order("created_at", { ascending: false })
-        break
-      case "price_asc":
-        query = query.order("price", { ascending: true })
-        break
-      case "price_desc":
-        query = query.order("price", { ascending: false })
-        break
-      case "views":
-        query = query.order("views_count", { ascending: false })
-        break
-      case "featured":
-      default:
-        query = query
-          .order("is_featured", { ascending: false })
-          .order("is_boosted", { ascending: false })
-          .order("created_at", { ascending: false })
-        break
-    }
-
-    const from = (page - 1) * ITEMS_PER_PAGE
-    const to = from + ITEMS_PER_PAGE - 1
-    query = query.range(from, to)
-
-    const { data, count } = await query
-    if (data) setListings(data)
-    if (count !== null) setTotalCount(count)
-    setLoading(false)
-  }, [keyword, district, city, propertyType, furnished, gender, priceRange, sort, page, districts, cities])
-
-  useEffect(() => {
-    if (districts.length > 0 || !district) {
-      fetchListings()
-    }
-
-
-  }, [fetchListings, districts.length, district])
-
-
+  const { districts, cities, listings, totalCount, loading } = useSearchHook(searchFilters)
 
   const updateUrl = () => {
     const params = new URLSearchParams()
@@ -197,6 +89,11 @@ export function SearchClient() {
     updateUrl()
   }
 
+  const applyFilters = () => {
+    setPage(1)
+    updateUrl()
+  }
+
   const clearFilters = () => {
     setKeyword("")
     setDistrict("")
@@ -214,114 +111,46 @@ export function SearchClient() {
   const hasFilters = keyword || district || propertyType || furnished || gender || priceRange[0] > 0 || priceRange[1] < 200000
 
   const filterContent = (
-    <div className="flex flex-col gap-5">
-      <div>
-        <Label className="mb-2 block text-sm font-medium">District</Label>
-        <Select value={district} onValueChange={(v) => { setDistrict(v); setCity("") }}>
-          <SelectTrigger>
-            <SelectValue placeholder="All Districts" />
-          </SelectTrigger>
-          <SelectContent>
-            {districts.map((d) => (
-              <SelectItem key={d.id} value={d.slug}>
-                {d.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      {cities.length > 0 && (
-        <div>
-          <Label className="mb-2 block text-sm font-medium">City</Label>
-          <Select value={city} onValueChange={setCity}>
-            <SelectTrigger>
-              <SelectValue placeholder="All Cities" />
-            </SelectTrigger>
-            <SelectContent>
-              {cities.map((c) => (
-                <SelectItem key={c.id} value={c.slug}>
-                  {c.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-      )}
-
-      <div>
-        <Label className="mb-2 block text-sm font-medium">Property Type</Label>
-        <Select value={propertyType} onValueChange={setPropertyType}>
-          <SelectTrigger>
-            <SelectValue placeholder="All Types" />
-          </SelectTrigger>
-          <SelectContent>
-            {PROPERTY_TYPES.map((t) => (
-              <SelectItem key={t.value} value={t.value}>
-                {t.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      <div>
-        <Label className="mb-2 block text-sm font-medium">Furnished</Label>
-        <Select value={furnished} onValueChange={setFurnished}>
-          <SelectTrigger>
-            <SelectValue placeholder="Any" />
-          </SelectTrigger>
-          <SelectContent>
-            {FURNISHED_OPTIONS.map((f) => (
-              <SelectItem key={f.value} value={f.value}>
-                {f.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      <div>
-        <Label className="mb-2 block text-sm font-medium">Gender Preference</Label>
-        <Select value={gender} onValueChange={setGender}>
-          <SelectTrigger>
-            <SelectValue placeholder="Any" />
-          </SelectTrigger>
-          <SelectContent>
-            {GENDER_OPTIONS.map((g) => (
-              <SelectItem key={g.value} value={g.value}>
-                {g.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      <div>
-        <Label className="mb-2 block text-sm font-medium">
-          Price Range: {formatPrice(priceRange[0])} - {formatPrice(priceRange[1])}
-        </Label>
-        <Slider
-          min={0}
-          max={200000}
-          step={5000}
-          value={priceRange}
-          onValueChange={(v) => setPriceRange(v as [number, number])}
-          className="mt-3"
-        />
-      </div>
-
-      <Button onClick={handleSearch} className="w-full text-white">
-        Apply Filters
-      </Button>
-
-      {hasFilters && (
-        <Button variant="ghost" onClick={clearFilters} className="w-full text-muted-foreground">
-          <X className="mr-2 h-4 w-4" />
-          Clear All Filters
-        </Button>
-      )}
-    </div>
+    <SearchFilters
+      keyword={keyword}
+      district={district}
+      city={city}
+      propertyType={propertyType}
+      furnished={furnished}
+      gender={gender}
+      priceRange={priceRange}
+      districts={districts}
+      cities={cities}
+      hasFilters={Boolean(hasFilters)}
+      onKeywordChange={setKeyword}
+      onDistrictChange={(value) => {
+        setDistrict(value)
+        setCity("")
+        setPage(1)
+      }}
+      onCityChange={(value) => {
+        setCity(value)
+        setPage(1)
+      }}
+      onPropertyTypeChange={(value) => {
+        setPropertyType(value)
+        setPage(1)
+      }}
+      onFurnishedChange={(value) => {
+        setFurnished(value)
+        setPage(1)
+      }}
+      onGenderChange={(value) => {
+        setGender(value)
+        setPage(1)
+      }}
+      onPriceRangeChange={(value) => {
+        setPriceRange(value)
+        setPage(1)
+      }}
+      onApplyFilters={applyFilters}
+      onClearFilters={clearFilters}
+    />
   )
 
   return (
@@ -371,46 +200,28 @@ export function SearchClient() {
         </div>
       </div>
 
-      <div className="mb-10 group">
-        <form onSubmit={handleSearch} className="flex gap-4">
-          <div className="relative flex-1">
-            <Search className="absolute left-5 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground group-focus-within:text-primary transition-colors" />
-            <Input
-              placeholder="Search by keywords, location, or school name..."
-              value={keyword}
-              onChange={(e) => setKeyword(e.target.value)}
-              className="h-16 pl-14 pr-6 rounded-[2rem] text-lg font-medium border-border/50 bg-card shadow-lg shadow-black/5 focus-visible:ring-primary/20"
-            />
-          </div>
-          <Button type="submit" size="lg" className="h-16 px-10 rounded-[2rem] font-black text-lg shadow-xl shadow-primary/20 group-hover:scale-[1.02] transition-all">
-            Search Now
-          </Button>
-        </form>
-      </div>
+      <SearchBar
+        keyword={keyword}
+        onKeywordChange={(value) => {
+          setKeyword(value)
+          setPage(1)
+        }}
+        onSubmit={handleSearch}
+      />
 
       {hasFilters && (
-        <div className="mb-8 flex flex-wrap items-center gap-3 animate-fade-in">
-          <span className="text-xs font-black text-muted-foreground uppercase tracking-widest mr-1">Active Filters:</span>
-          {keyword && (
-            <Badge variant="secondary" className="gap-2 px-4 py-1.5 rounded-full border-border bg-card text-sm font-bold soft-shadow">
-              {`"${keyword}"`}
-              <button onClick={() => setKeyword("")} className="hover:text-primary transition-colors"><X className="h-4 w-4" /></button>
-            </Badge>
-          )}
-          {district && (
-            <Badge variant="secondary" className="gap-2 px-4 py-1.5 rounded-full border-border bg-card text-sm font-bold soft-shadow capitalize">
-              {district}
-              <button onClick={() => { setDistrict(""); setCity("") }} className="hover:text-primary transition-colors"><X className="h-4 w-4" /></button>
-            </Badge>
-          )}
-          {propertyType && (
-            <Badge variant="secondary" className="gap-2 px-4 py-1.5 rounded-full border-border bg-card text-sm font-bold soft-shadow capitalize">
-              {propertyType}
-              <button onClick={() => setPropertyType("")} className="hover:text-primary transition-colors"><X className="h-4 w-4" /></button>
-            </Badge>
-          )}
-          <Button variant="link" onClick={clearFilters} className="text-xs font-black text-primary p-0 h-auto hover:no-underline">Reset All</Button>
-        </div>
+        <ActiveFilters
+          keyword={keyword}
+          district={district}
+          propertyType={propertyType}
+          onRemoveKeyword={() => setKeyword("")}
+          onRemoveDistrict={() => {
+            setDistrict("")
+            setCity("")
+          }}
+          onRemovePropertyType={() => setPropertyType("")}
+          onClearFilters={clearFilters}
+        />
       )}
 
       <div className="flex flex-col lg:flex-row gap-10">
@@ -425,63 +236,14 @@ export function SearchClient() {
         </aside>
 
         <div className="flex-1">
-          {loading ? (
-            <div className="flex h-[500px] flex-col items-center justify-center gap-4 bg-muted/20 rounded-[3rem] border border-dashed border-border">
-              <Loader2 className="h-12 w-12 animate-spin text-primary" />
-              <p className="text-muted-foreground font-bold tracking-tight">Updating results...</p>
-            </div>
-          ) : listings.length === 0 ? (
-            <div className="flex h-[500px] flex-col items-center justify-center rounded-[3rem] border-2 border-dashed border-border bg-muted/10 text-center px-10">
-              <div className="p-8 rounded-full bg-muted shadow-inner mb-8">
-                <Search className="h-16 w-16 text-muted-foreground/30" />
-              </div>
-              <h3 className="text-3xl font-black text-foreground tracking-tight">No properties found</h3>
-              <p className="mt-2 text-muted-foreground font-medium max-w-sm text-lg">
-                We couldn't find any listings matching your search. Try broadening your criteria or resetting filters.
-              </p>
-              <Button asChild onClick={clearFilters} className="mt-10 rounded-2xl h-14 px-10 font-black shadow-xl">
-                 <Link href="/search">Clear All Filters</Link>
-              </Button>
-            </div>
-          ) : (
-            <div className="space-y-12">
-              <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-3">
-                {listings.map((listing) => (
-                  <ListingCard key={listing.id} listing={listing} />
-                ))}
-              </div>
-
-              {totalPages > 1 && (
-                <div className="flex items-center justify-center gap-4 py-10">
-                  <Button
-                    variant="outline"
-                    className="h-12 w-12 rounded-2xl border-border hover:bg-primary hover:text-white transition-all shadow-sm"
-                    disabled={page <= 1}
-                    onClick={() => setPage(page - 1)}
-                    aria-label="Previous Page"
-                  >
-                    <SlidersHorizontal className="h-5 w-5 rotate-90" />
-                  </Button>
-
-                  <div className="flex items-center gap-2 bg-muted/50 px-6 py-2 rounded-2xl border border-border/50">
-                    <span className="text-sm font-black text-foreground">Page</span>
-                    <span className="h-8 w-8 flex items-center justify-center bg-primary text-white rounded-lg text-sm font-black shadow-lg shadow-primary/20">{page}</span>
-                    <span className="text-sm font-black text-muted-foreground">of {totalPages}</span>
-                  </div>
-
-                  <Button
-                    variant="outline"
-                    className="h-12 w-12 rounded-2xl border-border hover:bg-primary hover:text-white transition-all shadow-sm"
-                    disabled={page >= totalPages}
-                    onClick={() => setPage(page + 1)}
-                    aria-label="Next Page"
-                  >
-                    <SlidersHorizontal className="h-5 w-5 -rotate-90" />
-                  </Button>
-                </div>
-              )}
-            </div>
-          )}
+          <SearchResults
+            loading={loading}
+            listings={listings}
+            page={page}
+            totalPages={totalPages}
+            onPageChange={setPage}
+            onClearFilters={clearFilters}
+          />
         </div>
       </div>
     </div>
