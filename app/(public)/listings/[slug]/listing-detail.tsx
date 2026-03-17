@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -42,6 +42,8 @@ const propertyIcons: Record<string, React.ElementType> = {
 
 export function ListingDetail({ listing }: { listing: Listing }) {
   const [currentImage, setCurrentImage] = useState(0);
+  const [showPhone, setShowPhone] = useState(false);
+  const [showEmail, setShowEmail] = useState(false);
   const [inquiryForm, setInquiryForm] = useState({
     sender_name: "",
     sender_phone: "",
@@ -54,6 +56,18 @@ export function ListingDetail({ listing }: { listing: Listing }) {
   const images = listing.listing_images || [];
   const amenities = listing.listing_amenities || [];
   const PropertyIcon = propertyIcons[listing.property_type] || Home;
+
+  useEffect(() => {
+    if (images.length <= 1) return;
+
+    const timer = window.setInterval(() => {
+      setCurrentImage((prev) => (prev + 1) % images.length);
+    }, 4500);
+
+    return () => {
+      window.clearInterval(timer);
+    };
+  }, [images.length]);
 
   const handleInquiry = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -356,22 +370,24 @@ export function ListingDetail({ listing }: { listing: Listing }) {
               )}
 
               <div className="flex flex-col gap-3">
-                <a
-                  href={`tel:${listing.contact_phone}`}
+                <button
+                  type="button"
+                  onClick={() => setShowPhone(true)}
                   className="group flex items-center justify-center gap-3 rounded-2xl bg-primary py-5 text-lg font-black text-white shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all"
                 >
                   <Phone className="h-5 w-5 fill-current animate-pulse" />
-                  Call Now
-                </a>
+                  {showPhone ? listing.contact_phone : "Call Now"}
+                </button>
 
                 {listing.contact_email && (
-                  <a
-                    href={`mailto:${listing.contact_email}`}
+                  <button
+                    type="button"
+                    onClick={() => setShowEmail(true)}
                     className="flex items-center justify-center gap-3 rounded-2xl border-2 border-primary/20 py-5 text-lg font-black text-primary hover:bg-primary/5 transition-all"
                   >
                     <Mail className="h-5 w-5" />
-                    Mail Owner
-                  </a>
+                    {showEmail ? listing.contact_email : "Mail Owner"}
+                  </button>
                 )}
               </div>
 
