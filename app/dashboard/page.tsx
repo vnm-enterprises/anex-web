@@ -13,68 +13,107 @@ import {
   XCircle,
   AlertCircle,
   Shield,
-  Sparkles,
   FileText,
   Settings,
   Bolt,
   MapPin,
+  Gift,
+  Wallet,
 } from "lucide-react";
 import Link from "next/link";
-import { formatPrice, formatDate } from "@/lib/constants";
+import { formatDate } from "@/lib/constants";
 import type { Listing } from "@/lib/types";
 import EditProfileButton from "./profile/EditProfileButton";
 import { ProfileModalWrapper } from "@/components/dashboard/profile-modal-wrapper";
+import { useDashboardHook } from "@/hooks/use-dashboard-hook";
+import { InlineBoostButton } from "@/components/dashboard/inline-boost-button";
 
-export default async function DashboardPage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+interface DashboardPageProps {
+  searchParams?: Promise<{ tab?: string }>;
+}
+
+function createAffiliateCode(userId: string): string {
+  const token = userId.replace(/-/g, "").slice(0, 6).toUpperCase();
+  const random = Math.random().toString(36).slice(2, 6).toUpperCase();
+  return `ANX${token}${random}`;
+}
+
+function getBoostTier(weight?: number | null): "Quick" | "Premium" | "Featured" {
+  if (weight === 3) return "Featured";
+  if (weight === 2) return "Premium";
+  return "Quick";
+}
+
+export default async function DashboardPage({ searchParams }: DashboardPageProps) {
+  const resolvedParams = searchParams ? await searchParams : undefined;
+  const activeTab = resolvedParams?.tab === "affiliate" ? "affiliate" : "listings";
+
+  const dashboardData = await useDashboardHook();
+  const user = dashboardData.user;
 
   if (!user) redirect("/auth/login");
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("*")
-    .eq("id", user.id)
-    .single();
+  async function registerAffiliateAction() {
+    "use server";
 
-  const { data: listings } = await supabase
-    .from("listings")
-    .select(
-      "*, districts(name), cities(name), custom_city, listing_images(url)",
-    )
-    .eq("user_id", user.id)
-    .order("created_at", { ascending: false });
+    const supabase = await createClient();
+    const {
+      data: { user: currentUser },
+    } = await supabase.auth.getUser();
 
-  const { count: totalListings } = await supabase
-    .from("listings")
-    .select("*", { count: "exact", head: true })
-    .eq("user_id", user.id);
+    if (!currentUser) {
+      redirect("/auth/login");
+    }
 
-  // Get all listing IDs for the user
-  const { data: userListingIds } = await supabase
-    .from("listings")
-    .select("id")
-    .eq("user_id", user.id);
+    const refCode = createAffiliateCode(currentUser.id);
+    const expiresAt = new Date();
+    expiresAt.setMonth(expiresAt.getMonth() + 12);
 
-  const listingIds = (userListingIds || []).map((l) => l.id);
+    await supabase.from("affiliate_user").insert({
+      user_id: currentUser.id,
+      ref_code: refCode,
+      expires_at: expiresAt.toISOString(),
+      total_users_brought_in: 0,
+    });
 
-  const { count: totalInquiries } = await supabase
-    .from("inquiries")
-    .select("*", { count: "exact", head: true })
-    .in("listing_id", listingIds);
+    redirect("/dashboard?tab=affiliate");
+  }
 
-  const { count: unreadInquiries } = await supabase
-    .from("inquiries")
-    .select("*", { count: "exact", head: true })
-    .in("listing_id", listingIds)
-    .eq("is_read", false);
+  async function regenerateAffiliateCodeAction() {
+    "use server";
 
-  const totalViews = (listings || []).reduce(
-    (sum: number, l: Listing) => sum + l.views_count,
-    0,
-  );
+    const supabase = await createClient();
+    const {
+      data: { user: currentUser },
+    } = await supabase.auth.getUser();
+
+    if (!currentUser) {
+      redirect("/auth/login");
+    }
+
+    const refCode = createAffiliateCode(currentUser.id);
+    const expiresAt = new Date();
+    expiresAt.setMonth(expiresAt.getMonth() + 12);
+
+    await supabase
+      .from("affiliate_user")
+      .update({
+        ref_code: refCode,
+        expires_at: expiresAt.toISOString(),
+        updated_at: new Date().toISOString(),
+      })
+      .eq("user_id", currentUser.id);
+
+    redirect("/dashboard?tab=affiliate");
+  }
+
+  const profile = dashboardData.profile;
+  const listings = dashboardData.listings;
+  const totalListings = dashboardData.totalListings;
+  const totalInquiries = dashboardData.totalInquiries;
+  const unreadInquiries = dashboardData.unreadInquiries;
+  const totalViews = dashboardData.totalViews;
+  const affiliate = dashboardData.affiliate;
 
   const statusIcon = (status: string) => {
     switch (status) {
@@ -149,7 +188,7 @@ export default async function DashboardPage() {
           },
           {
             label: "Account Status",
-            value: profile?.role === "pro" ? "Verified Pro" : "Standard",
+            value: affiliate ? "Affiliate" : "Standard",
             icon: Shield,
             color: "text-primary",
             bg: "bg-primary/10",
@@ -203,27 +242,45 @@ export default async function DashboardPage() {
         ))}
       </div>
 
+      <div className="flex flex-wrap items-center gap-3">
+        <Button
+          asChild
+          className={activeTab === "listings" ? "rounded-2xl" : "rounded-2xl bg-muted text-foreground hover:bg-muted/80"}
+        >
+          <Link href="/dashboard?tab=listings">Listings Dashboard</Link>
+        </Button>
+        {affiliate ? (
+          <Button
+            asChild
+            className={activeTab === "affiliate" ? "rounded-2xl" : "rounded-2xl bg-muted text-foreground hover:bg-muted/80"}
+          >
+            <Link href="/dashboard?tab=affiliate">
+              <Wallet className="mr-2 h-4 w-4" />
+              View Affiliate Earnings
+            </Link>
+          </Button>
+        ) : (
+          <form action={registerAffiliateAction}>
+            <Button type="submit" className="rounded-2xl">
+              <Gift className="mr-2 h-4 w-4" />
+              Become Affiliate User & Earn
+            </Button>
+          </form>
+        )}
+      </div>
+
       {/* Main Content Area */}
-      <div className="grid lg:grid-cols-3 gap-10">
+      <div className="grid items-start gap-12 lg:grid-cols-[minmax(0,1.75fr)_360px]">
         {/* Listings */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className="space-y-6 lg:pr-2">
           <div className="flex items-center justify-between">
             <h2 className="text-2xl font-black text-foreground tracking-tighter flex items-center gap-2">
               <FileText className="h-6 w-6 text-primary" />
-              Your Listings
+              {activeTab === "affiliate" ? "Affiliate Dashboard" : "Your Listings"}
             </h2>
-            <Button
-              variant="ghost"
-              asChild
-              className="font-bold text-primary hover:bg-primary/5"
-            >
-              <Link href="/dashboard/listings">
-                View All <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
-            </Button>
           </div>
 
-          {!listings || listings.length === 0 ? (
+          {activeTab === "listings" && (!listings || listings.length === 0) ? (
             <Card className="border-2 border-dashed border-border bg-transparent rounded-3xl overflow-hidden">
               <CardContent className="flex flex-col items-center justify-center py-20 text-center">
                 <div className="p-6 rounded-full bg-muted/50 mb-6">
@@ -245,7 +302,7 @@ export default async function DashboardPage() {
                 </Button>
               </CardContent>
             </Card>
-          ) : (
+          ) : activeTab === "listings" ? (
             <div className="grid gap-4">
               {listings.map((listing: Listing) => (
                 <div
@@ -278,6 +335,11 @@ export default async function DashboardPage() {
                           Boosted
                         </span>
                       )}
+                      {listing.is_boosted && (
+                        <span className="bg-amber-500/10 text-amber-600 text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full">
+                          {getBoostTier(listing.boost_weight)}
+                        </span>
+                      )}
                     </div>
                     <div className="flex items-center justify-center md:justify-start gap-4 text-sm font-medium text-muted-foreground">
                       <span className="flex items-center gap-1.5 font-bold text-foreground">
@@ -306,18 +368,11 @@ export default async function DashboardPage() {
                   </div>
 
                   <div className="flex items-center gap-3 pr-2">
-                    {!listing.is_boosted && listing.status === "approved" && (
-                      <Button
-                        asChild
-                        variant="ghost"
-                        size="sm"
-                        className="h-9 rounded-xl bg-primary/5 text-primary hover:bg-primary hover:text-white font-black text-[10px] uppercase tracking-widest border border-primary/20"
-                      >
-                        <Link href={`/dashboard/listings/${listing.id}/boost`}>
-                          <Bolt className="h-3 w-3 mr-1" />
-                          Boost Ad
-                        </Link>
-                      </Button>
+                    {listing.status === "approved" && (
+                      <InlineBoostButton
+                        listingId={listing.id}
+                        isBoosted={listing.is_boosted}
+                      />
                     )}
                     <div
                       className={`flex items-center gap-2 px-4 py-2 rounded-2xl text-xs font-black uppercase tracking-widest
@@ -345,11 +400,110 @@ export default async function DashboardPage() {
                 </div>
               ))}
             </div>
+          ) : !affiliate ? (
+            <Card className="rounded-3xl border border-dashed border-primary/30 bg-primary/5">
+              <CardContent className="p-10 space-y-5">
+                <h3 className="text-3xl font-black tracking-tight">
+                  Become an Affiliate User & Earn
+                </h3>
+                <p className="text-muted-foreground font-medium leading-relaxed">
+                  Refer users with your code and earn commission when they pay for ad listings or boosts.
+                </p>
+                <form action={registerAffiliateAction}>
+                  <Button type="submit" className="rounded-2xl h-12 px-8 font-black">
+                    Register as Affiliate User
+                  </Button>
+                </form>
+                <p className="text-xs font-bold text-muted-foreground">
+                  You get paid if and only if the referred user makes a paid listing or boost purchase.
+                  Commission is 15% for the first 10 qualifying purchases, then 10% for the next 12 months.
+                </p>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="space-y-6">
+              <Card className="rounded-3xl border border-border/50">
+                <CardContent className="p-8 space-y-4">
+                  <div className="flex flex-wrap items-center justify-between gap-4">
+                    <div>
+                      <p className="text-xs font-black uppercase tracking-widest text-muted-foreground">
+                        Your Affiliate Code
+                      </p>
+                      <h3 className="text-3xl font-black tracking-tighter text-primary">
+                        {affiliate.ref_code}
+                      </h3>
+                    </div>
+                    {affiliate.expires_at && new Date(affiliate.expires_at) < new Date() && (
+                      <form action={regenerateAffiliateCodeAction}>
+                        <Button type="submit" className="rounded-2xl">
+                          Regenerate Code
+                        </Button>
+                      </form>
+                    )}
+                  </div>
+
+                  <div className="grid gap-4 md:grid-cols-3">
+                    <div className="rounded-2xl bg-muted/40 p-4">
+                      <p className="text-xs font-black uppercase tracking-widest text-muted-foreground">Users Registered</p>
+                      <p className="text-2xl font-black">{affiliate.referredUsers.length}</p>
+                    </div>
+                    <div className="rounded-2xl bg-muted/40 p-4">
+                      <p className="text-xs font-black uppercase tracking-widest text-muted-foreground">Qualifying Purchases</p>
+                      <p className="text-2xl font-black">{affiliate.qualifyingPayments}</p>
+                    </div>
+                    <div className="rounded-2xl bg-muted/40 p-4">
+                      <p className="text-xs font-black uppercase tracking-widest text-muted-foreground">Estimated Earnings</p>
+                      <p className="text-2xl font-black text-primary">Rs {affiliate.totalEarningsLkr.toLocaleString(undefined, { maximumFractionDigits: 2 })}</p>
+                    </div>
+                  </div>
+
+                  <p className="text-xs font-bold text-muted-foreground leading-relaxed">
+                    Commission policy: 15% for the first 10 paid listing/boost purchases per referred user,
+                    then 10% on qualifying purchases during the first 12 months from that user&apos;s registration date.
+                    Beyond that, rates are re-evaluated.
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card className="rounded-3xl border border-border/50">
+                <CardHeader>
+                  <CardTitle className="text-xl font-black">Registered Users Under Your Code</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {affiliate.referredUsers.length === 0 ? (
+                    <p className="text-muted-foreground font-medium">
+                      No users have registered with your code yet.
+                    </p>
+                  ) : (
+                    <div className="space-y-3">
+                      {affiliate.referredUsers.map((refUser) => (
+                        <div key={refUser.id} className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border/50 p-4">
+                          <div>
+                            <p className="font-black text-foreground">{refUser.full_name || "Unnamed User"}</p>
+                            <p className="text-xs font-bold text-muted-foreground">
+                              Joined {formatDate(refUser.created_at)}
+                            </p>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-xs font-black uppercase tracking-widest text-muted-foreground">
+                              Purchases: {refUser.qualifyingPayments}
+                            </p>
+                            <p className="font-black text-primary">
+                              Rs {refUser.earnedLkr.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
           )}
         </div>
 
         {/* Sidebar Info/Activity */}
-        <div className="space-y-6">
+        <div className="space-y-6 lg:pl-2">
           <Card className="border-none soft-shadow bg-card rounded-3xl overflow-hidden">
             <CardHeader className="p-6 border-b border-border bg-muted/20">
               <CardTitle className="text-lg font-black tracking-tighter flex items-center gap-2">
@@ -398,7 +552,7 @@ export default async function DashboardPage() {
                     Joined
                   </span>
                   <span className="text-foreground font-bold">
-                    {formatDate(profile?.created_at)}
+                    {profile?.created_at ? formatDate(profile.created_at) : "-"}
                   </span>
                 </div>
               </div>
