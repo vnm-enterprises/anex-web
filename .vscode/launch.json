@@ -1,0 +1,21 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Next.js: debug full stack",
+      "request": "launch",
+      "type": "node",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["dev"],
+      "serverReadyAction": {
+        "action": "debugWithChrome", // or "debugWithEdge" if you use Edge
+        "pattern": "- Local:.+(https?://.+)",
+        "uriFormat": "%s"
+      },
+      "cwd": "${workspaceFolder}/", // adjust if your app is in a subdirectory
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "skipFiles": ["<node_internals>/**"]
+    }
+  ]
+}
