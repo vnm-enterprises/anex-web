@@ -242,9 +242,13 @@ export function ListingDetail({ listing }: { listing: Listing }) {
                   <span className="text-lg">
                     {listing.cities?.name ?? listing.custom_city},{" "}
                     {listing.districts?.name}
-                    {listing.area ? ` — ${listing.area}` : ""}
                   </span>
                 </div>
+                {listing.area && (
+                  <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-1.5 text-xs font-black uppercase tracking-widest text-primary">
+                    Area / Neighborhood: {listing.area}
+                  </div>
+                )}
               </div>
               <Button
                 variant="outline"
