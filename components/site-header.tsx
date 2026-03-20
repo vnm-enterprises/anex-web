@@ -11,7 +11,6 @@ import {
   Menu,
   X,
   LayoutDashboard,
-  User,
   LogOut,
   Shield,
   ChevronDown,
@@ -29,22 +28,15 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ProfileModal } from "./dashboard/profile-modal";
 import { Separator } from "@/components/ui/separator";
+import Logo from "./logo";
 
 export function SiteHeader() {
   const [user, setUser] = useState<Profile | null>(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
-  const [isPostAdLoading, setIsPostAdLoading] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
   const supabase = createClient();
-
-  useEffect(() => {
-    const handleOpenProfile = () => setIsProfileModalOpen(true);
-    window.addEventListener("open-profile-modal", handleOpenProfile);
-    return () =>
-      window.removeEventListener("open-profile-modal", handleOpenProfile);
-  }, []);
 
   useEffect(() => {
     async function getUser() {
@@ -83,24 +75,7 @@ export function SiteHeader() {
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-20 items-center">
-          {/* Logo */}
-          <Link
-            href="/"
-            className="flex-shrink-0 flex items-center gap-2.5 group"
-            aria-label="Annex.lk Home"
-          >
-            <div
-              className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-primary-foreground font-bold text-lg shadow-lg group-hover:scale-110 transition-transform duration-300"
-              aria-hidden="true"
-            >
-              <Home className="h-5 w-5" />
-            </div>
-            <span className="font-extrabold text-2xl tracking-tighter text-foreground">
-              Annex<span className="text-primary italic">.lk</span>
-            </span>
-          </Link>
-
-          {/* Right Side */}
+          <Logo />
           <div className="flex items-center gap-4 md:gap-6">
             {/* Desktop Navigation */}
             <div className="hidden md:flex space-x-1 items-center">

@@ -96,6 +96,7 @@ const fetchFeaturedListings = async (): Promise<Listing[]> => {
     .select(LISTING_SELECT)
     .eq("status", "approved")
     .eq("is_boosted", true)
+    .order("boost_weight", { ascending: false })
     .order("created_at", { ascending: false })
     .limit(6);
 

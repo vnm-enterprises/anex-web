@@ -1,5 +1,5 @@
 /**
- * Compresses an image and adds a watermark "annex.lk"
+ * Compresses an image and adds an Annex.lk watermark.
  */
 export async function processImage(file: File): Promise<Blob> {
   return new Promise((resolve, reject) => {
@@ -36,17 +36,36 @@ export async function processImage(file: File): Promise<Blob> {
 
         ctx.drawImage(img, 0, 0, width, height);
 
-        // Add Watermark
-        const watermarkText = "annex.lk";
-        ctx.font = "bold 24px sans-serif";
-        ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
+        // Watermark sizing scales with image dimensions for consistent visibility.
+        const watermarkText = "Annex.lk";
+        const diagonalSize = Math.max(28, Math.round(width * 0.055));
+        const cornerSize = Math.max(18, Math.round(width * 0.025));
+
+        // 1) Diagonal center watermark similar to marketplace style.
+        ctx.save();
+        ctx.translate(width / 2, height / 2);
+        ctx.rotate((-20 * Math.PI) / 180);
+        ctx.font = `900 ${diagonalSize}px sans-serif`;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.strokeStyle = "rgba(0, 0, 0, 0.28)";
+        ctx.lineWidth = Math.max(2, Math.round(diagonalSize * 0.08));
+        ctx.strokeText(watermarkText, 0, 0);
+        ctx.fillStyle = "rgba(255, 255, 255, 0.35)";
+        ctx.fillText(watermarkText, 0, 0);
+        ctx.restore();
+
+        // 2) Corner watermark as an additional anti-crop marker.
+        ctx.save();
+        ctx.font = `800 ${cornerSize}px sans-serif`;
         ctx.textAlign = "right";
         ctx.textBaseline = "bottom";
-
-        // Draw shadow for visibility
-        ctx.shadowColor = "rgba(0, 0, 0, 0.5)";
-        ctx.shadowBlur = 4;
-        ctx.fillText(watermarkText, width - 20, height - 20);
+        ctx.strokeStyle = "rgba(0, 0, 0, 0.45)";
+        ctx.lineWidth = Math.max(1.5, Math.round(cornerSize * 0.08));
+        ctx.strokeText(watermarkText, width - 18, height - 14);
+        ctx.fillStyle = "rgba(255, 255, 255, 0.62)";
+        ctx.fillText(watermarkText, width - 18, height - 14);
+        ctx.restore();
 
         canvas.toBlob(
           (blob) => {
@@ -57,7 +76,7 @@ export async function processImage(file: File): Promise<Blob> {
             }
           },
           "image/jpeg",
-          0.7, // Compression quality
+          0.72,
         );
       };
       img.onerror = reject;

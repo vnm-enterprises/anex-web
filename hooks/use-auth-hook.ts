@@ -45,6 +45,7 @@ export function useAuthHook() {
       .eq("ref_code", normalizedCode)
       .maybeSingle();
 
+
     if (error) throw error;
 
     if (!data) {
@@ -85,31 +86,15 @@ export function useAuthHook() {
         emailRedirectTo,
         data: {
           full_name: fullName,
-          phone,
+          phone: phone.trim(),
           referred_by_code: referredByCode?.trim() || null,
+          referredById: referredById,
         },
       },
     });
 
     if (error) throw error;
 
-    if (data.session && data.user) {
-      const profileUpdates: Record<string, unknown> = {
-        phone: phone.trim() || null,
-      };
-
-      if (referredById) {
-        profileUpdates.referred_by = referredById;
-      }
-
-      const { error: profileUpdateError } = await supabase
-        .from("profiles")
-        .update(profileUpdates)
-        .eq("id", data.user.id);
-
-      if (profileUpdateError) throw profileUpdateError;
-      setAuth(data.session, data.user);
-    }
 
     return data;
   };

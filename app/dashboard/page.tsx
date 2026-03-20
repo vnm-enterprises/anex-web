@@ -260,12 +260,12 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
             </Link>
           </Button>
         ) : (
-          <form action={registerAffiliateAction}>
-            <Button type="submit" className="rounded-2xl">
+          // <form action={registerAffiliateAction}>
+            <Button type="button" className="rounded-2xl">
               <Gift className="mr-2 h-4 w-4" />
               Become Affiliate User & Earn
             </Button>
-          </form>
+          // </form>
         )}
       </div>
 

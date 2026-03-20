@@ -123,3 +123,9 @@ export interface SearchParams {
   sort?: "newest" | "price_asc" | "price_desc" | "views" | "featured";
   page?: string;
 }
+
+export type DesktopNavigationType = {
+  pathname: string;
+  user: Profile | null;
+  setIsProfileModalOpen: () => void;
+}

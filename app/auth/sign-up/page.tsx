@@ -136,7 +136,7 @@ export default function SignUpPage() {
         .
       </p>
 
-      
+
     </>
   );
 }
