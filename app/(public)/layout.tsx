@@ -1,6 +1,5 @@
 import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"
-import { HeroSection } from "@/components/home/hero-section"
 
 export default function PublicLayout({
   children,
@@ -8,7 +7,7 @@ export default function PublicLayout({
   children: React.ReactNode
 }) {
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex min-h-screen flex-col" >
       <SiteHeader />
       <main className="flex-1 min-h-screen">
 
