@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import {
   ShieldCheck,
   AlertTriangle,
@@ -6,6 +7,15 @@ import {
   Phone,
   HelpCircle,
 } from "lucide-react";
+import { buildPageMetadata } from "@/lib/seo";
+
+export const metadata: Metadata = buildPageMetadata({
+  title: "Safety Center",
+  description:
+    "Learn tenant and landlord safety practices, scam prevention tips, and fraud reporting guidelines on Annex.lk.",
+  path: "/safety-center",
+  keywords: ["rental safety", "avoid rental scams", "tenant safety Sri Lanka"],
+});
 
 export default function SafetyCenterPage() {
   return (
