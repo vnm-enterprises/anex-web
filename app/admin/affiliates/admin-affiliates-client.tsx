@@ -20,6 +20,7 @@ import {
   Plus,
   Copy,
   CheckCircle2,
+  Landmark,
 } from "lucide-react";
 import { formatDate } from "@/lib/constants";
 import { toast } from "sonner";
@@ -29,34 +30,32 @@ export function AdminAffiliatesClient() {
 
   const [affiliates, setAffiliates] = useState<any[]>([]);
   const [users, setUsers] = useState<any[]>([]);
+  const [withdrawals, setWithdrawals] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
 
   const fetchData = async () => {
     setLoading(true);
 
-    // Fetch existing affiliates with profile data
-    const { data: affData } = await supabase
-      .from("affiliates")
-      .select("*, profiles(full_name, phone)")
-      .order("created_at", { ascending: false });
+    const response = await fetch("/api/admin/affiliates/overview", {
+      method: "GET",
+      cache: "no-store",
+    });
 
-    // Fetch users who are NOT affiliates yet to allow promoting them
-    const affUserIds = affData?.map((a) => a.user_id) || [];
+    const payload = await response.json();
 
-    let userQuery = supabase
-      .from("profiles")
-      .select("id, full_name, phone, affiliate_code")
-      .order("full_name");
-
-    if (affUserIds.length > 0) {
-      userQuery = userQuery.not("id", "in", `(${affUserIds.join(",")})`);
+    if (!response.ok) {
+      toast.error(payload.error || "Failed to load affiliate data");
+      setAffiliates([]);
+      setUsers([]);
+      setWithdrawals([]);
+      setLoading(false);
+      return;
     }
 
-    const { data: userData } = await userQuery;
-
-    setAffiliates(affData || []);
-    setUsers(userData || []);
+    setAffiliates(payload.affiliates || []);
+    setUsers(payload.users || []);
+    setWithdrawals(payload.withdrawals || []);
     setLoading(false);
   };
 
@@ -65,35 +64,55 @@ export function AdminAffiliatesClient() {
   }, []);
 
   const generateAffiliateCode = async (userId: string, fullName: string) => {
-    // Generate a random code based on name or random string
-    const code = (
-      fullName.split(" ")[0].toUpperCase() +
-      Math.floor(1000 + Math.random() * 9000)
-    ).replace(/[^A-Z0-9]/g, "");
-
-    const { error: affError } = await supabase.from("affiliates").insert({
-      user_id: userId,
-      code: code,
+    const response = await fetch("/api/admin/affiliates/actions", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        type: "generateCode",
+        userId,
+        fullName,
+      }),
     });
 
-    if (affError) {
-      toast.error(affError.message);
+    const payload = await response.json();
+
+    if (!response.ok) {
+      toast.error(payload.error || "Failed to generate affiliate code");
       return;
     }
 
-    // Also update the profile with the code for easier access
-    await supabase
-      .from("profiles")
-      .update({ affiliate_code: code })
-      .eq("id", userId);
-
-    toast.success(`Affiliate code ${code} generated for ${fullName}`);
+    toast.success(`Affiliate code ${payload.code} generated for ${fullName}`);
     fetchData();
   };
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
     toast.success("Code copied to clipboard");
+  };
+
+  const updateWithdrawalStatus = async (
+    requestId: string,
+    status: "processing" | "deposited" | "rejected",
+  ) => {
+    const response = await fetch("/api/admin/affiliates/actions", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        type: "updateWithdrawalStatus",
+        requestId,
+        status,
+      }),
+    });
+
+    const payload = await response.json();
+
+    if (!response.ok) {
+      toast.error(payload.error || "Failed to update withdrawal status");
+      return;
+    }
+
+    toast.success(`Withdrawal marked as ${status}`);
+    fetchData();
   };
 
   return (
@@ -137,7 +156,10 @@ export function AdminAffiliatesClient() {
                     Referrals
                   </TableHead>
                   <TableHead className="font-black uppercase text-[10px] tracking-widest">
-                    Commission
+                      Qualified Purchases
+                    </TableHead>
+                    <TableHead className="font-black uppercase text-[10px] tracking-widest">
+                      Amount Receivable
                   </TableHead>
                   <TableHead className="font-black uppercase text-[10px] tracking-widest">
                     Status
@@ -171,13 +193,13 @@ export function AdminAffiliatesClient() {
                     <TableCell>
                       <div className="flex items-center gap-2">
                         <code className="bg-muted px-2 py-1 rounded text-xs font-black text-primary">
-                          {aff.code}
+                          {aff.ref_code}
                         </code>
                         <Button
                           variant="ghost"
                           size="icon"
                           className="h-6 w-6"
-                          onClick={() => copyToClipboard(aff.code)}
+                          onClick={() => copyToClipboard(aff.ref_code)}
                         >
                           <Copy size={12} />
                         </Button>
@@ -185,24 +207,26 @@ export function AdminAffiliatesClient() {
                     </TableCell>
                     <TableCell>
                       <Badge variant="secondary" className="font-bold">
-                        {aff.total_referrals}
+                        {aff.total_users_brought_in}
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      <p className="font-black text-primary">
-                        Rs. {aff.total_commission.toLocaleString()}
-                      </p>
-                      <p className="text-[10px] text-muted-foreground font-medium">
-                        {aff.commission_rate}% rate
+                      <p className="font-black text-foreground">
+                        {(aff.qualified_purchases || 0).toLocaleString()}
                       </p>
                     </TableCell>
                     <TableCell>
-                      {aff.is_active ? (
+                      <p className="font-black text-primary">
+                        Rs. {Number(aff.amount_receivable || 0).toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                      </p>
+                    </TableCell>
+                    <TableCell>
+                      {(!aff.expires_at || new Date(aff.expires_at) > new Date()) ? (
                         <Badge className="bg-emerald-500/10 text-emerald-500 border-emerald-500/20 shadow-none">
                           Active
                         </Badge>
                       ) : (
-                        <Badge variant="outline">Inactive</Badge>
+                        <Badge variant="outline">Expired</Badge>
                       )}
                     </TableCell>
                     <TableCell className="text-right pr-6 text-muted-foreground font-medium text-xs">
@@ -210,6 +234,130 @@ export function AdminAffiliatesClient() {
                     </TableCell>
                   </TableRow>
                 ))}
+              </TableBody>
+            </Table>
+          </div>
+        )}
+      </div>
+
+      {/* WITHDRAWAL REQUESTS SECTION */}
+      <div>
+        <div className="mb-6">
+          <h2 className="text-2xl font-black tracking-tight">
+            Affiliate Withdrawal Requests
+          </h2>
+          <p className="text-sm text-muted-foreground">
+            Process payout requests and mark them as deposited after payment.
+          </p>
+        </div>
+
+        {loading ? (
+          <div className="flex h-48 items-center justify-center">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          </div>
+        ) : withdrawals.length === 0 ? (
+          <div className="flex h-48 flex-col items-center justify-center rounded-3xl border border-dashed border-border bg-muted/30">
+            <Landmark className="h-10 w-10 text-muted-foreground mb-4 opacity-20" />
+            <p className="font-bold text-muted-foreground">
+              No withdrawal requests yet
+            </p>
+          </div>
+        ) : (
+          <div className="overflow-hidden rounded-3xl border border-border bg-card shadow-sm">
+            <Table>
+              <TableHeader className="bg-muted/50">
+                <TableRow>
+                  <TableHead className="font-black uppercase text-[10px] tracking-widest pl-6">
+                    Affiliate
+                  </TableHead>
+                  <TableHead className="font-black uppercase text-[10px] tracking-widest">
+                    Bank Details
+                  </TableHead>
+                  <TableHead className="font-black uppercase text-[10px] tracking-widest">
+                    Amount
+                  </TableHead>
+                  <TableHead className="font-black uppercase text-[10px] tracking-widest">
+                    Status
+                  </TableHead>
+                  <TableHead className="font-black uppercase text-[10px] tracking-widest text-right pr-6">
+                    Actions
+                  </TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {withdrawals.map((requestItem) => {
+                  const affiliate = requestItem.affiliate;
+                  const affiliateProfile = affiliate?.profiles;
+
+                  return (
+                    <TableRow
+                      key={requestItem.id}
+                      className="hover:bg-muted/30 transition-colors"
+                    >
+                      <TableCell className="pl-6">
+                        <p className="font-bold text-foreground line-clamp-1">
+                          {affiliateProfile?.full_name || "Unknown Affiliate"}
+                        </p>
+                        <p className="text-[10px] text-muted-foreground font-medium">
+                          Code: {affiliate?.ref_code || "-"}
+                        </p>
+                      </TableCell>
+                      <TableCell>
+                        <p className="font-bold text-foreground text-sm">
+                          {requestItem.bank_name} {requestItem.bank_branch ? `· ${requestItem.bank_branch}` : ""}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {requestItem.bank_account_name} · {requestItem.bank_account_number}
+                        </p>
+                      </TableCell>
+                      <TableCell>
+                        <p className="font-black text-primary">
+                          Rs. {Number(requestItem.amount_lkr || 0).toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                        </p>
+                      </TableCell>
+                      <TableCell>
+                        <Badge
+                          className={
+                            requestItem.status === "deposited"
+                              ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20 shadow-none"
+                              : requestItem.status === "rejected"
+                                ? "bg-destructive/10 text-destructive border-destructive/20 shadow-none"
+                                : requestItem.status === "processing"
+                                  ? "bg-amber-500/10 text-amber-500 border-amber-500/20 shadow-none"
+                                  : "bg-primary/10 text-primary border-primary/20 shadow-none"
+                          }
+                        >
+                          {requestItem.status}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-right pr-6">
+                        <div className="flex flex-wrap justify-end gap-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="rounded-xl h-8"
+                            onClick={() =>
+                              updateWithdrawalStatus(requestItem.id, "processing")
+                            }
+                            disabled={requestItem.status === "deposited"}
+                          >
+                            Processing
+                          </Button>
+                          <Button
+                            size="sm"
+                            className="rounded-xl h-8"
+                            onClick={() =>
+                              updateWithdrawalStatus(requestItem.id, "deposited")
+                            }
+                            disabled={requestItem.status === "deposited"}
+                          >
+                            Mark Done
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
           </div>
