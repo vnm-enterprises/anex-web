@@ -24,6 +24,7 @@ interface UseSearchHookResult {
   listings: Listing[];
   totalCount: number;
   loading: boolean;
+  error: string | null;
 }
 
 type MarketplaceSearchRow = {
@@ -47,15 +48,35 @@ export function useSearchHook(filters: SearchFilters): UseSearchHookResult {
   const [listings, setListings] = useState<Listing[]>([]);
   const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const requestIdRef = useRef(0);
 
+  const normalizedFilters = useMemo(() => {
+    const allowedSort = new Set(["featured", "newest", "price_asc", "price_desc", "views"]);
+    const minPrice = Number.isFinite(filters.priceRange[0]) ? Math.max(filters.priceRange[0], 0) : 0;
+    const maxPriceRaw = Number.isFinite(filters.priceRange[1]) ? Math.max(filters.priceRange[1], 0) : 200000;
+    const maxPrice = maxPriceRaw >= minPrice ? maxPriceRaw : minPrice;
+
+    return {
+      keyword: filters.keyword.trim(),
+      district: filters.district,
+      city: filters.city,
+      propertyType: filters.propertyType,
+      furnished: filters.furnished,
+      gender: filters.gender,
+      sort: allowedSort.has(filters.sort) ? filters.sort : "featured",
+      page: Math.max(filters.page, 1),
+      priceRange: [minPrice, maxPrice] as [number, number],
+    };
+  }, [filters]);
+
   const selectedDistrictId = useMemo(() => {
-    return districts.find((item) => item.slug === filters.district)?.id;
-  }, [districts, filters.district]);
+    return districts.find((item) => item.slug === normalizedFilters.district)?.id;
+  }, [districts, normalizedFilters.district]);
 
   const selectedCityId = useMemo(() => {
-    return cities.find((item) => item.slug === filters.city)?.id;
-  }, [cities, filters.city]);
+    return cities.find((item) => item.slug === normalizedFilters.city)?.id;
+  }, [cities, normalizedFilters.city]);
 
   useEffect(() => {
     async function loadDistricts() {
@@ -67,7 +88,7 @@ export function useSearchHook(filters: SearchFilters): UseSearchHookResult {
   }, [supabase]);
 
   useEffect(() => {
-    if (!filters.district) {
+    if (!normalizedFilters.district) {
       setCities([]);
       return;
     }
@@ -84,28 +105,27 @@ export function useSearchHook(filters: SearchFilters): UseSearchHookResult {
     }
 
     loadCities();
-  }, [filters.district, selectedDistrictId, supabase]);
+  }, [normalizedFilters.district, selectedDistrictId, supabase]);
 
   const fetchListings = useCallback(async () => {
     const currentRequestId = ++requestIdRef.current;
     setLoading(true);
+    setError(null);
 
     try {
-      const safePage = Math.max(filters.page, 1);
-
       const { data: rankedRows, error: rankedError } = await supabase.rpc(
         "search_marketplace_listings",
         {
-          p_keyword: filters.keyword || null,
+          p_keyword: normalizedFilters.keyword || null,
           p_district_id: selectedDistrictId || null,
           p_city_id: selectedCityId || null,
-          p_property_type: filters.propertyType || null,
-          p_furnished: filters.furnished || null,
-          p_gender: filters.gender || null,
-          p_min_price: filters.priceRange[0] > 0 ? filters.priceRange[0] : null,
-          p_max_price: filters.priceRange[1] < 200000 ? filters.priceRange[1] : null,
-          p_sort: filters.sort || "featured",
-          p_page: safePage,
+          p_property_type: normalizedFilters.propertyType || null,
+          p_furnished: normalizedFilters.furnished || null,
+          p_gender: normalizedFilters.gender || null,
+          p_min_price: normalizedFilters.priceRange[0] > 0 ? normalizedFilters.priceRange[0] : null,
+          p_max_price: normalizedFilters.priceRange[1] < 200000 ? normalizedFilters.priceRange[1] : null,
+          p_sort: normalizedFilters.sort,
+          p_page: normalizedFilters.page,
           p_per_page: ITEMS_PER_PAGE,
         },
       );
@@ -116,40 +136,16 @@ export function useSearchHook(filters: SearchFilters): UseSearchHookResult {
 
       if (currentRequestId !== requestIdRef.current) return;
 
-      if (rows.length > 0) {
-        setListings(rows.map((row) => row.listing));
-        setTotalCount(Number(rows[0].total_count || 0));
-        return;
-      }
+      const validRows = rows.filter((row) => row.listing) as Array<MarketplaceSearchRow & { listing: Listing }>;
+      const derivedTotal = rows.length > 0 ? Number(rows[0].total_count || 0) : 0;
 
-      // Page overflow fallback: keep total count accurate even when requested page has no rows.
-      let countQuery = supabase
-        .from("listings")
-        .select("id", { count: "exact", head: true })
-        .eq("status", "approved");
-
-      if (filters.keyword) {
-        countQuery = countQuery.or(
-          `title.ilike.%${filters.keyword}%,description.ilike.%${filters.keyword}%`,
-        );
-      }
-
-      if (selectedDistrictId) countQuery = countQuery.eq("district_id", selectedDistrictId);
-      if (selectedCityId) countQuery = countQuery.eq("city_id", selectedCityId);
-      if (filters.propertyType) countQuery = countQuery.eq("property_type", filters.propertyType);
-      if (filters.furnished) countQuery = countQuery.eq("furnished", filters.furnished);
-      if (filters.gender && filters.gender !== "any") {
-        countQuery = countQuery.eq("gender_preference", filters.gender);
-      }
-      if (filters.priceRange[0] > 0) countQuery = countQuery.gte("price", filters.priceRange[0]);
-      if (filters.priceRange[1] < 200000) countQuery = countQuery.lte("price", filters.priceRange[1]);
-
-      const { count } = await countQuery;
-
+      setListings(validRows.map((row) => row.listing));
+      setTotalCount(derivedTotal);
+    } catch (fetchError) {
       if (currentRequestId !== requestIdRef.current) return;
-
       setListings([]);
-      setTotalCount(count ?? 0);
+      setTotalCount(0);
+      setError(fetchError instanceof Error ? fetchError.message : "Failed to load search results");
     } finally {
       if (currentRequestId === requestIdRef.current) {
         setLoading(false);
@@ -157,23 +153,17 @@ export function useSearchHook(filters: SearchFilters): UseSearchHookResult {
     }
   }, [
     supabase,
-    filters.keyword,
-    filters.propertyType,
-    filters.furnished,
-    filters.gender,
-    filters.priceRange,
-    filters.sort,
-    filters.page,
+    normalizedFilters,
     selectedDistrictId,
     selectedCityId,
   ]);
 
   useEffect(() => {
-    const canQueryListings = !filters.district || Boolean(selectedDistrictId);
+    const canQueryListings = !normalizedFilters.district || Boolean(selectedDistrictId);
     if (canQueryListings) {
       fetchListings();
     }
-  }, [fetchListings, filters.district, selectedDistrictId]);
+  }, [fetchListings, normalizedFilters.district, selectedDistrictId]);
 
   return {
     districts,
@@ -181,5 +171,6 @@ export function useSearchHook(filters: SearchFilters): UseSearchHookResult {
     listings,
     totalCount,
     loading,
+    error,
   };
 }
