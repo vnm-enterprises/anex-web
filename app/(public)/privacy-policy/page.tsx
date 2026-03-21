@@ -1,3 +1,14 @@
+import type { Metadata } from "next";
+import { buildPageMetadata } from "@/lib/seo";
+
+export const metadata: Metadata = buildPageMetadata({
+  title: "Privacy Policy",
+  description:
+    "Read how Annex.lk collects, uses, and protects personal data for tenants and landlords in Sri Lanka.",
+  path: "/privacy-policy",
+  keywords: ["privacy policy", "Annex.lk privacy", "data protection Sri Lanka"],
+});
+
 export default function PrivacyPage() {
   const policies = [
     {
