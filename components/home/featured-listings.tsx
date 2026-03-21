@@ -1,6 +1,6 @@
 "use client";
 
-import { Sparkles, ArrowRight, Home } from "lucide-react";
+import { Sparkles, ArrowRight, Home, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ListingCarousel } from "./listing-carousel";
@@ -12,16 +12,20 @@ export function FeaturedListings() {
   if (!isFeaturedListingsLoading && featuredListings.length === 0) return null;
 
   return (
-    <section className="animate-fade-in [animation-delay:600ms]">
+    <section className="animate-fade-in [animation-delay:600ms] ">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
         <div>
-          <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-600 text-[10px] font-black uppercase tracking-widest mb-4">
-            <Sparkles className="h-3 w-3" />
-            Top Listings
-          </span>
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-rose-500/10 border border-rose-500/20 text-rose-500 text-[10px] font-black uppercase tracking-widest">
+            <Heart className="h-3 w-3 fill-current" />
+            Featured Listings
+          </div>
           <h2 className="text-4xl md:text-5xl font-black text-foreground tracking-tighter">
-            Top picks <span className="text-primary italic">right now</span>
+            Featured <span className="text-rose-500 italic">listings</span>
           </h2>
+          <p className="text-muted-foreground font-medium max-w-xl">
+            A curated selection of high-quality annexes and rooms based on
+            tenant feedback and property standards.
+          </p>
         </div>
         <Button
           variant="ghost"
