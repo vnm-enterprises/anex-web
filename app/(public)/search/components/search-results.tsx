@@ -9,6 +9,7 @@ import type { Listing } from "@/lib/types";
 
 interface SearchResultsProps {
   loading: boolean;
+  error?: string | null;
   listings: Listing[];
   page: number;
   totalPages: number;
@@ -18,6 +19,7 @@ interface SearchResultsProps {
 
 export function SearchResults({
   loading,
+  error,
   listings,
   page,
   totalPages,
@@ -39,9 +41,13 @@ export function SearchResults({
         <div className="p-8 rounded-full bg-muted shadow-inner mb-8">
           <Search className="h-16 w-16 text-muted-foreground/30" />
         </div>
-        <h3 className="text-3xl font-black text-foreground tracking-tight">No properties found</h3>
+        <h3 className="text-3xl font-black text-foreground tracking-tight">
+          {error ? "Search temporarily unavailable" : "No properties found"}
+        </h3>
         <p className="mt-2 text-muted-foreground font-medium max-w-sm text-lg">
-          We couldn't find any listings matching your search. Try broadening your criteria or resetting filters.
+          {error
+            ? "Please retry in a moment. Filters are preserved and no data was lost."
+            : "We couldn't find any listings matching your search. Try broadening your criteria or resetting filters."}
         </p>
         <Button asChild onClick={onClearFilters} className="mt-10 rounded-2xl h-14 px-10 font-black shadow-xl">
           <Link href="/search">Clear All Filters</Link>

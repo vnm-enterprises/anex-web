@@ -1,6 +1,25 @@
 -- Migration: Production marketplace search RPC
 -- Purpose: Deterministic featured-first ranking with filter-aware pagination.
 
+CREATE OR REPLACE FUNCTION public.safe_websearch_to_tsquery(
+  cfg regconfig,
+  query_text text
+)
+RETURNS tsquery
+LANGUAGE plpgsql
+IMMUTABLE
+AS $$
+BEGIN
+  IF query_text IS NULL OR BTRIM(query_text) = '' THEN
+    RETURN NULL;
+  END IF;
+
+  RETURN websearch_to_tsquery(cfg, query_text);
+EXCEPTION WHEN OTHERS THEN
+  RETURN plainto_tsquery(cfg, query_text);
+END;
+$$;
+
 CREATE OR REPLACE FUNCTION public.search_marketplace_listings(
   p_keyword TEXT DEFAULT NULL,
   p_district_id UUID DEFAULT NULL,
@@ -21,7 +40,30 @@ RETURNS TABLE (
 LANGUAGE sql
 STABLE
 AS $$
-WITH filtered AS (
+WITH params AS (
+  SELECT
+    NULLIF(BTRIM(p_keyword), '') AS keyword,
+    p_district_id AS district_id,
+    p_city_id AS city_id,
+    NULLIF(BTRIM(p_property_type), '') AS property_type,
+    NULLIF(BTRIM(p_furnished), '') AS furnished,
+    NULLIF(BTRIM(p_gender), '') AS gender,
+    CASE WHEN p_min_price IS NOT NULL AND p_min_price >= 0 THEN p_min_price ELSE NULL END AS min_price,
+    CASE WHEN p_max_price IS NOT NULL AND p_max_price >= 0 THEN p_max_price ELSE NULL END AS max_price,
+    CASE
+      WHEN p_sort IN ('featured', 'newest', 'price_asc', 'price_desc', 'views') THEN p_sort
+      ELSE 'featured'
+    END AS sort_key,
+    GREATEST(p_page, 1) AS safe_page,
+    LEAST(GREATEST(p_per_page, 1), 48) AS safe_per_page
+),
+safe_keyword AS (
+  SELECT
+    prm.*,
+    public.safe_websearch_to_tsquery('simple', prm.keyword) AS keyword_tsquery
+  FROM params prm
+),
+filtered AS (
   SELECT
     l.*,
     CASE
@@ -43,21 +85,21 @@ WITH filtered AS (
       ELSE NULL
     END AS featured_expiry
   FROM public.listings l
+  CROSS JOIN safe_keyword prm
   WHERE l.status = 'approved'
-    AND (p_district_id IS NULL OR l.district_id = p_district_id)
-    AND (p_city_id IS NULL OR l.city_id = p_city_id)
-    AND (p_property_type IS NULL OR p_property_type = '' OR l.property_type = p_property_type)
-    AND (p_furnished IS NULL OR p_furnished = '' OR l.furnished = p_furnished)
-    AND (p_gender IS NULL OR p_gender = '' OR p_gender = 'any' OR l.gender_preference = p_gender)
-    AND (p_min_price IS NULL OR l.price >= p_min_price)
-    AND (p_max_price IS NULL OR l.price <= p_max_price)
+    AND (prm.district_id IS NULL OR l.district_id = prm.district_id)
+    AND (prm.city_id IS NULL OR l.city_id = prm.city_id)
+    AND (prm.property_type IS NULL OR l.property_type = prm.property_type)
+    AND (prm.furnished IS NULL OR l.furnished = prm.furnished)
+    AND (prm.gender IS NULL OR prm.gender = 'any' OR l.gender_preference = prm.gender)
+    AND (prm.min_price IS NULL OR l.price >= prm.min_price)
+    AND (prm.max_price IS NULL OR l.price <= prm.max_price)
     AND (
-      p_keyword IS NULL
-      OR p_keyword = ''
-      OR l.search_vector @@ websearch_to_tsquery('simple', p_keyword)
-      OR l.title ILIKE '%' || p_keyword || '%'
-      OR l.description ILIKE '%' || p_keyword || '%'
-      OR COALESCE(l.custom_city, '') ILIKE '%' || p_keyword || '%'
+      prm.keyword IS NULL
+      OR (prm.keyword_tsquery IS NOT NULL AND l.search_vector @@ prm.keyword_tsquery)
+      OR l.title ILIKE '%' || prm.keyword || '%'
+      OR l.description ILIKE '%' || prm.keyword || '%'
+      OR COALESCE(l.custom_city, '') ILIKE '%' || prm.keyword || '%'
     )
 ),
 totals AS (
@@ -65,18 +107,18 @@ totals AS (
 ),
 paged AS (
   SELECT *
-  FROM filtered
+  FROM filtered, params prm
   ORDER BY
-    CASE WHEN p_sort = 'featured' THEN featured_bucket ELSE 0 END DESC,
-    CASE WHEN p_sort = 'featured' THEN featured_weight ELSE 0 END DESC,
-    CASE WHEN p_sort = 'featured' THEN featured_expiry ELSE NULL END DESC NULLS LAST,
-    CASE WHEN p_sort = 'newest' THEN created_at ELSE NULL END DESC,
-    CASE WHEN p_sort = 'price_asc' THEN price ELSE NULL END ASC,
-    CASE WHEN p_sort = 'price_desc' THEN price ELSE NULL END DESC,
-    CASE WHEN p_sort = 'views' THEN views_count ELSE NULL END DESC,
+    featured_bucket DESC,
+    featured_weight DESC,
+    featured_expiry DESC NULLS LAST,
+    CASE WHEN prm.sort_key = 'newest' THEN created_at ELSE NULL END DESC,
+    CASE WHEN prm.sort_key = 'price_asc' THEN price ELSE NULL END ASC,
+    CASE WHEN prm.sort_key = 'price_desc' THEN price ELSE NULL END DESC,
+    CASE WHEN prm.sort_key = 'views' THEN views_count ELSE NULL END DESC,
     created_at DESC
-  OFFSET (GREATEST(p_page, 1) - 1) * GREATEST(p_per_page, 1)
-  LIMIT GREATEST(p_per_page, 1)
+  OFFSET (prm.safe_page - 1) * prm.safe_per_page
+  LIMIT prm.safe_per_page
 )
 SELECT
   jsonb_build_object(
@@ -138,5 +180,14 @@ LEFT JOIN LATERAL (
   ) AS images
   FROM public.listing_images li
   WHERE li.listing_id = p.id
-) img ON TRUE;
+ ) img ON TRUE
+UNION ALL
+
+-- When page is out of range, still return one row carrying total_count so the client
+-- does not need an extra count query round-trip.
+SELECT
+  NULL::jsonb AS listing,
+  t.total_count
+FROM totals t
+WHERE NOT EXISTS (SELECT 1 FROM paged);
 $$;
