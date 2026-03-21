@@ -41,6 +41,7 @@ export function NewListingForm() {
   const [freeLimit, setFreeLimit] = useState(3);
   const [showPayment, setShowPayment] = useState(false);
   const [paymentLoading, setPaymentLoading] = useState(false);
+  const DESCRIPTION_MAX_LENGTH = 4000;
 
   const [form, setForm] = useState({
     title: "",
@@ -68,30 +69,26 @@ export function NewListingForm() {
       if (d) setDistricts(d);
       if (a) setAmenities(a);
 
-      // Check listing count and platform tier
+      // Check listing count and user's free listing entitlement
       const {
         data: { user },
       } = await supabase.auth.getUser();
 
-      // Get total users to determine free ad tier
-      const { count: totalUsers } = await supabase
-        .from("profiles")
-        .select("*", { count: "exact", head: true });
-
-      let limit = 3;
-      if (totalUsers) {
-        if (totalUsers <= 10) limit = 10;
-        else if (totalUsers <= 20) limit = 8;
-        else if (totalUsers <= 50) limit = 5;
-      }
-      setFreeLimit(limit);
-
       if (user) {
-        const { count } = await supabase
-          .from("listings")
-          .select("*", { count: "exact", head: true })
-          .eq("user_id", user.id);
+        const [{ count }, { data: profile }] = await Promise.all([
+          supabase
+            .from("listings")
+            .select("*", { count: "exact", head: true })
+            .eq("user_id", user.id),
+          supabase
+            .from("profiles")
+            .select("referred_by_code")
+            .eq("id", user.id)
+            .maybeSingle(),
+        ]);
+
         setListingCount(count || 0);
+        setFreeLimit(profile?.referred_by_code ? 5 : 3);
       }
     }
     load();
@@ -253,7 +250,7 @@ export function NewListingForm() {
         );
       }
 
-      if (listingCount >= 3) {
+      if (listingCount >= freeLimit) {
         setPaymentLoading(true);
         try {
           const res = await fetch("/api/payments/checkout", {
@@ -324,11 +321,15 @@ export function NewListingForm() {
               <Textarea
                 id="description"
                 required
-                rows={5}
-                placeholder="Describe your property in detail..."
+                rows={7}
+                maxLength={DESCRIPTION_MAX_LENGTH}
+                placeholder="Write your own custom description. Include nearby places, utilities, access, rules, and anything tenants should know."
                 value={form.description}
                 onChange={(e) => updateForm("description", e.target.value)}
               />
+              <p className="text-xs font-medium text-muted-foreground">
+                {form.description.length}/{DESCRIPTION_MAX_LENGTH} characters
+              </p>
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="grid gap-2">
@@ -602,11 +603,10 @@ export function NewListingForm() {
               />
             </div>
             <div className="mt-4 h-px bg-border" />
-            {listingCount >= 3 ? (
+            {listingCount >= freeLimit ? (
               <div className="space-y-4">
                 <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-500 text-xs font-bold">
-                  You have reached the free limit of 3 ads. A one-time payment
-                  of Rs. 750 is required.
+                  You have reached your free limit of {freeLimit} ads. A one-time payment of Rs. 750 is required for this listing.
                 </div>
                 <Button
                   type="submit"
