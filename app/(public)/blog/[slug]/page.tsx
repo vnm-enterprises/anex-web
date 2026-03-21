@@ -1,8 +1,10 @@
 import Link from "next/link";
 import { ArrowLeft, CalendarDays, Clock, Tag } from "lucide-react";
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 
 import { BLOG_POSTS, getBlogPostBySlug } from "@/lib/blog-posts";
+import { SITE_URL } from "@/lib/seo";
 
 interface BlogArticlePageProps {
   params: Promise<{
@@ -12,6 +14,41 @@ interface BlogArticlePageProps {
 
 export function generateStaticParams() {
   return BLOG_POSTS.map((post) => ({ slug: post.slug }));
+}
+
+export async function generateMetadata({ params }: BlogArticlePageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const post = getBlogPostBySlug(slug);
+
+  if (!post) {
+    return {
+      title: "Article Not Found",
+      robots: { index: false, follow: false },
+    };
+  }
+
+  return {
+    title: post.title,
+    description: post.excerpt,
+    alternates: {
+      canonical: `${SITE_URL}/blog/${post.slug}`,
+    },
+    openGraph: {
+      type: "article",
+      title: post.title,
+      description: post.excerpt,
+      url: `${SITE_URL}/blog/${post.slug}`,
+      siteName: "Annex.lk",
+      publishedTime: post.date,
+      images: [{ url: post.image, width: 1200, height: 630, alt: post.title }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: post.title,
+      description: post.excerpt,
+      images: [post.image],
+    },
+  };
 }
 
 export default async function BlogArticlePage({ params }: BlogArticlePageProps) {
