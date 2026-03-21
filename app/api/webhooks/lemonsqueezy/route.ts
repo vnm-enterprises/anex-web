@@ -54,10 +54,23 @@ export async function POST(request: NextRequest) {
       orderAttributes.first_order_item?.variant_id ||
       orderAttributes.variant_id;
 
+    // Boost tier config — duration in days, weight, display type
+    const BOOST_CONFIG: Record<string, { days: number; weight: number; boostType: "quick" | "premium" | "featured" }> = {
+      "1353828": { days: 7,  weight: 1, boostType: "quick" },
+      "1353831": { days: 14, weight: 2, boostType: "premium" },
+      "1353841": { days: 30, weight: 3, boostType: "featured" },
+    };
+
     if (eventName === "order_created" || eventName === "order_paid") {
       console.log(
         `[Webhook] Processing ${eventName} for listing ${listing_id} (User: ${user_id})`,
       );
+
+      const { data: existingPayment } = await supabase
+        .from("payments")
+        .select("status")
+        .eq("lemonsqueezy_order_id", orderId.toString())
+        .maybeSingle();
 
       // 1. Record/Update payment record (Idempotency via upsert)
       const { error: paymentError } = await supabase.from("payments").upsert(
@@ -84,27 +97,75 @@ export async function POST(request: NextRequest) {
       }
 
       // 2. Update Listing
-      const updateData: any = {};
+      const updateData: Record<string, unknown> = {};
       const vIdString = variantId.toString();
 
       if (vIdString === "1353811") {
         // LEMON_VARIANT_AD_LISTING
         updateData.payment_status = "paid";
         updateData.status = "pending";
-      } else if (vIdString === "1353828") {
-        // LEMON_VARIANT_QUICK_BOOST
+      } else if (BOOST_CONFIG[vIdString]) {
+        // Boost purchase — apply upgrade-safe logic
+        const { days, weight, boostType } = BOOST_CONFIG[vIdString];
+
+        // Fetch current listing state so we never accidentally downgrade an active boost
+        const { data: currentListing } = await supabase
+          .from("listings")
+          .select("boost_weight, boost_expires_at, boost_type, is_featured, featured_expires_at")
+          .eq("id", listing_id)
+          .maybeSingle();
+
+        const now = new Date();
+        const newExpiryCandidate = new Date(now.getTime() + days * 86_400_000);
+
+        const currentBoostExpiry = currentListing?.boost_expires_at
+          ? new Date(currentListing.boost_expires_at)
+          : new Date(0);
+        const currentBoostIsActive =
+          (currentListing?.boost_weight ?? 0) > 0 && currentBoostExpiry > now;
+
+        // Preserve only active boost attributes; expired ones must not influence new purchase.
+        const activeWeight = currentBoostIsActive
+          ? Number(currentListing?.boost_weight ?? 0)
+          : 0;
+        const activeExpiry = currentBoostIsActive ? currentBoostExpiry : new Date(0);
+
+        const finalWeight = Math.max(activeWeight, weight);
+        const finalExpiry =
+          newExpiryCandidate > activeExpiry ? newExpiryCandidate : activeExpiry;
+        const finalType: "quick" | "premium" | "featured" =
+          finalWeight >= 3 ? "featured" : finalWeight === 2 ? "premium" : "quick";
+
         updateData.is_boosted = true;
-        updateData.boost_weight = 1;
-      } else if (vIdString === "1353831") {
-        // LEMON_VARIANT_PREMIUM_BOOST
-        updateData.is_boosted = true;
-        updateData.boost_weight = 2;
-      } else if (vIdString === "1353841") {
-        // LEMON_VARIANT_FEATURED_BOOST
-        updateData.is_boosted = true;
-        updateData.boost_weight = 3;
-        updateData.is_featured = true;
-        updateData.featured_weight = 1;
+        updateData.boost_weight = finalWeight;
+        updateData.boost_expires_at = finalExpiry.toISOString();
+        updateData.boost_type = finalType;
+
+        // Featured-specific flags are set only when the final active tier is featured.
+        if (finalType === "featured") {
+          const currentFeaturedExpiry = currentListing?.featured_expires_at
+            ? new Date(currentListing.featured_expires_at)
+            : new Date(0);
+          const activeFeaturedExpiry = currentFeaturedExpiry > now
+            ? currentFeaturedExpiry
+            : new Date(0);
+          const finalFeaturedExpiry =
+            newExpiryCandidate > activeFeaturedExpiry
+              ? newExpiryCandidate
+              : activeFeaturedExpiry;
+
+          updateData.is_featured = true;
+          updateData.featured_weight = 1;
+          updateData.featured_expires_at = finalFeaturedExpiry.toISOString();
+        } else {
+          updateData.is_featured = false;
+          updateData.featured_weight = 0;
+          updateData.featured_expires_at = null;
+        }
+
+        console.log(
+          `[Webhook] Boost applied: purchased=${boostType} final=${finalType} weight=${finalWeight} expires=${finalExpiry.toISOString()} listing=${listing_id}`,
+        );
       }
 
       const { error: listingError } = await supabase
@@ -120,11 +181,58 @@ export async function POST(request: NextRequest) {
 
       // 3. Affiliate Commission Logic
       try {
+        const shouldCreditAffiliate = existingPayment?.status !== "paid";
+
         const { data: profile } = await supabase
           .from("profiles")
-          .select("referred_by_code")
+          .select("referred_by, referred_by_code")
           .eq("id", user_id)
           .single();
+
+        if (shouldCreditAffiliate && (profile?.referred_by || profile?.referred_by_code)) {
+          const receivableIncrement = (amount / 100) * 0.1;
+
+          // Resolve affiliate_user id — prefer referred_by FK, fall back to ref_code lookup
+          let affiliateUserId: string | null = profile?.referred_by ?? null;
+
+          if (!affiliateUserId && profile?.referred_by_code) {
+            const { data: foundByCode } = await supabase
+              .from("affiliate_user")
+              .select("id")
+              .eq("ref_code", profile.referred_by_code)
+              .maybeSingle();
+            affiliateUserId = foundByCode?.id ?? null;
+            if (affiliateUserId) {
+              console.log(
+                `[Webhook] affiliate_user resolved via ref_code fallback (${profile.referred_by_code})`,
+              );
+            }
+          }
+
+          if (affiliateUserId) {
+            const { data: affiliateUserRow } = await supabase
+              .from("affiliate_user")
+              .select("qualified_purchases, amount_receivable")
+              .eq("id", affiliateUserId)
+              .maybeSingle();
+
+            if (affiliateUserRow) {
+              await supabase
+                .from("affiliate_user")
+                .update({
+                  qualified_purchases: (affiliateUserRow.qualified_purchases ?? 0) + 1,
+                  amount_receivable:
+                    Number(affiliateUserRow.amount_receivable ?? 0) + receivableIncrement,
+                  updated_at: new Date().toISOString(),
+                })
+                .eq("id", affiliateUserId);
+
+              console.log(
+                `[Webhook] affiliate_user updated (qualified_purchases +1, amount_receivable +${receivableIncrement.toFixed(2)})`,
+              );
+            }
+          }
+        }
 
         if (profile?.referred_by_code) {
           const { data: affiliate } = await supabase
