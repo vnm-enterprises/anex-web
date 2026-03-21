@@ -1,3 +1,14 @@
+import type { Metadata } from "next";
+import { buildPageMetadata } from "@/lib/seo";
+
+export const metadata: Metadata = buildPageMetadata({
+  title: "Terms of Service",
+  description:
+    "Review Annex.lk terms for listing policies, payments, user conduct, and liability before using the platform.",
+  path: "/terms-of-service",
+  keywords: ["terms of service", "Annex.lk terms", "rental platform terms"],
+});
+
 export default function TermsPage() {
   const sections = [
     {
