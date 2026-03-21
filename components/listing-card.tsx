@@ -4,20 +4,22 @@ import { Badge } from "@/components/ui/badge";
 import {
   MapPin,
   Eye,
-  Bolt,
   Zap,
   Sparkles,
+  Star,
   ArrowUpRight,
-  Users,
   Armchair,
   CreditCard,
+  Users,
 } from "lucide-react";
 import { formatPrice } from "@/lib/constants";
 import type { Listing } from "@/lib/types";
+import { getActiveBoostTier } from "@/lib/types";
 
 export function ListingCard({ listing }: { listing: Listing }) {
   const mainImage = listing.listing_images?.[0]?.url;
-  const isPriority = listing.is_boosted || listing.is_featured;
+  const activeTier = getActiveBoostTier(listing);
+  const isPriority = activeTier !== null;
 
   return (
     <div className="group relative flex flex-col h-full overflow-hidden rounded-[2.25rem] border border-border/50 bg-card transition-all duration-700 soft-shadow hover:shadow-2xl hover:-translate-y-2">
@@ -43,16 +45,22 @@ export function ListingCard({ listing }: { listing: Listing }) {
 
         {/* Badges */}
         <div className="absolute top-5 left-5 flex flex-col gap-2">
-          {listing.is_boosted && (
-            <Badge className="bg-primary text-white border-none font-black uppercase tracking-widest text-[10px] px-3 py-1 shadow-lg backdrop-blur-sm">
-              <Zap className="h-3 w-3 mr-1 fill-current" />
-              Priority Choice
-            </Badge>
-          )}
-          {listing.is_featured && (
+          {activeTier === "featured" && (
             <Badge className="bg-amber-500 text-white border-none font-black uppercase tracking-widest text-[9px] px-3 py-1.5 shadow-xl backdrop-blur-md">
               <Sparkles className="h-3 w-3 mr-1 fill-current" />
               Featured
+            </Badge>
+          )}
+          {activeTier === "premium" && (
+            <Badge className="bg-violet-600 text-white border-none font-black uppercase tracking-widest text-[9px] px-3 py-1.5 shadow-xl backdrop-blur-md">
+              <Star className="h-3 w-3 mr-1 fill-current" />
+              Premium
+            </Badge>
+          )}
+          {activeTier === "quick" && (
+            <Badge className="bg-cyan-500 text-white border-none font-black uppercase tracking-widest text-[9px] px-3 py-1.5 shadow-xl backdrop-blur-md">
+              <Zap className="h-3 w-3 mr-1 fill-current" />
+              Top
             </Badge>
           )}
           {listing.status === "pending_payment" && (
