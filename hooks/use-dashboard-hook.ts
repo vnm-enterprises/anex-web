@@ -10,12 +10,31 @@ interface ReferredUserSummary {
   earnedLkr: number;
 }
 
+type WithdrawalRequestStatus = "pending" | "processing" | "deposited" | "rejected";
+
+interface WithdrawalRequestSummary {
+  id: string;
+  amount_lkr: number;
+  bank_account_name: string;
+  bank_name: string;
+  bank_branch: string | null;
+  bank_account_number: string;
+  status: WithdrawalRequestStatus;
+  admin_note: string | null;
+  requested_at: string;
+  processed_at: string | null;
+}
+
 interface AffiliateSnapshot {
   id: string;
   ref_code: string;
   expires_at: string | null;
   total_users_brought_in: number;
+  qualified_purchases: number;
+  amount_receivable: number;
+  available_for_withdrawal: number;
   referredUsers: ReferredUserSummary[];
+  withdrawalRequests: WithdrawalRequestSummary[];
   totalEarningsLkr: number;
   qualifyingPayments: number;
 }
@@ -64,7 +83,7 @@ function calculateAffiliateEarnings(
     const currentCount = (paymentCountByUser.get(payment.user_id) ?? 0) + 1;
     paymentCountByUser.set(payment.user_id, currentCount);
 
-    const commissionRate = currentCount <= 10 ? 0.15 : 0.1;
+    const commissionRate = 0.1; // 10% flat — matches stated policy and webhook logic
     const amountLkr = payment.amount / 100;
     const earned = amountLkr * commissionRate;
 
@@ -159,7 +178,7 @@ export async function useDashboardHook(): Promise<DashboardData> {
 
   const { data: affiliateUser } = await supabase
     .from("affiliate_user")
-    .select("id, ref_code, expires_at, total_users_brought_in")
+    .select("id, ref_code, expires_at, total_users_brought_in, qualified_purchases, amount_receivable")
     .eq("user_id", user.id)
     .maybeSingle();
 
@@ -176,14 +195,32 @@ export async function useDashboardHook(): Promise<DashboardData> {
     };
   }
 
-  const { data: referredUsers } = await supabase
+  const { data: referredUsersById } = await supabase
     .from("profiles")
     .select("id, full_name, created_at")
     .eq("referred_by", affiliateUser.id)
     .order("created_at", { ascending: true });
 
+  const { data: referredUsersByCode } = await supabase
+    .from("profiles")
+    .select("id, full_name, created_at")
+    .eq("referred_by_code", affiliateUser.ref_code)
+    .order("created_at", { ascending: true });
+
+  const referredUserMap = new Map<string, { id: string; full_name: string | null; created_at: string }>();
+
+  (referredUsersById ?? []).forEach((userItem) => {
+    referredUserMap.set(userItem.id, userItem as { id: string; full_name: string | null; created_at: string });
+  });
+
+  (referredUsersByCode ?? []).forEach((userItem) => {
+    referredUserMap.set(userItem.id, userItem as { id: string; full_name: string | null; created_at: string });
+  });
+
   const safeReferredUsers =
-    (referredUsers as Array<{ id: string; full_name: string | null; created_at: string }>) ?? [];
+    Array.from(referredUserMap.values()).sort((a, b) =>
+      new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
+    );
 
   const referredUserIds = safeReferredUsers.map((userItem) => userItem.id);
 
@@ -204,6 +241,33 @@ export async function useDashboardHook(): Promise<DashboardData> {
 
   const earnings = calculateAffiliateEarnings(safeReferredUsers, referredPayments);
 
+  const { data: withdrawalRows } = await supabase
+    .from("affiliate_withdrawal_requests")
+    .select(
+      "id, amount_lkr, bank_account_name, bank_name, bank_branch, bank_account_number, status, admin_note, requested_at, processed_at",
+    )
+    .eq("affiliate_user_id", affiliateUser.id)
+    .order("requested_at", { ascending: false });
+
+  const withdrawalRequests =
+    (withdrawalRows as WithdrawalRequestSummary[] | null) ?? [];
+
+  const lockedAmount = withdrawalRequests.reduce((sum, requestItem) => {
+    if (
+      requestItem.status === "pending" ||
+      requestItem.status === "processing" ||
+      requestItem.status === "deposited"
+    ) {
+      return sum + Number(requestItem.amount_lkr || 0);
+    }
+    return sum;
+  }, 0);
+
+  const availableForWithdrawal = Math.max(
+    earnings.totalEarningsLkr - lockedAmount,
+    0,
+  );
+
   return {
     user: { id: user.id },
     profile: profile as Profile | null,
@@ -217,7 +281,12 @@ export async function useDashboardHook(): Promise<DashboardData> {
       ref_code: affiliateUser.ref_code,
       expires_at: affiliateUser.expires_at,
       total_users_brought_in: affiliateUser.total_users_brought_in ?? 0,
+      // Use calculated totals so historical purchases (before webhook fix) are reflected
+      qualified_purchases: earnings.qualifyingPayments,
+      amount_receivable: earnings.totalEarningsLkr,
+      available_for_withdrawal: availableForWithdrawal,
       referredUsers: earnings.referredUsersSummary,
+      withdrawalRequests,
       totalEarningsLkr: earnings.totalEarningsLkr,
       qualifyingPayments: earnings.qualifyingPayments,
     },
