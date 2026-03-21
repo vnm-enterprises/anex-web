@@ -44,7 +44,7 @@ export default function AboutPage() {
       <section className="relative min-h-[600px] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0">
           <img
-            src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=2070"
+            src="/media/images/about.png"
             className="w-full h-full object-cover"
             alt="Modern tropical villa in Sri Lanka"
           />
@@ -103,7 +103,7 @@ export default function AboutPage() {
         <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-16 items-center">
           <div>
             <img
-              src="https://images.unsplash.com/photo-1505691938895-1758d7feb511?q=80&w=2070"
+              src="/media/images/mission.png"
               className="rounded-2xl shadow-2xl h-[500px] w-full object-cover"
               alt="Mission"
             />
@@ -178,7 +178,7 @@ export default function AboutPage() {
             <div>
               <p className="text-lg text-slate-600 dark:text-slate-400 leading-relaxed mb-6">
                 "Annex.lk was born out of a personal frustration with the
-                fragmented rental market in Sri Lanka. As the sole owner and
+                fragmented rental market in Sri Lanka. As the  owner and
                 developer, I am committed to building a platform that
                 prioritizes transparency, ease of use, and local needs above all
                 else."
