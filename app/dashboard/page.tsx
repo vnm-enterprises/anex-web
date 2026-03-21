@@ -19,6 +19,9 @@ import {
   MapPin,
   Gift,
   Wallet,
+  BarChart3,
+  User,
+  TrendingUp,
 } from "lucide-react";
 import Link from "next/link";
 import { formatDate } from "@/lib/constants";
@@ -27,6 +30,8 @@ import EditProfileButton from "./profile/EditProfileButton";
 import { ProfileModalWrapper } from "@/components/dashboard/profile-modal-wrapper";
 import { useDashboardHook } from "@/hooks/use-dashboard-hook";
 import { InlineBoostButton } from "@/components/dashboard/inline-boost-button";
+import { AffiliateRegisterButton } from "@/components/dashboard/affiliate-register-button";
+import { AffiliateWithdrawalButton } from "@/components/dashboard/affiliate-withdrawal-button";
 
 interface DashboardPageProps {
   searchParams?: Promise<{ tab?: string }>;
@@ -38,10 +43,10 @@ function createAffiliateCode(userId: string): string {
   return `ANX${token}${random}`;
 }
 
-function getBoostTier(weight?: number | null): "Quick" | "Premium" | "Featured" {
+function getBoostTier(weight?: number | null): "Top" | "Premium" | "Featured" {
   if (weight === 3) return "Featured";
   if (weight === 2) return "Premium";
-  return "Quick";
+  return "Top";
 }
 
 export default async function DashboardPage({ searchParams }: DashboardPageProps) {
@@ -107,6 +112,59 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
     redirect("/dashboard?tab=affiliate");
   }
 
+  async function requestAffiliateWithdrawalAction(formData: FormData) {
+    "use server";
+
+    const supabase = await createClient();
+    const {
+      data: { user: currentUser },
+    } = await supabase.auth.getUser();
+
+    if (!currentUser) {
+      redirect("/auth/login");
+    }
+
+    const { data: affiliateUser } = await supabase
+      .from("affiliate_user")
+      .select("id")
+      .eq("user_id", currentUser.id)
+      .maybeSingle();
+
+    if (!affiliateUser) {
+      redirect("/dashboard?tab=affiliate");
+    }
+
+    const amountLkr = Number(formData.get("amount_lkr") || 0);
+    const bankAccountName = String(formData.get("bank_account_name") || "").trim();
+    const bankName = String(formData.get("bank_name") || "").trim();
+    const bankBranch = String(formData.get("bank_branch") || "").trim();
+    const bankAccountNumber = String(formData.get("bank_account_number") || "").trim();
+    const notes = String(formData.get("notes") || "").trim();
+
+    if (
+      !Number.isFinite(amountLkr) ||
+      amountLkr <= 0 ||
+      !bankAccountName ||
+      !bankName ||
+      !bankAccountNumber
+    ) {
+      redirect("/dashboard?tab=affiliate");
+    }
+
+    await supabase.from("affiliate_withdrawal_requests").insert({
+      affiliate_user_id: affiliateUser.id,
+      amount_lkr: amountLkr,
+      bank_account_name: bankAccountName,
+      bank_name: bankName,
+      bank_branch: bankBranch || null,
+      bank_account_number: bankAccountNumber,
+      notes: notes || null,
+      status: "pending",
+    });
+
+    redirect("/dashboard?tab=affiliate");
+  }
+
   const profile = dashboardData.profile;
   const listings = dashboardData.listings;
   const totalListings = dashboardData.totalListings;
@@ -114,6 +172,8 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   const unreadInquiries = dashboardData.unreadInquiries;
   const totalViews = dashboardData.totalViews;
   const affiliate = dashboardData.affiliate;
+  const freeAdsLimit = profile?.referred_by_code ? 5 : 3;
+  const freeAdsRemaining = Math.max(freeAdsLimit - (totalListings || 0), 0);
 
   const statusIcon = (status: string) => {
     switch (status) {
@@ -162,7 +222,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
       </div>
 
       {/* Stats Overview */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="hidden md:grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {[
           {
             label: "Total Listings",
@@ -187,8 +247,8 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
             unread: unreadInquiries,
           },
           {
-            label: "Account Status",
-            value: affiliate ? "Affiliate" : "Standard",
+            label: "Total Free Ads Remaining",
+            value: freeAdsRemaining,
             icon: Shield,
             color: "text-primary",
             bg: "bg-primary/10",
@@ -205,6 +265,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
                 >
                   <stat.icon className="h-6 w-6" />
                 </div>
+                <div className="flex items-center gap-2">
                 {stat.unread !== undefined &&
                   stat.unread !== null &&
                   stat.unread > 0 && (
@@ -212,6 +273,19 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
                       {stat.unread} New
                     </span>
                   )}
+                  {stat.label === "Active Inquiries" && (
+                    <Button
+                      asChild
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 rounded-xl bg-muted hover:bg-primary hover:text-white"
+                    >
+                      <Link href="/dashboard/all-inquiries" aria-label="View all inquiries">
+                        <ArrowRight className="h-4 w-4" />
+                      </Link>
+                    </Button>
+                  )}
+                </div>
               </div>
               <div>
                 <p className="text-sm font-bold text-muted-foreground uppercase tracking-wider mb-1">
@@ -226,12 +300,6 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
                 </div>
               </div>
             </CardContent>
-            {stat.label === "Active Inquiries" && (
-              <Link
-                href="/dashboard/all-inquiries"
-                className="absolute inset-0 z-10"
-              />
-            )}
             {stat.label === "Total Listings" && (
               <Link
                 href="/dashboard/listings"
@@ -242,17 +310,69 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
         ))}
       </div>
 
-      <div className="flex flex-wrap items-center gap-3">
+      <div className="md:hidden space-y-4">
+        <details className="rounded-3xl border border-border bg-card p-5 soft-shadow group">
+          <summary className="list-none flex items-center justify-between cursor-pointer">
+            <span className="inline-flex items-center gap-2 text-sm font-black tracking-wide text-foreground">
+              <BarChart3 className="h-4 w-4 text-primary" />
+              View General Analysis
+            </span>
+            <ArrowRight className="h-4 w-4 text-muted-foreground transition-transform group-open:rotate-90" />
+          </summary>
+          <div className="mt-4 space-y-3 text-sm">
+            <div className="flex items-center justify-between rounded-2xl bg-muted/40 px-4 py-3">
+              <span className="font-bold text-muted-foreground">Total Listings</span>
+              <span className="font-black text-foreground">{(totalListings || 0).toLocaleString()}</span>
+            </div>
+            <div className="flex items-center justify-between rounded-2xl bg-muted/40 px-4 py-3">
+              <span className="font-bold text-muted-foreground">Total Views</span>
+              <span className="font-black text-foreground">{totalViews.toLocaleString()}</span>
+            </div>
+            <div className="flex items-center justify-between rounded-2xl bg-muted/40 px-4 py-3">
+              <span className="font-bold text-muted-foreground">Active Inquiries</span>
+              <span className="font-black text-foreground">{(totalInquiries || 0).toLocaleString()}</span>
+            </div>
+            <div className="flex items-center justify-between rounded-2xl bg-muted/40 px-4 py-3">
+              <span className="font-bold text-muted-foreground">Total Free Ads Remaining</span>
+              <span className="font-black text-primary">{freeAdsRemaining}</span>
+            </div>
+          </div>
+        </details>
+
+        <div className="grid grid-cols-1 gap-3">
+          <Button asChild className="rounded-2xl h-11">
+            <Link href="/dashboard/all-inquiries">
+              <MessageCircle className="mr-2 h-4 w-4" />
+              Open All Inquiries
+            </Link>
+          </Button>
+          {/* <Button asChild variant="outline" className="rounded-2xl h-11">
+            <Link href="/dashboard/profile">
+              <User className="mr-2 h-4 w-4" />
+              View Profile Summary
+            </Link>
+          </Button> */}
+          <EditProfileButton />
+          <Button asChild variant="outline" className="rounded-2xl h-11">
+            <Link href="/pricing">
+              <TrendingUp className="mr-2 h-4 w-4" />
+              Grow Your Business
+            </Link>
+          </Button>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <Button
           asChild
-          className={activeTab === "listings" ? "rounded-2xl" : "rounded-2xl bg-muted text-foreground hover:bg-muted/80"}
+          className={activeTab === "listings" ? "rounded-2xl w-full" : "rounded-2xl w-full bg-muted text-foreground hover:bg-muted/80"}
         >
           <Link href="/dashboard?tab=listings">Listings Dashboard</Link>
         </Button>
         {affiliate ? (
           <Button
             asChild
-            className={activeTab === "affiliate" ? "rounded-2xl" : "rounded-2xl bg-muted text-foreground hover:bg-muted/80"}
+            className={activeTab === "affiliate" ? "rounded-2xl w-full" : "rounded-2xl w-full bg-muted text-foreground hover:bg-muted/80"}
           >
             <Link href="/dashboard?tab=affiliate">
               <Wallet className="mr-2 h-4 w-4" />
@@ -260,17 +380,17 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
             </Link>
           </Button>
         ) : (
-          // <form action={registerAffiliateAction}>
-            <Button type="button" className="rounded-2xl">
+            <Button asChild type="button" className="rounded-2xl w-full">
+              <Link href="/dashboard?tab=affiliate">
               <Gift className="mr-2 h-4 w-4" />
               Become Affiliate User & Earn
+              </Link>
             </Button>
-          // </form>
         )}
       </div>
 
       {/* Main Content Area */}
-      <div className="grid items-start gap-12 lg:grid-cols-[minmax(0,1.75fr)_360px]">
+      <div className="grid items-start gap-8 xl:gap-12 xl:grid-cols-[minmax(0,1.75fr)_360px]">
         {/* Listings */}
         <div className="space-y-6 lg:pr-2">
           <div className="flex items-center justify-between">
@@ -332,7 +452,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
                       {listing.is_boosted && (
                         <span className="bg-primary/10 text-primary text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full flex items-center gap-1">
                           <Bolt className="h-2 w-2 fill-current" />
-                          Boosted
+                          Top
                         </span>
                       )}
                       {listing.is_boosted && (
@@ -402,34 +522,29 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
             </div>
           ) : !affiliate ? (
             <Card className="rounded-3xl border border-dashed border-primary/30 bg-primary/5">
-              <CardContent className="p-10 space-y-5">
-                <h3 className="text-3xl font-black tracking-tight">
-                  Become an Affiliate User & Earn
+              <CardContent className="p-6 md:p-10 space-y-5">
+                <h3 className="text-2xl md:text-4xl font-black tracking-tight leading-tight">
+                  Start Earning with Your Referral Code
                 </h3>
-                <p className="text-muted-foreground font-medium leading-relaxed">
-                  Refer users with your code and earn commission when they pay for ad listings or boosts.
+                <p className="text-muted-foreground font-medium leading-relaxed text-base md:text-2xl">
+                  Join the affiliate program to get a personal code and earn from referred users who complete paid listings or boosts.
                 </p>
-                <form action={registerAffiliateAction}>
-                  <Button type="submit" className="rounded-2xl h-12 px-8 font-black">
-                    Register as Affiliate User
-                  </Button>
-                </form>
-                <p className="text-xs font-bold text-muted-foreground">
-                  You get paid if and only if the referred user makes a paid listing or boost purchase.
-                  Commission is 15% for the first 10 qualifying purchases, then 10% for the next 12 months.
+                <AffiliateRegisterButton registerAction={registerAffiliateAction} />
+                <p className="text-xs md:text-sm font-bold text-muted-foreground leading-relaxed">
+                  Current policy: 10% is credited to your receivable balance for each qualifying purchase made by users registered under your referral code.
                 </p>
               </CardContent>
             </Card>
           ) : (
             <div className="space-y-6">
               <Card className="rounded-3xl border border-border/50">
-                <CardContent className="p-8 space-y-4">
+                <CardContent className="p-6 md:p-8 space-y-4">
                   <div className="flex flex-wrap items-center justify-between gap-4">
                     <div>
                       <p className="text-xs font-black uppercase tracking-widest text-muted-foreground">
                         Your Affiliate Code
                       </p>
-                      <h3 className="text-3xl font-black tracking-tighter text-primary">
+                      <h3 className="text-2xl md:text-3xl font-black tracking-tighter text-primary break-all">
                         {affiliate.ref_code}
                       </h3>
                     </div>
@@ -442,26 +557,93 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
                     )}
                   </div>
 
-                  <div className="grid gap-4 md:grid-cols-3">
+                  <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                     <div className="rounded-2xl bg-muted/40 p-4">
-                      <p className="text-xs font-black uppercase tracking-widest text-muted-foreground">Users Registered</p>
-                      <p className="text-2xl font-black">{affiliate.referredUsers.length}</p>
+                      <p className="text-xs font-black uppercase tracking-widest text-muted-foreground">Total Receivable</p>
+                      <p className="text-2xl font-black text-primary">Rs {affiliate.amount_receivable.toLocaleString(undefined, { maximumFractionDigits: 2 })}</p>
+                    </div>
+                    <div className="rounded-2xl bg-muted/40 p-4">
+                      <p className="text-xs font-black uppercase tracking-widest text-muted-foreground">Available to Withdraw</p>
+                      <p className="text-2xl font-black text-emerald-600">Rs {affiliate.available_for_withdrawal.toLocaleString(undefined, { maximumFractionDigits: 2 })}</p>
                     </div>
                     <div className="rounded-2xl bg-muted/40 p-4">
                       <p className="text-xs font-black uppercase tracking-widest text-muted-foreground">Qualifying Purchases</p>
-                      <p className="text-2xl font-black">{affiliate.qualifyingPayments}</p>
+                      <p className="text-2xl font-black">{affiliate.qualified_purchases}</p>
                     </div>
                     <div className="rounded-2xl bg-muted/40 p-4">
-                      <p className="text-xs font-black uppercase tracking-widest text-muted-foreground">Estimated Earnings</p>
-                      <p className="text-2xl font-black text-primary">Rs {affiliate.totalEarningsLkr.toLocaleString(undefined, { maximumFractionDigits: 2 })}</p>
+                      <p className="text-xs font-black uppercase tracking-widest text-muted-foreground">Users Registered</p>
+                      <p className="text-2xl font-black">{affiliate.total_users_brought_in}</p>
                     </div>
                   </div>
 
-                  <p className="text-xs font-bold text-muted-foreground leading-relaxed">
-                    Commission policy: 15% for the first 10 paid listing/boost purchases per referred user,
-                    then 10% on qualifying purchases during the first 12 months from that user&apos;s registration date.
-                    Beyond that, rates are re-evaluated.
-                  </p>
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="text-xs font-bold text-muted-foreground leading-relaxed">
+                      Commission policy: 10% of each qualifying referred purchase is added to your receivable balance.
+                    </p>
+                    <AffiliateWithdrawalButton
+                      requestAction={requestAffiliateWithdrawalAction}
+                      availableAmount={affiliate.available_for_withdrawal}
+                    />
+                  </div>
+
+                </CardContent>
+              </Card>
+
+              <Card className="rounded-3xl border border-border/50">
+                <CardHeader>
+                  <CardTitle className="text-xl font-black">Withdrawal Requests</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {affiliate.withdrawalRequests.length === 0 ? (
+                    <p className="text-muted-foreground font-medium">
+                      You have not requested a withdrawal yet.
+                    </p>
+                  ) : (
+                    <div className="space-y-3">
+                      {affiliate.withdrawalRequests.map((requestItem) => (
+                        <div
+                          key={requestItem.id}
+                          className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-2xl border border-border/50 p-4"
+                        >
+                          <div>
+                            <p className="font-black text-foreground">
+                              Rs {Number(requestItem.amount_lkr || 0).toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                            </p>
+                            <p className="text-xs font-bold text-muted-foreground">
+                              Requested {formatDate(requestItem.requested_at)} · {requestItem.bank_name}
+                            </p>
+                            {requestItem.admin_note && (
+                              <p className="text-xs font-medium text-muted-foreground mt-1">
+                                Note: {requestItem.admin_note}
+                              </p>
+                            )}
+                          </div>
+                          <div className="text-left sm:text-right">
+                            <span
+                              className={`inline-flex rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-widest ${
+                                requestItem.status === "deposited"
+                                  ? "bg-emerald-500/10 text-emerald-600"
+                                  : requestItem.status === "rejected"
+                                    ? "bg-destructive/10 text-destructive"
+                                    : requestItem.status === "processing"
+                                      ? "bg-amber-500/10 text-amber-600"
+                                      : "bg-primary/10 text-primary"
+                              }`}
+                            >
+                              {requestItem.status === "deposited"
+                                ? "Deposited"
+                                : requestItem.status}
+                            </span>
+                            {requestItem.status === "deposited" && requestItem.processed_at && (
+                              <p className="text-xs font-bold text-muted-foreground mt-2">
+                                Deposited on {formatDate(requestItem.processed_at)}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </CardContent>
               </Card>
 
@@ -477,14 +659,14 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
                   ) : (
                     <div className="space-y-3">
                       {affiliate.referredUsers.map((refUser) => (
-                        <div key={refUser.id} className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border/50 p-4">
+                        <div key={refUser.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-2xl border border-border/50 p-4">
                           <div>
                             <p className="font-black text-foreground">{refUser.full_name || "Unnamed User"}</p>
                             <p className="text-xs font-bold text-muted-foreground">
                               Joined {formatDate(refUser.created_at)}
                             </p>
                           </div>
-                          <div className="text-right">
+                          <div className="text-left sm:text-right">
                             <p className="text-xs font-black uppercase tracking-widest text-muted-foreground">
                               Purchases: {refUser.qualifyingPayments}
                             </p>
@@ -504,7 +686,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
 
         {/* Sidebar Info/Activity */}
         <div className="space-y-6 lg:pl-2">
-          <Card className="border-none soft-shadow bg-card rounded-3xl overflow-hidden">
+          <Card className="hidden md:block border-none soft-shadow bg-card rounded-3xl overflow-hidden">
             <CardHeader className="p-6 border-b border-border bg-muted/20">
               <CardTitle className="text-lg font-black tracking-tighter flex items-center gap-2">
                 <Settings className="h-5 w-5 text-primary" />
@@ -543,9 +725,9 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
               <div className="space-y-3 pt-4 border-t border-border">
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground font-medium">
-                    Account Status
+                    Total Free Ads Remaining
                   </span>
-                  <span className="text-primary font-bold">Active</span>
+                  <span className="text-primary font-bold">{freeAdsRemaining}</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground font-medium">
@@ -560,7 +742,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
             </CardContent>
           </Card>
 
-          <Card className="border-none soft-shadow bg-gradient-to-br from-primary to-emerald-600 rounded-3xl overflow-hidden text-white">
+          <Card className="hidden md:block border-none soft-shadow bg-gradient-to-br from-primary to-emerald-600 rounded-3xl overflow-hidden text-white">
             <CardContent className="p-8">
               <h3 className="text-2xl font-black tracking-tighter mb-4">
                 Grow your business
