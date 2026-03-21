@@ -5,9 +5,112 @@ import Link from "next/link";
 import { formatPrice } from "@/lib/constants";
 import { ListingDetail } from "./listing-detail";
 import { ListingCard } from "@/components/listing-card";
+import type { Listing } from "@/lib/types";
 
 interface Props {
   params: Promise<{ slug: string }>;
+}
+
+const SIMILAR_LISTING_SELECT = `
+  id,
+  user_id,
+  title,
+  description,
+  slug,
+  property_type,
+  price,
+  district_id,
+  city_id,
+  area,
+  furnished,
+  gender_preference,
+  contact_phone,
+  status,
+  is_boosted,
+  boost_expires_at,
+  boost_weight,
+  boost_type,
+  is_featured,
+  featured_expires_at,
+  featured_weight,
+  views_count,
+  inquiries_count,
+  payment_status,
+  expires_at,
+  custom_city,
+  created_at,
+  updated_at,
+  listing_images(url),
+  cities!listings_city_id_fkey(name)
+`;
+
+type ListingWithSimilarityKeys = {
+  id: string;
+  city_id: string | null;
+  district_id: string | null;
+  property_type: string;
+};
+
+async function getSimilarListings(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  listing: ListingWithSimilarityKeys,
+  limit = 4,
+): Promise<Listing[]> {
+  const collected: Listing[] = [];
+  const seenIds = new Set<string>([listing.id]);
+
+  const appendUnique = (items: Listing[] | null) => {
+    if (!items) return;
+    for (const item of items) {
+      if (seenIds.has(item.id)) continue;
+      seenIds.add(item.id);
+      collected.push(item);
+      if (collected.length >= limit) break;
+    }
+  };
+
+  const queryWithRank = () =>
+    supabase
+      .from("listings")
+      .select(SIMILAR_LISTING_SELECT)
+      .eq("status", "approved")
+      .order("boost_weight", { ascending: false })
+      .order("boost_expires_at", { ascending: false, nullsFirst: false })
+      .order("created_at", { ascending: false });
+
+  // 1) Best match: same city and same property type.
+  if (listing.city_id) {
+    const { data } = await queryWithRank()
+      .eq("city_id", listing.city_id)
+      .eq("property_type", listing.property_type)
+      .neq("id", listing.id)
+      .limit(limit);
+
+    appendUnique((data ?? []) as unknown as Listing[]);
+  }
+
+  // 2) Fallback: same district and same property type.
+  if (collected.length < limit && listing.district_id) {
+    const { data } = await queryWithRank()
+      .eq("district_id", listing.district_id)
+      .eq("property_type", listing.property_type)
+      .neq("id", listing.id)
+      .limit(limit * 2);
+
+    appendUnique((data ?? []) as unknown as Listing[]);
+  }
+
+  // 3) Final fallback: same property type anywhere.
+  if (collected.length < limit) {
+    const { data } = await queryWithRank()
+      .eq("property_type", listing.property_type)
+      .neq("id", listing.id)
+      .limit(limit * 3);
+
+    appendUnique((data ?? []) as unknown as Listing[]);
+  }
+
+  return collected.slice(0, limit);
 }
 
 /* ============================= */
@@ -149,26 +252,12 @@ export default async function ListingPage({ params }: Props) {
   /*       SIMILAR PROPERTIES      */
   /* ============================= */
 
-  const { data: similarListings } = await supabase
-    .from("listings")
-    .select(
-      `
-      id,
-      slug,
-      title,
-      price,
-      custom_city,
-      listing_images(url),
-      cities!listings_city_id_fkey(name)
-      `,
-    )
-    .eq("status", "approved")
-    .eq("city_id", listing.city_id)
-    .eq("property_type", listing.property_type)
-    .neq("id", listing.id)
-    .limit(4);
-
-  const similar = (similarListings ?? []) as any[];
+  const similar = await getSimilarListings(supabase, {
+    id: listing.id,
+    city_id: listing.city_id,
+    district_id: listing.district_id,
+    property_type: listing.property_type,
+  });
 
   /* ============================= */
   /*            RENDER             */
@@ -183,7 +272,7 @@ export default async function ListingPage({ params }: Props) {
       <ListingDetail listing={listingData} />
 
       {similar.length > 0 && (
-        <section className="mt-20 border-t border-border pt-20">
+        <section className="mt-20 border-t border-border pt-20 mb-20">
           <div className="mx-auto max-w-7xl px-6 lg:px-8">
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
               <div>
