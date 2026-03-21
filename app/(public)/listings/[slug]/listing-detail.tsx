@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import {
   MapPin,
   Phone,
@@ -17,6 +17,7 @@ import {
   Calendar,
   Sparkles,
   Zap,
+  Star,
   Home,
   BedDouble,
   Warehouse,
@@ -30,6 +31,7 @@ import {
 } from "lucide-react";
 import { formatPrice, formatDate } from "@/lib/constants";
 import type { Listing } from "@/lib/types";
+import { getActiveBoostTier } from "@/lib/types";
 import { toast } from "sonner";
 import Link from "next/link";
 
@@ -53,9 +55,11 @@ export function ListingDetail({ listing }: { listing: Listing }) {
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
 
+
   const images = listing.listing_images || [];
   const amenities = listing.listing_amenities || [];
   const PropertyIcon = propertyIcons[listing.property_type] || Home;
+  const activeTier = getActiveBoostTier(listing);
 
   useEffect(() => {
     if (images.length <= 1) return;
@@ -84,6 +88,7 @@ export function ListingDetail({ listing }: { listing: Listing }) {
     } else {
       toast.success("Inquiry sent successfully!");
       setSent(true);
+      //TODO implement sms notification feature
     }
     setSending(false);
   };
@@ -167,16 +172,22 @@ export function ListingDetail({ listing }: { listing: Listing }) {
               )}
 
               <div className="absolute left-6 top-6 flex flex-col gap-2 z-10">
-                {listing.is_boosted && (
-                  <Badge className="bg-primary text-white border-none font-black uppercase tracking-widest text-[10px] px-3 py-1 shadow-lg backdrop-blur-sm">
-                    <Zap className="h-3 w-3 mr-1 fill-current" />
-                    Priority Choice
-                  </Badge>
-                )}
-                {listing.is_featured && (
+                {activeTier === "featured" && (
                   <Badge className="bg-amber-500 text-white border-none font-black uppercase tracking-widest text-[10px] px-3 py-1 shadow-lg backdrop-blur-sm">
                     <Sparkles className="h-3 w-3 mr-1 fill-current" />
                     Featured
+                  </Badge>
+                )}
+                {activeTier === "premium" && (
+                  <Badge className="bg-violet-600 text-white border-none font-black uppercase tracking-widest text-[10px] px-3 py-1 shadow-lg backdrop-blur-sm">
+                    <Star className="h-3 w-3 mr-1 fill-current" />
+                    Premium
+                  </Badge>
+                )}
+                {activeTier === "quick" && (
+                  <Badge className="bg-cyan-500 text-white border-none font-black uppercase tracking-widest text-[10px] px-3 py-1 shadow-lg backdrop-blur-sm">
+                    <Zap className="h-3 w-3 mr-1 fill-current" />
+                    Top
                   </Badge>
                 )}
               </div>
@@ -491,6 +502,7 @@ export function ListingDetail({ listing }: { listing: Listing }) {
             </div>
           </Card>
         </div>
+
       </div>
     </div>
   );
