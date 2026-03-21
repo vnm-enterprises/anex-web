@@ -37,29 +37,44 @@ export function NewsletterForm() {
 
   if (subscribed) {
     return (
-      <div className="flex flex-col items-center text-center py-4 animate-in fade-in zoom-in duration-500">
-        <div className="h-16 w-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
-          <CheckCircle2 className="h-8 w-8 text-primary animate-bounce" />
-        </div>
-        <h3 className="text-xl font-black text-foreground mb-2">
-          Thank you for subscribing!
-        </h3>
-        <p className="text-sm text-muted-foreground mb-4">
-          You're now on the list for exclusive updates.
-        </p>
-
-        <div className="flex flex-col items-center gap-1 p-4 rounded-2xl bg-muted/50 border border-border">
-          <div className="flex gap-1 mb-1">
-            {[1, 2, 3, 4, 5].map((i) => (
-              <Star key={i} className="h-4 w-4 fill-amber-400 text-amber-400" />
-            ))}
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-in fade-in duration-300">
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="Newsletter subscription success"
+          className="w-full max-w-md rounded-3xl border border-border bg-card/95 shadow-2xl p-6 text-center animate-in zoom-in-95 duration-300"
+        >
+          <div className="h-16 w-16 bg-primary/10 rounded-full flex items-center justify-center mb-4 mx-auto">
+            <CheckCircle2 className="h-8 w-8 text-primary animate-bounce" />
           </div>
-          <p className="text-[10px] font-bold text-foreground italic">
-            "Best rental platform in Sri Lanka!"
+          <h3 className="text-xl font-black text-foreground mb-2">
+            Thank you for subscribing!
+          </h3>
+          <p className="text-sm text-muted-foreground mb-4">
+            You're now on the list for exclusive updates.
           </p>
-          <p className="text-[8px] text-muted-foreground uppercase tracking-widest font-black">
-            — Satisfied Landlord
-          </p>
+
+          <div className="flex flex-col items-center gap-1 p-4 rounded-2xl bg-muted/50 border border-border mb-4">
+            <div className="flex gap-1 mb-1">
+              {[1, 2, 3, 4, 5].map((i) => (
+                <Star key={i} className="h-4 w-4 fill-amber-400 text-amber-400" />
+              ))}
+            </div>
+            <p className="text-[10px] font-bold text-foreground italic">
+              "Best rental platform in Sri Lanka!"
+            </p>
+            <p className="text-[8px] text-muted-foreground uppercase tracking-widest font-black">
+              — Satisfied Landlord
+            </p>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setSubscribed(false)}
+            className="w-full rounded-2xl bg-primary text-primary-foreground font-black py-3 px-4 hover:opacity-90 transition-opacity"
+          >
+            Close
+          </button>
         </div>
       </div>
     );
