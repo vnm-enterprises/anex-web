@@ -56,34 +56,49 @@ export function AdminAnalyticsClient() {
   const [growthData, setGrowthData] = useState<any[]>([]);
   const [categoryData, setCategoryData] = useState<any[]>([]);
   const [districtData, setDistrictData] = useState<any[]>([]);
+  const [paymentMixData, setPaymentMixData] = useState<any[]>([]);
   const [performanceStats, setPerformanceStats] = useState<any>(null);
 
   const fetchAnalytics = async () => {
     setLoading(true);
 
     const thirtyDaysAgo = subDays(new Date(), 30);
-    const startOfTime = new Date(0);
-
-    // 1. Basic Counts & Totals
+    // 1. Core data sources
     const [
       { count: totalUsers },
-      { count: totalListings },
-      { data: paymentsData },
-      { data: listingsData },
-      { data: profilesData },
+      { count: totalListingsAll },
+      { count: activeListingsCount },
+      { data: paymentsLast30d },
+      { data: paymentsAllPaid },
+      { data: listingsDataAll },
+      { data: listingsData30d },
+      { data: profilesData30d },
       { data: districtsData },
     ] = await Promise.all([
       supabase.from("profiles").select("*", { count: "exact", head: true }),
       supabase.from("listings").select("*", { count: "exact", head: true }),
+      supabase
+        .from("listings")
+        .select("*", { count: "exact", head: true })
+        .eq("status", "approved"),
       supabase
         .from("payments")
         .select("amount, created_at, payment_type")
         .eq("status", "paid")
         .gte("created_at", thirtyDaysAgo.toISOString()),
       supabase
+        .from("payments")
+        .select("amount, created_at, payment_type")
+        .eq("status", "paid"),
+      supabase
         .from("listings")
         .select(
-          "id, created_at, property_type, district_id, views_count, inquiries_count, is_boosted",
+          "id, created_at, property_type, district_id, views_count, inquiries_count, boost_weight, status",
+        ),
+      supabase
+        .from("listings")
+        .select(
+          "id, created_at, property_type, district_id, views_count, inquiries_count, boost_weight, status",
         )
         .gte("created_at", thirtyDaysAgo.toISOString()),
       supabase
@@ -93,6 +108,11 @@ export function AdminAnalyticsClient() {
       supabase.from("districts").select("id, name"),
     ]);
 
+    const paid30d = paymentsLast30d ?? [];
+    const paidAll = paymentsAllPaid ?? [];
+    const listingsAll = listingsDataAll ?? [];
+    const listings30d = listingsData30d ?? [];
+
     // 2. Revenue Trend (Last 30 Days)
     const days = eachDayOfInterval({
       start: thirtyDaysAgo,
@@ -101,7 +121,7 @@ export function AdminAnalyticsClient() {
 
     const dailyRevenue = days.map((day) => {
       const dateStr = format(day, "MMM dd");
-      const totalForDay = paymentsData
+      const totalForDay = paid30d
         ?.filter(
           (p) =>
             format(new Date(p.created_at), "yyyy-MM-dd") ===
@@ -118,12 +138,12 @@ export function AdminAnalyticsClient() {
     // 3. Growth Data (Users vs Listings)
     const dailyGrowth = days.map((day) => {
       const dateStr = format(day, "MMM dd");
-      const usersCount = profilesData?.filter(
+      const usersCount = profilesData30d?.filter(
         (p) =>
           format(new Date(p.created_at), "yyyy-MM-dd") ===
           format(day, "yyyy-MM-dd"),
       ).length;
-      const listingsCount = listingsData?.filter(
+      const listingsCount = listings30d?.filter(
         (l) =>
           format(new Date(l.created_at), "yyyy-MM-dd") ===
           format(day, "yyyy-MM-dd"),
@@ -138,7 +158,9 @@ export function AdminAnalyticsClient() {
 
     // 4. Category Distribution
     const categories: Record<string, number> = {};
-    listingsData?.forEach((l) => {
+    listingsAll
+      ?.filter((l) => l.status === "approved")
+      .forEach((l) => {
       categories[l.property_type] = (categories[l.property_type] || 0) + 1;
     });
     const pieData = Object.entries(categories).map(([name, value]) => ({
@@ -148,7 +170,9 @@ export function AdminAnalyticsClient() {
 
     // 5. Regional Distribution (Top Districts)
     const districtCounts: Record<string, number> = {};
-    listingsData?.forEach((l) => {
+    listingsAll
+      ?.filter((l) => l.status === "approved")
+      .forEach((l) => {
       const districtName =
         districtsData?.find((d) => d.id === l.district_id)?.name || "Unknown";
       districtCounts[districtName] = (districtCounts[districtName] || 0) + 1;
@@ -159,8 +183,10 @@ export function AdminAnalyticsClient() {
       .slice(0, 8);
 
     // 6. Performance Insights (Boosted vs Standard)
-    const boostedListings = listingsData?.filter((l) => l.is_boosted) || [];
-    const standardListings = listingsData?.filter((l) => !l.is_boosted) || [];
+    const boostedListings =
+      listingsAll?.filter((l) => l.status === "approved" && (l.boost_weight ?? 0) > 0) || [];
+    const standardListings =
+      listingsAll?.filter((l) => l.status === "approved" && (l.boost_weight ?? 0) === 0) || [];
 
     const avgViewsBoosted =
       boostedListings.length > 0
@@ -188,18 +214,51 @@ export function AdminAnalyticsClient() {
           ) / standardListings.length
         : 0;
 
-    // Total Revenue (Lifetime/Contextual)
-    const { data: allPayments } = await supabase
-      .from("payments")
-      .select("amount")
-      .eq("status", "paid");
-    const totalRevenue =
-      (allPayments?.reduce((sum, p) => sum + p.amount, 0) || 0) / 100;
+    // 7. Revenue + conversion KPIs
+    const totalGrossRevenue =
+      paidAll.reduce((sum, p) => sum + Number(p.amount || 0), 0) / 100;
+    const listingRevenue =
+      paidAll
+        .filter((p) => p.payment_type === "ad_listing")
+        .reduce((sum, p) => sum + Number(p.amount || 0), 0) / 100;
+    const boostRevenue =
+      paidAll
+        .filter((p) => p.payment_type === "boost")
+        .reduce((sum, p) => sum + Number(p.amount || 0), 0) / 100;
+    const paidTransactions = paidAll.length;
+    const avgOrderValue = paidTransactions > 0 ? totalGrossRevenue / paidTransactions : 0;
+
+    const totalViews = listingsAll.reduce(
+      (sum, listing) => sum + Number(listing.views_count || 0),
+      0,
+    );
+    const totalInquiries = listingsAll.reduce(
+      (sum, listing) => sum + Number(listing.inquiries_count || 0),
+      0,
+    );
+    const inquiryRate = totalViews > 0 ? (totalInquiries / totalViews) * 100 : 0;
+
+    const boostCoverage =
+      (activeListingsCount || 0) > 0
+        ? (boostedListings.length / (activeListingsCount || 1)) * 100
+        : 0;
+
+    const paymentMix = [
+      { name: "Listing Fees", value: Number(listingRevenue.toFixed(2)) },
+      { name: "Boost Sales", value: Number(boostRevenue.toFixed(2)) },
+    ];
 
     setStats({
       totalUsers: totalUsers || 0,
-      totalListings: totalListings || 0,
-      totalRevenue,
+      totalListings: totalListingsAll || 0,
+      activeListings: activeListingsCount || 0,
+      totalRevenue: totalGrossRevenue,
+      listingRevenue,
+      boostRevenue,
+      paidTransactions,
+      avgOrderValue,
+      inquiryRate,
+      boostCoverage,
       monthlyRevenue: dailyRevenue.reduce((sum, d) => sum + d.revenue, 0),
     });
 
@@ -207,6 +266,7 @@ export function AdminAnalyticsClient() {
     setGrowthData(dailyGrowth);
     setCategoryData(pieData);
     setDistrictData(barData);
+    setPaymentMixData(paymentMix);
     setPerformanceStats({
       boosted: { views: avgViewsBoosted, inq: avgInqBoosted },
       standard: { views: avgViewsStandard, inq: avgInqStandard },
@@ -249,32 +309,59 @@ export function AdminAnalyticsClient() {
       {/* === TOP METRICS === */}
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
         <MetricCard
-          title="Total Revenue"
+          title="Gross Revenue"
           value={formatPrice(stats.totalRevenue)}
           icon={<DollarSign className="h-5 w-5" />}
-          description="Lifetime earnings"
-          trend="+12%"
+          description="All paid transactions"
+          trend={`${(stats.paidTransactions || 0).toLocaleString()} txns`}
         />
         <MetricCard
           title="Monthly Revenue"
           value={formatPrice(stats.monthlyRevenue)}
           icon={<TrendingUp className="h-5 w-5" />}
           description="Last 30 days"
-          trend="+5.4%"
+          trend={`AOV ${formatPrice(stats.avgOrderValue || 0)}`}
         />
         <MetricCard
           title="Total Members"
           value={stats.totalUsers.toLocaleString()}
           icon={<Users className="h-5 w-5" />}
           description="Active profiles"
-          trend="+28"
+          trend="users"
         />
         <MetricCard
           title="Active Listings"
-          value={stats.totalListings.toLocaleString()}
+          value={(stats.activeListings || 0).toLocaleString()}
           icon={<Home className="h-5 w-5" />}
           description="Approved properties"
-          trend="+14"
+          trend={`${(stats.totalListings || 0).toLocaleString()} total`}
+        />
+      </div>
+
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <MetricCard
+          title="Listing Revenue"
+          value={formatPrice(stats.listingRevenue || 0)}
+          icon={<MessageSquare className="h-5 w-5" />}
+          description="Ad listing payments"
+        />
+        <MetricCard
+          title="Boost Revenue"
+          value={formatPrice(stats.boostRevenue || 0)}
+          icon={<Zap className="h-5 w-5" />}
+          description="Quick/Premium/Featured sales"
+        />
+        <MetricCard
+          title="Inquiry Rate"
+          value={`${Number(stats.inquiryRate || 0).toFixed(2)}%`}
+          icon={<TrendingUp className="h-5 w-5" />}
+          description="Inquiries / total views"
+        />
+        <MetricCard
+          title="Boost Coverage"
+          value={`${Number(stats.boostCoverage || 0).toFixed(1)}%`}
+          icon={<Zap className="h-5 w-5" />}
+          description="Boosted among approved"
         />
       </div>
 
@@ -460,8 +547,44 @@ export function AdminAnalyticsClient() {
           </CardContent>
         </Card>
 
+        {/* === PAYMENT MIX === */}
+        <Card className="border-none soft-shadow-xl overflow-hidden bg-card/50 backdrop-blur-xl rounded-[2.5rem]">
+          <CardHeader className="p-8">
+            <CardTitle className="text-xl font-black tracking-tight flex items-center gap-3">
+              <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-500">
+                <DollarSign size={20} />
+              </div>
+              Revenue Mix
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-8 pt-0 h-[300px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={paymentMixData}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={60}
+                  outerRadius={100}
+                  paddingAngle={5}
+                  dataKey="value"
+                >
+                  {paymentMixData.map((entry, index) => (
+                    <Cell
+                      key={`mix-cell-${index}`}
+                      fill={COLORS[index % COLORS.length]}
+                    />
+                  ))}
+                </Pie>
+                <Tooltip />
+                <Legend wrapperStyle={{ fontSize: 10, fontWeight: 900 }} />
+              </PieChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+
         {/* === TOP DISTRICTS === */}
-        <Card className="border-none soft-shadow-xl overflow-hidden bg-card/50 backdrop-blur-xl rounded-[2.5rem] lg:col-span-2">
+        <Card className="border-none soft-shadow-xl overflow-hidden bg-card/50 backdrop-blur-xl rounded-[2.5rem] lg:col-span-1">
           <CardHeader className="p-8">
             <CardTitle className="text-xl font-black tracking-tight flex items-center gap-3">
               <div className="p-2 rounded-xl bg-indigo-500/10 text-indigo-500">
