@@ -6,6 +6,7 @@ import { formatPrice } from "@/lib/constants";
 import { ListingDetail } from "./listing-detail";
 import { ListingCard } from "@/components/listing-card";
 import type { Listing } from "@/lib/types";
+import { SITE_URL } from "@/lib/seo";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -149,10 +150,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: `${listing.title} | Annex.lk`,
     description,
+    alternates: {
+      canonical: `${SITE_URL}/listings/${slug}`,
+    },
+    robots: {
+      index: true,
+      follow: true,
+    },
     openGraph: {
       title: listing.title,
       description,
-      url: `https://annex.lk/listings/${slug}`,
+      url: `${SITE_URL}/listings/${slug}`,
       siteName: "Annex.lk",
       images: imageUrl
         ? [{ url: imageUrl, width: 1200, height: 630, alt: listing.title }]
@@ -165,9 +173,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title: listing.title,
       description,
       images: imageUrl ? [imageUrl] : [],
-    },
-    alternates: {
-      canonical: `https://annex.lk/listings/${slug}`,
     },
   };
 }
