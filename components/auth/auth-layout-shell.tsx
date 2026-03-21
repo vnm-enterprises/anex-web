@@ -20,8 +20,8 @@ const routeConfigMap: Record<string, RouteConfig> = {
     topPrompt: "New here?",
     topLinkLabel: "Create account",
     topLinkHref: "/auth/sign-up",
-    heroImage: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=2070",
-    heroAlt: "Modern Sri Lankan Apartment",
+    heroImage: "https://images.pexels.com/photos/3184306/pexels-photo-3184306.jpeg?auto=compress&cs=tinysrgb&w=2200",
+    heroAlt: "Professional renter using a laptop",
     heroTitle: "Manage your rentals effortlessly.",
     heroDescription:
       "Access your dashboard, boost listings, track inquiries, and grow your rental presence across Sri Lanka.",
@@ -30,8 +30,8 @@ const routeConfigMap: Record<string, RouteConfig> = {
     topPrompt: "Already a member?",
     topLinkLabel: "Log in",
     topLinkHref: "/auth/login",
-    heroImage: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=2070",
-    heroAlt: "Modern Sri Lankan Apartment",
+    heroImage: "https://images.pexels.com/photos/325185/pexels-photo-325185.jpeg?auto=compress&cs=tinysrgb&w=2200",
+    heroAlt: "Bright modern apartment room",
     heroTitle: "Find your space.",
     heroDescription:
       "Whether you're renting out your annex or searching for your next home, Annex.lk connects verified owners with trusted tenants.",
@@ -40,8 +40,8 @@ const routeConfigMap: Record<string, RouteConfig> = {
     topPrompt: "Remembered your password?",
     topLinkLabel: "Sign in",
     topLinkHref: "/auth/login",
-    heroImage: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=2070",
-    heroAlt: "Modern Sri Lankan Apartment",
+    heroImage: "https://images.pexels.com/photos/267614/pexels-photo-267614.jpeg?auto=compress&cs=tinysrgb&w=2200",
+    heroAlt: "Secure login and password concept",
     heroTitle: "Secure access to your account.",
     heroDescription:
       "We'll send you a secure link so you can reset your password and continue managing your listings.",
@@ -50,15 +50,15 @@ const routeConfigMap: Record<string, RouteConfig> = {
     topPrompt: "Back to",
     topLinkLabel: "Sign in",
     topLinkHref: "/auth/login",
-    heroImage: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=2070",
-    heroAlt: "Modern Sri Lankan Apartment",
+    heroImage: "https://images.pexels.com/photos/374074/pexels-photo-374074.jpeg?auto=compress&cs=tinysrgb&w=2200",
+    heroAlt: "Cyber security lock illustration",
     heroTitle: "Stay secure.",
     heroDescription:
       "A strong password keeps your listings, inquiries, and dashboard safe across Sri Lanka's trusted rental marketplace.",
   },
   "/auth/sign-up-success": {
-    heroImage: "https://images.unsplash.com/photo-1501183638710-841dd1904471?q=80&w=2070",
-    heroAlt: "Modern Apartment",
+    heroImage: "https://images.pexels.com/photos/443383/pexels-photo-443383.jpeg?auto=compress&cs=tinysrgb&w=2200",
+    heroAlt: "Person checking confirmation email",
     heroTitle: "You're almost there.",
     heroDescription:
       "Verify your email to unlock your dashboard and start listing properties or discovering rentals across Sri Lanka.",
@@ -67,8 +67,8 @@ const routeConfigMap: Record<string, RouteConfig> = {
     topPrompt: "Need support?",
     topLinkLabel: "Contact us",
     topLinkHref: "/contact-support",
-    heroImage: "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?q=80&w=2070",
-    heroAlt: "Modern Apartment Interior",
+    heroImage: "https://images.pexels.com/photos/380769/pexels-photo-380769.jpeg?auto=compress&cs=tinysrgb&w=2200",
+    heroAlt: "Support specialist assisting a user",
     heroTitle: "Let's get you back on track.",
     heroDescription:
       "Authentication issues are usually temporary. Try signing in again or return home to continue browsing listings.",
@@ -76,8 +76,8 @@ const routeConfigMap: Record<string, RouteConfig> = {
 };
 
 const fallbackConfig: RouteConfig = {
-  heroImage: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=2070",
-  heroAlt: "Modern Sri Lankan Apartment",
+  heroImage: "https://images.pexels.com/photos/1643383/pexels-photo-1643383.jpeg?auto=compress&cs=tinysrgb&w=2200",
+  heroAlt: "Rental property interior",
   heroTitle: "Welcome to Annex.lk",
   heroDescription: "Find and manage rentals with confidence.",
 };
