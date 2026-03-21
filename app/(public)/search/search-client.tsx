@@ -34,6 +34,11 @@ export function SearchClient() {
   const searchParams = useSearchParams()
   const router = useRouter()
 
+  const getSafePage = () => {
+    const parsed = Number(searchParams.get("page") || "1")
+    return Number.isFinite(parsed) && parsed > 0 ? Math.floor(parsed) : 1
+  }
+
   const [keyword, setKeyword] = useState(searchParams.get("q") || "")
   const [district, setDistrict] = useState(searchParams.get("district") || "")
   const [city, setCity] = useState(searchParams.get("city") || "")
@@ -49,7 +54,7 @@ export function SearchClient() {
     Number(searchParams.get("maxPrice")) || 200000,
   ])
   const [sort, setSort] = useState(searchParams.get("sort") || "featured")
-  const [page, setPage] = useState(Number(searchParams.get("page")) || 1)
+  const [page, setPage] = useState(getSafePage())
   const debouncedKeyword = useDebounce(keyword, 450)
 
   const searchFilters = useMemo(
@@ -67,11 +72,11 @@ export function SearchClient() {
     [debouncedKeyword, district, city, propertyType, furnished, gender, priceRange, sort, page],
   )
 
-  const { districts, cities, listings, totalCount, loading } = useSearchHook(searchFilters)
+  const { districts, cities, listings, totalCount, loading, error } = useSearchHook(searchFilters)
 
-  const updateUrl = () => {
+  const updateUrl = (targetPage = page) => {
     const params = new URLSearchParams()
-    if (keyword) params.set("q", keyword)
+    if (keyword.trim()) params.set("q", keyword.trim())
     if (district) params.set("district", district)
     if (city) params.set("city", city)
     if (propertyType) params.set("type", propertyType)
@@ -80,18 +85,19 @@ export function SearchClient() {
     if (priceRange[0] > 0) params.set("minPrice", String(priceRange[0]))
     if (priceRange[1] < 200000) params.set("maxPrice", String(priceRange[1]))
     if (sort !== "featured") params.set("sort", sort)
+    if (targetPage > 1) params.set("page", String(targetPage))
     router.replace(`/search?${params.toString()}`, { scroll: false })
   }
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
     setPage(1)
-    updateUrl()
+    updateUrl(1)
   }
 
   const applyFilters = () => {
     setPage(1)
-    updateUrl()
+    updateUrl(1)
   }
 
   const clearFilters = () => {
@@ -170,7 +176,7 @@ export function SearchClient() {
         </div>
 
         <div className="flex items-center gap-3">
-           <Select value={sort} onValueChange={(v) => { setSort(v); setPage(1) }}>
+           <Select value={sort} onValueChange={(v) => { setSort(v); setPage(1); updateUrl(1) }}>
             <SelectTrigger className="w-48 h-12 rounded-2xl border-border bg-card hidden md:flex font-bold">
               <SelectValue />
             </SelectTrigger>
@@ -238,10 +244,14 @@ export function SearchClient() {
         <div className="flex-1">
           <SearchResults
             loading={loading}
+            error={error}
             listings={listings}
             page={page}
             totalPages={totalPages}
-            onPageChange={setPage}
+            onPageChange={(nextPage) => {
+              setPage(nextPage)
+              updateUrl(nextPage)
+            }}
             onClearFilters={clearFilters}
           />
         </div>
