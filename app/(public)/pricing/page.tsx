@@ -1,12 +1,15 @@
 import type { Metadata } from "next"
 import { CheckCircle, Sparkles, Rocket, TrendingUp, Zap } from "lucide-react"
 import { PostAdButton } from "@/components/home/post-ad-button"
+import { buildPageMetadata } from "@/lib/seo"
 
-export const metadata: Metadata = {
-  title: "Simple Pricing | Annex.lk",
+export const metadata: Metadata = buildPageMetadata({
+  title: "Simple Pricing",
   description:
     "Post 3 listings free. After that, pay per listing and optionally boost for stronger visibility.",
-}
+  path: "/pricing",
+  keywords: ["listing pricing", "boost pricing", "Annex.lk pricing"],
+})
 
 interface BoostPlan {
   title: string

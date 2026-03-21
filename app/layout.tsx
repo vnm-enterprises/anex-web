@@ -12,6 +12,7 @@ const spaceGrotesk = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://annex.lk"),
   title: {
     default: "Annex.lk - Find Your Perfect Rental in Sri Lanka",
     template: "%s | Annex.lk",
@@ -33,6 +34,32 @@ export const metadata: Metadata = {
     title: "Annex.lk - Find Your Perfect Rental in Sri Lanka",
     description:
       "Sri Lanka's premier rental marketplace for annexes, boarding places, apartments, and houses.",
+    images: [
+      {
+        url: "/media/images/og-default.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Annex.lk rental marketplace",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Annex.lk - Find Your Perfect Rental in Sri Lanka",
+    description:
+      "Sri Lanka's premier rental marketplace for annexes, boarding places, apartments, and houses.",
+    images: ["/media/images/og-default.jpg"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-video-preview": -1,
+      "max-snippet": -1,
+    },
   },
 };
 

@@ -1,5 +1,6 @@
 import { MetadataRoute } from "next";
 import { createClient } from "@/lib/supabase/server";
+import { BLOG_POSTS } from "@/lib/blog-posts";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const supabase = await createClient();
@@ -36,5 +37,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.6,
   }));
 
-  return [...staticRoutes, ...dynamicRoutes];
+  const blogRoutes = BLOG_POSTS.map((post) => ({
+    url: `${baseUrl}/blog/${post.slug}`,
+    lastModified: new Date().toISOString(),
+    changeFrequency: "monthly" as const,
+    priority: 0.7,
+  }));
+
+  return [...staticRoutes, ...dynamicRoutes, ...blogRoutes];
 }
