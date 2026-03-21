@@ -12,8 +12,15 @@ export default function ContactPage() {
   return (
     <main className="bg-background">
       {/* ================= HERO ================= */}
-      <section className="relative pt-32 pb-20 bg-primary/5">
-        <div className="max-w-7xl mx-auto px-6 text-center">
+      <section className="relative pt-32 pb-20 overflow-hidden">
+        <img
+          src="https://images.pexels.com/photos/3184465/pexels-photo-3184465.jpeg?auto=compress&cs=tinysrgb&w=2200"
+          alt="Customer support team helping clients"
+          className="absolute inset-0 h-full w-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-background/45 via-background/30 to-background/70" />
+
+        <div className="relative max-w-7xl mx-auto px-6 text-center">
           <span className="inline-block py-1 px-4 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] font-black uppercase tracking-widest mb-6">
             Get In Touch
           </span>

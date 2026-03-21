@@ -91,12 +91,16 @@ const fetchProminentDistricts = async (): Promise<DistrictWithCount[]> => {
 
 const fetchFeaturedListings = async (): Promise<Listing[]> => {
   const supabase = createClient();
+  const nowIso = new Date().toISOString();
+
   let { data, error } = await supabase
     .from("listings")
     .select(LISTING_SELECT)
     .eq("status", "approved")
-    .eq("is_boosted", true)
+    .gt("boost_weight", 0)
+    .or(`boost_expires_at.is.null,boost_expires_at.gt.${nowIso}`)
     .order("boost_weight", { ascending: false })
+    .order("boost_expires_at", { ascending: false, nullsFirst: false })
     .order("created_at", { ascending: false })
     .limit(6);
 

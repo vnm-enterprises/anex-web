@@ -104,7 +104,7 @@ export async function sendJobApplicationEmail({
       `,
     });
 
-   
+
 
     if (error) return { success: false, error };
     return { success: true, data };
@@ -113,6 +113,7 @@ export async function sendJobApplicationEmail({
   }
 }
 
+//TODO correctly register the domain at send grid and retest
 export async function sendContactInquiryEmail({
   name,
   email,
