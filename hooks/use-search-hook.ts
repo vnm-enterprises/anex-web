@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { createClient } from "@/lib/supabase/client";
 import { ITEMS_PER_PAGE } from "@/lib/constants";
@@ -26,17 +26,28 @@ interface UseSearchHookResult {
   loading: boolean;
 }
 
-const LISTING_SELECT = "*, districts(*), cities(*), listing_images(*)";
+type MarketplaceSearchRow = {
+  listing: Listing;
+  total_count: number;
+};
 
 /**
- * Handles all search page data fetching and filtering queries.
+ * Production-ready marketplace search hook.
+ *
+ * Architecture:
+ * 1) Uses one ranked PostgreSQL RPC call for featured-first pagination.
+ * 2) Applies filters server-side to keep data transfer small.
+ * 3) Handles page overflow safely without breaking UX.
+ * 4) Reuses a stable Supabase client instance.
  */
 export function useSearchHook(filters: SearchFilters): UseSearchHookResult {
+  const supabase = useMemo(() => createClient(), []);
   const [districts, setDistricts] = useState<District[]>([]);
   const [cities, setCities] = useState<City[]>([]);
   const [listings, setListings] = useState<Listing[]>([]);
   const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(true);
+  const requestIdRef = useRef(0);
 
   const selectedDistrictId = useMemo(() => {
     return districts.find((item) => item.slug === filters.district)?.id;
@@ -48,13 +59,12 @@ export function useSearchHook(filters: SearchFilters): UseSearchHookResult {
 
   useEffect(() => {
     async function loadDistricts() {
-      const supabase = createClient();
       const { data } = await supabase.from("districts").select("*").order("name");
       if (data) setDistricts(data);
     }
 
     loadDistricts();
-  }, []);
+  }, [supabase]);
 
   useEffect(() => {
     if (!filters.district) {
@@ -64,7 +74,6 @@ export function useSearchHook(filters: SearchFilters): UseSearchHookResult {
 
     async function loadCities() {
       if (!selectedDistrictId) return;
-      const supabase = createClient();
       const { data } = await supabase
         .from("cities")
         .select("*")
@@ -75,70 +84,79 @@ export function useSearchHook(filters: SearchFilters): UseSearchHookResult {
     }
 
     loadCities();
-  }, [filters.district, selectedDistrictId]);
+  }, [filters.district, selectedDistrictId, supabase]);
 
   const fetchListings = useCallback(async () => {
+    const currentRequestId = ++requestIdRef.current;
     setLoading(true);
-    const supabase = createClient();
 
-    let query = supabase
-      .from("listings")
-      .select(LISTING_SELECT, { count: "exact" })
-      .eq("status", "approved");
+    try {
+      const safePage = Math.max(filters.page, 1);
 
-    if (filters.keyword) {
-      query = query.textSearch("search_vector", filters.keyword, {
-        type: "websearch",
-        config: "english",
-      });
+      const { data: rankedRows, error: rankedError } = await supabase.rpc(
+        "search_marketplace_listings",
+        {
+          p_keyword: filters.keyword || null,
+          p_district_id: selectedDistrictId || null,
+          p_city_id: selectedCityId || null,
+          p_property_type: filters.propertyType || null,
+          p_furnished: filters.furnished || null,
+          p_gender: filters.gender || null,
+          p_min_price: filters.priceRange[0] > 0 ? filters.priceRange[0] : null,
+          p_max_price: filters.priceRange[1] < 200000 ? filters.priceRange[1] : null,
+          p_sort: filters.sort || "featured",
+          p_page: safePage,
+          p_per_page: ITEMS_PER_PAGE,
+        },
+      );
+
+      if (rankedError) throw rankedError;
+
+      const rows = (rankedRows as MarketplaceSearchRow[] | null) ?? [];
+
+      if (currentRequestId !== requestIdRef.current) return;
+
+      if (rows.length > 0) {
+        setListings(rows.map((row) => row.listing));
+        setTotalCount(Number(rows[0].total_count || 0));
+        return;
+      }
+
+      // Page overflow fallback: keep total count accurate even when requested page has no rows.
+      let countQuery = supabase
+        .from("listings")
+        .select("id", { count: "exact", head: true })
+        .eq("status", "approved");
+
+      if (filters.keyword) {
+        countQuery = countQuery.or(
+          `title.ilike.%${filters.keyword}%,description.ilike.%${filters.keyword}%`,
+        );
+      }
+
+      if (selectedDistrictId) countQuery = countQuery.eq("district_id", selectedDistrictId);
+      if (selectedCityId) countQuery = countQuery.eq("city_id", selectedCityId);
+      if (filters.propertyType) countQuery = countQuery.eq("property_type", filters.propertyType);
+      if (filters.furnished) countQuery = countQuery.eq("furnished", filters.furnished);
+      if (filters.gender && filters.gender !== "any") {
+        countQuery = countQuery.eq("gender_preference", filters.gender);
+      }
+      if (filters.priceRange[0] > 0) countQuery = countQuery.gte("price", filters.priceRange[0]);
+      if (filters.priceRange[1] < 200000) countQuery = countQuery.lte("price", filters.priceRange[1]);
+
+      const { count } = await countQuery;
+
+      if (currentRequestId !== requestIdRef.current) return;
+
+      setListings([]);
+      setTotalCount(count ?? 0);
+    } finally {
+      if (currentRequestId === requestIdRef.current) {
+        setLoading(false);
+      }
     }
-
-    if (selectedDistrictId) {
-      query = query.eq("district_id", selectedDistrictId);
-    }
-
-    if (selectedCityId) {
-      query = query.eq("city_id", selectedCityId);
-    }
-
-    if (filters.propertyType) query = query.eq("property_type", filters.propertyType);
-    if (filters.furnished) query = query.eq("furnished", filters.furnished);
-    if (filters.gender && filters.gender !== "any") {
-      query = query.eq("gender_preference", filters.gender);
-    }
-    if (filters.priceRange[0] > 0) query = query.gte("price", filters.priceRange[0]);
-    if (filters.priceRange[1] < 200000) query = query.lte("price", filters.priceRange[1]);
-
-    switch (filters.sort) {
-      case "newest":
-        query = query.order("created_at", { ascending: false });
-        break;
-      case "price_asc":
-        query = query.order("price", { ascending: true });
-        break;
-      case "price_desc":
-        query = query.order("price", { ascending: false });
-        break;
-      case "views":
-        query = query.order("views_count", { ascending: false });
-        break;
-      case "featured":
-      default:
-        query = query
-          .order("is_featured", { ascending: false })
-          .order("is_boosted", { ascending: false })
-          .order("created_at", { ascending: false });
-        break;
-    }
-
-    const from = (filters.page - 1) * ITEMS_PER_PAGE;
-    const to = from + ITEMS_PER_PAGE - 1;
-    const { data, count } = await query.range(from, to);
-
-    if (data) setListings(data as Listing[]);
-    if (count !== null) setTotalCount(count);
-    setLoading(false);
   }, [
+    supabase,
     filters.keyword,
     filters.propertyType,
     filters.furnished,
@@ -151,10 +169,11 @@ export function useSearchHook(filters: SearchFilters): UseSearchHookResult {
   ]);
 
   useEffect(() => {
-    if (districts.length > 0 || !filters.district) {
+    const canQueryListings = !filters.district || Boolean(selectedDistrictId);
+    if (canQueryListings) {
       fetchListings();
     }
-  }, [fetchListings, districts.length, filters.district]);
+  }, [fetchListings, filters.district, selectedDistrictId]);
 
   return {
     districts,
