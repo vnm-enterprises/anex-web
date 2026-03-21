@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import {
   Mail,
   Phone,
@@ -7,6 +8,15 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { ContactForm } from "@/components/contact-form";
+import { buildPageMetadata } from "@/lib/seo";
+
+export const metadata: Metadata = buildPageMetadata({
+  title: "Contact Annex.lk Support",
+  description:
+    "Get help with listings, payments, account issues, and platform safety from the Annex.lk support team.",
+  path: "/contact-support",
+  keywords: ["Annex.lk support", "contact rental support", "Sri Lanka rental help"],
+});
 
 export default function ContactPage() {
   return (
