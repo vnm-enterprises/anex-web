@@ -88,7 +88,7 @@ export function useAuthHook() {
           full_name: fullName,
           phone: phone.trim(),
           referred_by_code: referredByCode?.trim() || null,
-          referredById: referredById,
+          referred_by_id: referredById,
         },
       },
     });
