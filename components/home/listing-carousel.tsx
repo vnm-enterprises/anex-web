@@ -32,7 +32,7 @@ export function ListingCarousel({
       }}
       plugins={[
         Autoplay({
-          delay: 4000,
+          delay: 1000,
           stopOnInteraction: true,
         }),
       ]}
