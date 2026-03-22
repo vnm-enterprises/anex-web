@@ -99,7 +99,7 @@ export default function BlogPageClient() {
         <div className="absolute inset-0 bg-background/75 backdrop-blur-[2px]" />
         <div className="max-w-7xl mx-auto px-6">
           <span className="relative inline-block py-1 px-4 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] font-black uppercase tracking-widest mb-6">
-            Annex Insights
+            RENTR Insights
           </span>
           <h1 className="relative text-4xl md:text-7xl font-black text-foreground tracking-tighter mb-8 max-w-4xl">
             Everything you need to know about{" "}
