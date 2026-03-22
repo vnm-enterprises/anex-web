@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { unstable_noStore as noStore } from "next/cache";
 import { redirect } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -17,6 +18,7 @@ import Link from "next/link";
 import { DashboardListingsClient } from "./listings-client";
 
 export default async function DashboardListingsPage() {
+  noStore();
   const supabase = await createClient();
   const {
     data: { user },
