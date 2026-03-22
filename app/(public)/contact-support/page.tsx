@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import {
   Mail,
   Phone,
@@ -23,9 +24,12 @@ export default function ContactPage() {
     <main className="bg-background">
       {/* ================= HERO ================= */}
       <section className="relative pt-32 pb-20 overflow-hidden">
-        <img
+        <Image
           src="https://images.pexels.com/photos/3184339/pexels-photo-3184339.jpeg?auto=compress&cs=tinysrgb&w=2200"
           alt="Customer support team helping clients"
+          fill
+          priority
+          sizes="100vw"
           className="absolute inset-0 h-full w-full object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black/45 via-slate-900/30 to-black/60" />
