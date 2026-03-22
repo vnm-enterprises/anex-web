@@ -18,6 +18,7 @@ import {
   FURNISHED_OPTIONS,
   GENDER_OPTIONS,
   formatPrice,
+  SEARCH_PRICE_MAX,
 } from "@/lib/constants";
 import type { City, District } from "@/lib/types";
 
@@ -130,11 +131,11 @@ export function SearchFilters(props: SearchFiltersProps) {
 
       <div>
         <Label className="mb-2 block text-sm font-medium">
-          Price Range: {formatPrice(props.priceRange[0])} - {formatPrice(props.priceRange[1])}
+          Price Range: {formatPrice(props.priceRange[0])} - {props.priceRange[1] >= SEARCH_PRICE_MAX ? `${formatPrice(SEARCH_PRICE_MAX)}+` : formatPrice(props.priceRange[1])}
         </Label>
         <Slider
           min={0}
-          max={200000}
+          max={SEARCH_PRICE_MAX}
           step={5000}
           value={props.priceRange}
           onValueChange={(value) => props.onPriceRangeChange(value as [number, number])}
