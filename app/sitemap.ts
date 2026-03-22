@@ -11,7 +11,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     .select("slug, updated_at")
     .eq("status", "approved");
 
-  const baseUrl = "https://annex.lk";
+  const baseUrl = "https://rentr.lk";
 
   const staticRoutes = [
     "",
