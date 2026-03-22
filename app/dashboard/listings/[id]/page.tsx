@@ -15,6 +15,9 @@ import {
   ArrowLeft,
 } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
+import { unstable_noStore as noStore } from "next/cache";
+import { revalidatePath } from "next/cache";
 import { formatPrice, formatDate } from "@/lib/constants";
 
 /* ================= PAGE ================= */
@@ -24,6 +27,7 @@ export default async function DashboardListingPage({
 }: {
   params: { id: string };
 }) {
+  noStore();
   const supabase = await createClient();
   const { id } = await params;
 
@@ -82,6 +86,9 @@ export default async function DashboardListingPage({
       .from("inquiries")
       .update({ is_read: true })
       .eq("id", inquiryId);
+
+    revalidatePath(`/dashboard/listings/${id}`);
+    revalidatePath("/dashboard");
   }
 
   const statusColor = {
@@ -154,17 +161,23 @@ export default async function DashboardListingPage({
           {listing.listing_images?.length > 0 && (
             <div className="space-y-4">
               <div className="rounded-2xl overflow-hidden border shadow-sm">
-                <img
+                <Image
                   src={listing.listing_images[0].url}
+                  alt={listing.title}
+                  width={1200}
+                  height={420}
                   className="w-full h-[420px] object-cover"
                 />
               </div>
 
               <div className="grid grid-cols-4 gap-4">
                 {listing.listing_images.slice(1).map((img: any) => (
-                  <img
+                  <Image
                     key={img.id}
                     src={img.url}
+                    alt={listing.title}
+                    width={240}
+                    height={96}
                     className="rounded-xl border object-cover h-24 w-full"
                   />
                 ))}
