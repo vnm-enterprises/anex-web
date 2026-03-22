@@ -24,20 +24,22 @@ export default function ContactPage() {
       {/* ================= HERO ================= */}
       <section className="relative pt-32 pb-20 overflow-hidden">
         <img
-          src="https://images.pexels.com/photos/3184465/pexels-photo-3184465.jpeg?auto=compress&cs=tinysrgb&w=2200"
+          src="https://images.pexels.com/photos/3184339/pexels-photo-3184339.jpeg?auto=compress&cs=tinysrgb&w=2200"
           alt="Customer support team helping clients"
           className="absolute inset-0 h-full w-full object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-background/55 via-background/35 to-background/75" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/45 via-slate-900/30 to-black/60" />
+        <div className="absolute -top-24 -right-10 h-72 w-72 rounded-full bg-primary/20 blur-3xl" />
+        <div className="absolute -bottom-24 -left-10 h-72 w-72 rounded-full bg-accent/20 blur-3xl" />
 
         <div className="relative max-w-7xl mx-auto px-6 text-center">
           <span className="inline-block py-1 px-4 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] font-black uppercase tracking-widest mb-6">
             Get In Touch
           </span>
-          <h1 className="text-4xl md:text-6xl font-black text-foreground tracking-tighter mb-6">
+          <h1 className="text-4xl md:text-6xl font-black text-white tracking-tighter mb-6">
             We're Here to <span className="text-primary italic">Help You</span>.
           </h1>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto font-medium">
+          <p className="text-lg text-white/85 max-w-2xl mx-auto font-medium">
             Have questions about a listing, payments, or our platform? Our
             specialized support team is ready to assist you.
           </p>

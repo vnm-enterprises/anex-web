@@ -161,8 +161,11 @@ export function SearchClient() {
 
   return (
     <div className="mx-auto max-w-7xl px-6 py-12 lg:px-8 mt-16 animate-fade-in">
-      <div className="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
-        <div>
+      <div className="relative overflow-hidden mb-10 rounded-[2.5rem] border border-border/60 bg-gradient-to-br from-card via-muted/25 to-accent/10 p-8 md:p-12 soft-shadow">
+        <div className="pointer-events-none absolute -top-20 -right-16 h-56 w-56 rounded-full bg-primary/10 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-20 -left-16 h-56 w-56 rounded-full bg-accent/15 blur-3xl" />
+        <div className="relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
+          <div>
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] font-black uppercase tracking-widest mb-3">
              <Search className="h-3 w-3" />
              Property Search
@@ -170,12 +173,12 @@ export function SearchClient() {
           <h1 className="text-4xl md:text-5xl font-black text-foreground tracking-tighter">
             Find your <span className="text-primary italic">Perfect Place</span>
           </h1>
-          <p className="mt-2 text-muted-foreground font-medium">
+          <p className="mt-3 text-muted-foreground font-medium max-w-2xl">
              {totalCount} {totalCount === 1 ? "property" : "properties"} available for rent
           </p>
-        </div>
+          </div>
 
-        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3">
            <Select value={sort} onValueChange={(v) => { setSort(v); setPage(1); updateUrl(1) }}>
             <SelectTrigger className="w-48 h-12 rounded-2xl border-border bg-card hidden md:flex font-bold">
               <SelectValue />
@@ -203,6 +206,7 @@ export function SearchClient() {
               <div className="pb-10 overflow-y-auto h-full">{filterContent}</div>
             </SheetContent>
           </Sheet>
+          </div>
         </div>
       </div>
 
@@ -232,7 +236,7 @@ export function SearchClient() {
 
       <div className="flex flex-col lg:flex-row gap-10">
         <aside className="hidden w-80 shrink-0 lg:block">
-          <div className="sticky top-24 rounded-[2.5rem] border border-border/50 bg-card p-8 soft-shadow">
+          <div className="sticky top-24 rounded-[2.5rem] border border-border/50 bg-gradient-to-br from-card to-muted/15 p-8 soft-shadow">
             <h3 className="mb-8 font-black text-xl tracking-tighter text-foreground flex items-center gap-2">
               <SlidersHorizontal className="h-5 w-5 text-primary" />
               Advanced Filters
@@ -241,7 +245,7 @@ export function SearchClient() {
           </div>
         </aside>
 
-        <div className="flex-1">
+        <div className="">
           <SearchResults
             loading={loading}
             error={error}

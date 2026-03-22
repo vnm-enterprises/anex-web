@@ -22,7 +22,7 @@ export function ListingCard({ listing }: { listing: Listing }) {
   const isPriority = activeTier !== null;
 
   return (
-    <div className="group relative flex flex-col h-full overflow-hidden rounded-[2.25rem] border border-border/50 bg-card transition-all duration-700 soft-shadow hover:shadow-2xl hover:-translate-y-2">
+    <div className="group relative flex flex-col h-full overflow-hidden rounded-[2.25rem] border border-border/50 bg-card transition-all duration-700 soft-shadow hover:shadow-2xl ">
       {/* Image Section */}
       <div className="relative aspect-[4/3] overflow-hidden">
         {mainImage ? (
@@ -46,19 +46,19 @@ export function ListingCard({ listing }: { listing: Listing }) {
         {/* Badges */}
         <div className="absolute top-5 left-5 flex flex-col gap-2">
           {activeTier === "featured" && (
-            <Badge className="bg-primary text-white border-none font-black uppercase tracking-widest text-[9px] px-3 py-1.5 shadow-xl backdrop-blur-md">
+            <Badge className="bg-amber-500 text-white border-none font-black uppercase tracking-widest text-[9px] px-3 py-1.5 shadow-xl backdrop-blur-md">
               <Sparkles className="h-3 w-3 mr-1 fill-current" />
               Featured
             </Badge>
           )}
           {activeTier === "premium" && (
-            <Badge className="bg-accent text-white border-none font-black uppercase tracking-widest text-[9px] px-3 py-1.5 shadow-xl backdrop-blur-md">
+            <Badge className="bg-sky-600 text-white border-none font-black uppercase tracking-widest text-[9px] px-3 py-1.5 shadow-xl backdrop-blur-md">
               <Star className="h-3 w-3 mr-1 fill-current" />
               Premium
             </Badge>
           )}
           {activeTier === "quick" && (
-            <Badge className="bg-accent text-white border-none font-black uppercase tracking-widest text-[9px] px-3 py-1.5 shadow-xl backdrop-blur-md">
+            <Badge className="bg-slate-700 text-white border-none font-black uppercase tracking-widest text-[9px] px-3 py-1.5 shadow-xl backdrop-blur-md">
               <Zap className="h-3 w-3 mr-1 fill-current" />
               Top
             </Badge>

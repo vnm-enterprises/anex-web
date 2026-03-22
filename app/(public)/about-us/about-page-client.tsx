@@ -43,21 +43,21 @@ export default function AboutPageClient() {
       <section className="relative min-h-[600px] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0">
           <img
-            src="https://images.pexels.com/photos/259588/pexels-photo-259588.jpeg?auto=compress&cs=tinysrgb&w=2200"
+            src="https://images.pexels.com/photos/186077/pexels-photo-186077.jpeg?auto=compress&cs=tinysrgb&w=2200"
             className="w-full h-full object-cover"
             alt="Modern Sri Lanka urban skyline"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-primary/35 to-black/80" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-slate-900/70 to-black/80" />
         </div>
 
         <div className="relative z-10 max-w-4xl mx-auto px-6 text-center">
-          <span className="inline-block py-1 px-4 rounded-full bg-primary/20 border border-primary/30 text-primary text-sm font-semibold mb-6 uppercase tracking-wider">
+          <span className="inline-block py-1 px-4 rounded-full bg-primary/20 border border-primary/30 text-accent text-sm font-semibold mb-6 uppercase tracking-wider">
             Our Story
           </span>
 
           <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight">
             Building Sri Lanka's <br />
-            <span className="text-primary">Rental Future</span>.
+            <span className="text-accent/90">Rental Future</span>.
           </h1>
 
           <p className="text-lg text-slate-200 mb-10 max-w-2xl mx-auto">
@@ -100,7 +100,7 @@ export default function AboutPageClient() {
         <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-16 items-center">
           <div>
             <img
-              src="https://images.pexels.com/photos/1571458/pexels-photo-1571458.jpeg?auto=compress&cs=tinysrgb&w=1600"
+              src="https://images.pexels.com/photos/1571463/pexels-photo-1571463.jpeg?auto=compress&cs=tinysrgb&w=1600"
               className="rounded-2xl shadow-2xl h-[500px] w-full object-cover"
               alt="Modern home interior"
             />
@@ -228,7 +228,9 @@ export default function AboutPageClient() {
         </div>
       </section>
 
-      <section className="py-24 bg-primary/5 border-t border-border/40">
+      <section className="relative overflow-hidden py-24 bg-gradient-to-b from-muted/30 via-card to-background border-t border-border/40">
+        <div className="pointer-events-none absolute -top-20 -left-12 h-72 w-72 rounded-full bg-primary/10 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-24 -right-12 h-72 w-72 rounded-full bg-accent/10 blur-3xl" />
         <div className="max-w-5xl mx-auto px-6 text-center">
           <h2 className="text-4xl font-bold mb-6">Why RENTR?</h2>
           <p className="text-lg text-slate-600 dark:text-slate-400 mb-12 max-w-3xl mx-auto">
@@ -256,7 +258,7 @@ export default function AboutPageClient() {
             ].map((item) => (
               <div
                 key={item.title}
-                className="bg-white dark:bg-slate-800 rounded-xl p-6 border"
+                className="bg-card rounded-2xl p-7 border border-border/60 soft-shadow"
               >
                 <item.icon className="text-primary mb-4" size={28} />
                 <h3 className="font-bold text-lg mb-2">{item.title}</h3>

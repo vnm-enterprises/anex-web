@@ -12,10 +12,14 @@ export function FeaturedListings() {
   if (!isFeaturedListingsLoading && featuredListings.length === 0) return null;
 
   return (
-    <section className="animate-fade-in [animation-delay:600ms] ">
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+    <section className="relative">
+
+      <div className="pointer-events-none absolute -top-20 -right-16 h-64 w-64 rounded-full bg-primary/10 blur-3xl" />
+      <div className="pointer-events-none absolute -bottom-20 -left-16 h-64 w-64 rounded-full bg-accent/10 blur-3xl" />
+            <div className="pointer-events-none absolute -bottom-20 -right-16 h-64 w-64 rounded-full bg-accent/10 blur-3xl" />
+      <div className="relative flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] font-black uppercase tracking-widest">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] font-black uppercase tracking-widest shadow-sm">
             <Heart className="h-3 w-3 fill-current" />
             Featured Listings
           </div>
@@ -29,7 +33,7 @@ export function FeaturedListings() {
         <Button
           variant="ghost"
           asChild
-          className="group font-black text-primary uppercase tracking-widest hover:bg-primary/5"
+          className="group font-black text-primary uppercase tracking-widest hover:bg-primary/10 rounded-2xl"
         >
           <Link href="/search?sort=featured">
             Explore All
@@ -39,7 +43,7 @@ export function FeaturedListings() {
       </div>
 
       {isFeaturedListingsLoading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="relative grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {[1, 2, 3].map((item) => (
             <div
               key={item}
@@ -48,7 +52,9 @@ export function FeaturedListings() {
           ))}
         </div>
       ) : (
-        <ListingCarousel listings={featuredListings} accentColor="primary" />
+        <div className="relative mx-2">
+          <ListingCarousel listings={featuredListings} accentColor="primary" />
+        </div>
       )}
 
       {/* Modern Empty State within section if no boosted listings (though we return null above) */}

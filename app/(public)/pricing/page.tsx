@@ -55,24 +55,25 @@ export default function PricingPage() {
       {/* ================= HERO ================= */}
       <section className="relative overflow-hidden py-28">
         <img
-          src="https://images.pexels.com/photos/439391/pexels-photo-439391.jpeg?auto=compress&cs=tinysrgb&w=2200"
+          src="https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg?auto=compress&cs=tinysrgb&w=2200"
           alt="Modern apartment exterior"
           className="absolute inset-0 h-full w-full object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/75 via-primary/35 to-black/35" />
+  <div className="absolute inset-0 bg-gradient-to-b from-slate-950/70 via-slate-900/62 to-black/68" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_35%,rgba(2,6,23,0.28)_100%)]" />
         <div className="absolute -top-20 right-10 h-72 w-72 rounded-full bg-primary/20 blur-3xl" />
         <div className="absolute -bottom-20 left-10 h-72 w-72 rounded-full bg-accent/15 blur-3xl" />
 
         <div className="relative z-10 mx-auto max-w-4xl px-6 text-center">
-          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/15 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-primary">
+          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/35 bg-black/35 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-white/90 backdrop-blur-sm">
             Marketplace Pricing
           </div>
-          <h1 className="mb-8 text-5xl font-black leading-none tracking-tighter text-white md:text-7xl">
-            Post 3 Listings <span className="text-primary italic">Free</span>.
+          <h1 className="mb-8 text-5xl font-black leading-none tracking-tighter text-white md:text-7xl drop-shadow-[0_4px_18px_rgba(0,0,0,0.45)]">
+            Post 3 Listings <span className="text-accent italic">Free</span>.
             <br />
-            Scale with <span className="text-primary italic">Pay-Per-Listing</span>.
+            Scale with <span className="text-accent italic">Pay-Per-Listing</span>.
           </h1>
-          <p className="mx-auto mt-6 max-w-2xl text-xl font-medium text-white/85">
+          <p className="mx-auto mt-6 max-w-2xl text-xl font-medium text-white">
             No subscription tiers. No fake enterprise complexity. You only pay when you post beyond your free quota or choose to boost visibility.
           </p>
         </div>
@@ -184,15 +185,17 @@ export default function PricingPage() {
 
 function BoostCard({ plan }: { plan: BoostPlan }) {
   const Icon = plan.icon
+  const isStarter = plan.title === "Starter Boost"
+  const isGrowth = plan.title === "Growth Boost"
 
   return (
     <div
       className={`group relative flex flex-col rounded-[2.5rem] border p-8 soft-shadow transition-all duration-300 hover:shadow-2xl ${
-        plan.featured ? "border-primary/50 bg-primary/5 ring-4 ring-primary/10" : "border-border/50 bg-card"
+        plan.featured ? "border-amber-500/50 bg-amber-500/5 ring-4 ring-amber-500/10" : "border-border/50 bg-card"
       }`}
     >
       {plan.featured && (
-        <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-primary text-white text-[10px] font-black uppercase tracking-widest shadow-lg">
+        <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-amber-500 text-white text-[10px] font-black uppercase tracking-widest shadow-lg">
           Best Value
         </div>
       )}
@@ -200,8 +203,12 @@ function BoostCard({ plan }: { plan: BoostPlan }) {
       <div
         className={`mb-8 flex h-14 w-14 items-center justify-center rounded-2xl ${
           plan.featured
-            ? "bg-primary text-white shadow-xl shadow-primary/30"
-            : "bg-muted text-primary transition-colors duration-500 group-hover:bg-primary group-hover:text-white"
+            ? "bg-amber-500 text-white shadow-xl shadow-amber-500/30"
+            : isStarter
+              ? "bg-muted text-slate-700 transition-colors duration-500 group-hover:bg-slate-700 group-hover:text-white"
+              : isGrowth
+                ? "bg-muted text-sky-600 transition-colors duration-500 group-hover:bg-sky-600 group-hover:text-white"
+                : "bg-muted text-slate-700 transition-colors duration-500 group-hover:bg-slate-700 group-hover:text-white"
         }`}
       >
         <Icon className="h-7 w-7" />
@@ -215,15 +222,17 @@ function BoostCard({ plan }: { plan: BoostPlan }) {
           <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Starts at</span>
           <span className="text-4xl font-black tracking-tighter text-foreground">Rs {plan.price}</span>
         </div>
-        <p className="text-sm font-bold italic text-primary">{plan.outcome}</p>
+        <p className={`text-sm font-bold italic ${plan.featured ? "text-amber-600" : isGrowth ? "text-sky-600" : "text-slate-700"}`}>{plan.outcome}</p>
         <p className="mt-2 text-xs font-bold uppercase tracking-widest text-muted-foreground">Duration: {plan.duration}</p>
       </div>
 
       <button
         className={`mt-8 w-full rounded-2xl py-4 font-black transition-all ${
           plan.featured
-            ? "bg-primary text-white shadow-lg shadow-primary/20 hover:shadow-primary/40"
-            : "bg-muted text-foreground shadow-sm hover:bg-primary hover:text-white"
+            ? "bg-amber-500 text-white shadow-lg shadow-amber-500/20 hover:shadow-amber-500/40"
+            : isGrowth
+              ? "bg-muted text-foreground shadow-sm hover:bg-sky-600 hover:text-white"
+              : "bg-muted text-foreground shadow-sm hover:bg-slate-700 hover:text-white"
         }`}
       >
         Boost Now
