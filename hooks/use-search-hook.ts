@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { createClient } from "@/lib/supabase/client";
-import { ITEMS_PER_PAGE } from "@/lib/constants";
+import { ITEMS_PER_PAGE, SEARCH_PRICE_MAX } from "@/lib/constants";
 import type { City, District, Listing } from "@/lib/types";
 
 interface SearchFilters {
@@ -32,6 +32,26 @@ type MarketplaceSearchRow = {
   total_count: number;
 };
 
+const normalizeValue = (value: string) => value.trim().toLowerCase();
+
+const matchBySlugNameOrId = <T extends { id: string; slug: string; name: string }>(
+  items: T[],
+  candidate: string,
+) => {
+  if (!candidate) return undefined;
+  const normalizedCandidate = normalizeValue(candidate);
+
+  return items.find((item) => {
+    const normalizedName = normalizeValue(item.name);
+    const normalizedSlug = normalizeValue(item.slug);
+    return (
+      normalizedCandidate === item.id ||
+      normalizedCandidate === normalizedSlug ||
+      normalizedCandidate === normalizedName
+    );
+  });
+};
+
 /**
  * Production-ready marketplace search hook.
  *
@@ -54,7 +74,7 @@ export function useSearchHook(filters: SearchFilters): UseSearchHookResult {
   const normalizedFilters = useMemo(() => {
     const allowedSort = new Set(["featured", "newest", "price_asc", "price_desc", "views"]);
     const minPrice = Number.isFinite(filters.priceRange[0]) ? Math.max(filters.priceRange[0], 0) : 0;
-    const maxPriceRaw = Number.isFinite(filters.priceRange[1]) ? Math.max(filters.priceRange[1], 0) : 200000;
+    const maxPriceRaw = Number.isFinite(filters.priceRange[1]) ? Math.max(filters.priceRange[1], 0) : SEARCH_PRICE_MAX;
     const maxPrice = maxPriceRaw >= minPrice ? maxPriceRaw : minPrice;
 
     return {
@@ -71,11 +91,11 @@ export function useSearchHook(filters: SearchFilters): UseSearchHookResult {
   }, [filters]);
 
   const selectedDistrictId = useMemo(() => {
-    return districts.find((item) => item.slug === normalizedFilters.district)?.id;
+    return matchBySlugNameOrId(districts, normalizedFilters.district)?.id;
   }, [districts, normalizedFilters.district]);
 
   const selectedCityId = useMemo(() => {
-    return cities.find((item) => item.slug === normalizedFilters.city)?.id;
+    return matchBySlugNameOrId(cities, normalizedFilters.city)?.id;
   }, [cities, normalizedFilters.city]);
 
   useEffect(() => {
@@ -123,7 +143,7 @@ export function useSearchHook(filters: SearchFilters): UseSearchHookResult {
           p_furnished: normalizedFilters.furnished || null,
           p_gender: normalizedFilters.gender || null,
           p_min_price: normalizedFilters.priceRange[0] > 0 ? normalizedFilters.priceRange[0] : null,
-          p_max_price: normalizedFilters.priceRange[1] < 200000 ? normalizedFilters.priceRange[1] : null,
+          p_max_price: normalizedFilters.priceRange[1] < SEARCH_PRICE_MAX ? normalizedFilters.priceRange[1] : null,
           p_sort: normalizedFilters.sort,
           p_page: normalizedFilters.page,
           p_per_page: ITEMS_PER_PAGE,
