@@ -3,7 +3,7 @@
 import { AuthForm } from "@/components/auth/auth-form";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState, Suspense } from "react";
+import { useState, Suspense, useRef } from "react";
 import { Loader2 } from "lucide-react";
 import { useAuthHook } from "@/hooks/use-auth-hook";
 
@@ -12,6 +12,7 @@ function LoginForm() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const submitLockRef = useRef(false);
   const { signInWithPassword } = useAuthHook();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -19,6 +20,8 @@ function LoginForm() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (submitLockRef.current) return;
+    submitLockRef.current = true;
     setIsLoading(true);
     setError(null);
 
@@ -33,6 +36,7 @@ function LoginForm() {
       setError(error instanceof Error ? error.message : "An error occurred");
     } finally {
       setIsLoading(false);
+      submitLockRef.current = false;
     }
   };
 
