@@ -1,5 +1,5 @@
 -- ============================================
--- Annex.lk Database Schema
+-- RENTR Database Schema
 -- Sri Lankan Rental Marketplace
 -- ============================================
 
