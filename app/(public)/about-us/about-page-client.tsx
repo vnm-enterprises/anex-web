@@ -113,7 +113,7 @@ export default function AboutPageClient() {
 
             <p className="text-slate-600 dark:text-slate-400 text-lg mb-8">
               Finding long-term rentals in Sri Lanka has historically been
-              fragmented. Annex.lk changes that with trust, transparency, and
+              fragmented. RENTR changes that with trust, transparency, and
               digital simplicity.
             </p>
 
@@ -151,7 +151,7 @@ export default function AboutPageClient() {
       <section className="py-24 bg-white dark:bg-slate-900/40">
         <div className="max-w-4xl mx-auto px-6 text-center">
           <span className="text-primary uppercase text-sm font-semibold">
-            The Visionary Behind Annex.lk
+            The Visionary Behind RENTR
           </span>
           <h2 className="text-3xl md:text-4xl font-bold mt-4 mb-12">
             Independent & Driven
@@ -173,14 +173,14 @@ export default function AboutPageClient() {
             </div>
             <div>
               <p className="text-lg text-slate-600 dark:text-slate-400 leading-relaxed mb-6">
-                "Annex.lk was born out of a personal frustration with the
+                "RENTR was born out of a personal frustration with the
                 fragmented rental market in Sri Lanka. As the owner and
                 developer, I am committed to building a platform that
                 prioritizes transparency, ease of use, and local needs above all
                 else."
               </p>
               <h4 className="font-bold text-xl">The Founder</h4>
-              <p className="text-primary">Annex.lk</p>
+              <p className="text-primary">RENTR</p>
             </div>
           </div>
         </div>
@@ -230,7 +230,7 @@ export default function AboutPageClient() {
 
       <section className="py-24 bg-primary/5">
         <div className="max-w-5xl mx-auto px-6 text-center">
-          <h2 className="text-4xl font-bold mb-6">Why Annex.lk?</h2>
+          <h2 className="text-4xl font-bold mb-6">Why RENTR?</h2>
           <p className="text-lg text-slate-600 dark:text-slate-400 mb-12 max-w-3xl mx-auto">
             Because finding and listing rentals should feel transparent, modern,
             and simple. Our platform is built for Sri Lankan users first.
