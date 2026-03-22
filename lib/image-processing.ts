@@ -1,5 +1,5 @@
 /**
- * Compresses an image and adds an Annex.lk watermark.
+ * Compresses an image and adds a RENTR watermark.
  */
 export async function processImage(file: File): Promise<Blob> {
   return new Promise((resolve, reject) => {
@@ -37,7 +37,7 @@ export async function processImage(file: File): Promise<Blob> {
         ctx.drawImage(img, 0, 0, width, height);
 
         // Watermark sizing scales with image dimensions for consistent visibility.
-        const watermarkText = "Annex.lk";
+        const watermarkText = "rentr.lk";
         const diagonalSize = Math.max(28, Math.round(width * 0.055));
         const cornerSize = Math.max(18, Math.round(width * 0.025));
 
