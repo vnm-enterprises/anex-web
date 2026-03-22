@@ -4,7 +4,18 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   images: {
-    remotePatterns: [new URL('https://yxxlgucwhstgexncksnp.supabase.co/**')],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'yxxlgucwhstgexncksnp.supabase.co',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'images.pexels.com',
+        pathname: '/**',
+      },
+    ],
   },
 }
 
