@@ -34,7 +34,7 @@ const routeConfigMap: Record<string, RouteConfig> = {
     heroAlt: "Bright modern apartment room",
     heroTitle: "Find your space.",
     heroDescription:
-      "Whether you're renting out your annex or searching for your next home, Annex.lk connects verified owners with trusted tenants.",
+      "Whether you're renting out your annex or searching for your next home, RENTR connects verified owners with trusted tenants.",
   },
   "/auth/forgot-password": {
     topPrompt: "Remembered your password?",
@@ -78,7 +78,7 @@ const routeConfigMap: Record<string, RouteConfig> = {
 const fallbackConfig: RouteConfig = {
   heroImage: "https://images.pexels.com/photos/1643383/pexels-photo-1643383.jpeg?auto=compress&cs=tinysrgb&w=2200",
   heroAlt: "Rental property interior",
-  heroTitle: "Welcome to Annex.lk",
+  heroTitle: "Welcome to RENTR",
   heroDescription: "Find and manage rentals with confidence.",
 };
 
@@ -98,7 +98,7 @@ export function AuthLayoutShell({ children }: { children: React.ReactNode }) {
             <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary">
               <Home className="h-5 w-5 text-white" />
             </div>
-            <span className="font-display text-xl font-bold text-foreground">Annex.lk</span>
+            <span className="font-display text-xl font-bold text-foreground">RENTR</span>
           </Link>
 
           {routeConfig.topPrompt && routeConfig.topLinkLabel && routeConfig.topLinkHref ? (
@@ -113,7 +113,7 @@ export function AuthLayoutShell({ children }: { children: React.ReactNode }) {
 
         {children}
 
-        <div className="mt-12 text-xs text-muted-foreground text-center">© {new Date().getFullYear()} Annex.lk</div>
+        <div className="mt-12 text-xs text-muted-foreground text-center">© {new Date().getFullYear()} RENTR</div>
       </div>
 
       <div className="hidden lg:flex lg:w-1/2 relative bg-neutral-900 overflow-hidden">
