@@ -1,6 +1,6 @@
-# Annex.lk Quick Start Guide
+# RENTR Quick Start Guide
 
-Get Annex.lk running in 15 minutes!
+Get RENTR running in 15 minutes!
 
 ## Option 1: Clone & Run Locally (5 minutes)
 
