@@ -433,7 +433,7 @@ INSERT INTO public.system_config (key, value) VALUES
   ('free_listing_limit', '3'),
   ('boost_prices', '{"7": 500, "14": 800, "30": 1200}'),
   ('featured_price_per_day', '200'),
-  ('site_name', '"Annex.lk"'),
+  ('site_name', '"RENTR"'),
   ('site_description', '"Find your perfect rental in Sri Lanka"'),
-  ('contact_email', '"support@annex.lk"')
+  ('contact_email', '"support@rentr.lk"')
 ON CONFLICT (key) DO NOTHING;
