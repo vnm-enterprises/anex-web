@@ -24,6 +24,7 @@ import {
 import {
   SORT_OPTIONS,
   ITEMS_PER_PAGE,
+  SEARCH_PRICE_MAX,
 } from "@/lib/constants"
 import { SearchBar, SearchFilters, ActiveFilters } from "./components/search-filters"
 import { SearchResults } from "./components/search-results"
@@ -51,7 +52,7 @@ export function SearchClient() {
   const [gender, setGender] = useState(searchParams.get("gender") || "")
   const [priceRange, setPriceRange] = useState<[number, number]>([
     Number(searchParams.get("minPrice")) || 0,
-    Number(searchParams.get("maxPrice")) || 200000,
+    Number(searchParams.get("maxPrice")) || SEARCH_PRICE_MAX,
   ])
   const [sort, setSort] = useState(searchParams.get("sort") || "featured")
   const [page, setPage] = useState(getSafePage())
@@ -83,7 +84,7 @@ export function SearchClient() {
     if (furnished) params.set("furnished", furnished)
     if (gender) params.set("gender", gender)
     if (priceRange[0] > 0) params.set("minPrice", String(priceRange[0]))
-    if (priceRange[1] < 200000) params.set("maxPrice", String(priceRange[1]))
+    if (priceRange[1] < SEARCH_PRICE_MAX) params.set("maxPrice", String(priceRange[1]))
     if (sort !== "featured") params.set("sort", sort)
     if (targetPage > 1) params.set("page", String(targetPage))
     router.replace(`/search?${params.toString()}`, { scroll: false })
@@ -107,14 +108,14 @@ export function SearchClient() {
     setPropertyType("")
     setFurnished("")
     setGender("")
-    setPriceRange([0, 200000])
+    setPriceRange([0, SEARCH_PRICE_MAX])
     setSort("featured")
     setPage(1)
     router.replace("/search")
   }
 
   const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE)
-  const hasFilters = keyword || district || propertyType || furnished || gender || priceRange[0] > 0 || priceRange[1] < 200000
+  const hasFilters = keyword || district || propertyType || furnished || gender || priceRange[0] > 0 || priceRange[1] < SEARCH_PRICE_MAX
 
   const filterContent = (
     <SearchFilters
