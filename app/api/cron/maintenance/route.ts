@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 
 /**
  * Scheduled maintenance tasks (cron job)
- * 
+ *
  * Deploy as Vercel Cron Job by adding to vercel.json:
  * {
  *   "crons": [{
@@ -22,6 +22,7 @@ export async function GET(request: NextRequest) {
 
   try {
     const supabase = await createClient()
+    const nowIso = new Date().toISOString()
     const results: any = {
       expired_listings: 0,
       expired_boosts: 0,
@@ -33,11 +34,11 @@ export async function GET(request: NextRequest) {
       .from('listings')
       .select('id')
       .eq('status', 'approved')
-      .lt('expires_at', new Date().toISOString())
+      .lt('expires_at', nowIso)
 
     if (expiredListings && expiredListings.length > 0) {
       const listingIds = expiredListings.map((l: any) => l.id)
-      
+
       const { error } = await supabase
         .from('listings')
         .update({ status: 'expired' })
@@ -51,31 +52,53 @@ export async function GET(request: NextRequest) {
     // Remove expired boosts
     const { data: expiredBoosts } = await supabase
       .from('boosts')
-      .select('listing_id')
-      .lt('expires_at', new Date().toISOString())
+      .select('id, listing_id')
+      .lt('expires_at', nowIso)
       .eq('status', 'active')
 
     if (expiredBoosts && expiredBoosts.length > 0) {
-      const listingIds = Array.from(
+      const affectedListingIds = Array.from(
         new Set(expiredBoosts.map((b: any) => b.listing_id))
       )
+      const expiredBoostIds = expiredBoosts.map((b: any) => b.id)
 
       const { error: boostError } = await supabase
         .from('boosts')
         .update({ status: 'expired' })
-        .lt('expires_at', new Date().toISOString())
+        .in('id', expiredBoostIds)
 
       if (!boostError) {
-        await supabase
-          .from('listings')
-          .update({
-            is_boosted: false,
-            boost_expires_at: null,
-            boost_weight: 0,
-          })
-          .in('id', listingIds)
+        // Only reset denormalized listing boost flags if there is no active boost left.
+        const { data: remainingActiveBoosts, error: activeBoostsError } = await supabase
+          .from('boosts')
+          .select('listing_id')
+          .in('listing_id', affectedListingIds)
+          .eq('status', 'active')
+          .gt('expires_at', nowIso)
 
-        results.expired_boosts = listingIds.length
+        if (!activeBoostsError) {
+          const listingIdsWithActiveBoosts = new Set(
+            (remainingActiveBoosts ?? []).map((b: any) => b.listing_id)
+          )
+
+          const listingIdsToReset = affectedListingIds.filter(
+            (id: string) => !listingIdsWithActiveBoosts.has(id)
+          )
+
+          if (listingIdsToReset.length > 0) {
+            await supabase
+              .from('listings')
+              .update({
+                is_boosted: false,
+                boost_expires_at: null,
+                boost_weight: 0,
+                boost_type: null,
+              })
+              .in('id', listingIdsToReset)
+
+            results.expired_boosts = listingIdsToReset.length
+          }
+        }
       }
     }
 
@@ -84,11 +107,11 @@ export async function GET(request: NextRequest) {
       .from('listings')
       .select('id')
       .eq('is_featured', true)
-      .lt('featured_expires_at', new Date().toISOString())
+      .lt('featured_expires_at', nowIso)
 
     if (expiredFeatured && expiredFeatured.length > 0) {
       const listingIds = expiredFeatured.map((l: any) => l.id)
-      
+
       const { error } = await supabase
         .from('listings')
         .update({
@@ -105,7 +128,7 @@ export async function GET(request: NextRequest) {
 
     // Clean up old analytics (keep last 90 days)
     const ninetyDaysAgo = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000)
-    
+
     const { error: analyticsError } = await supabase
       .from('analytics')
       .delete()
