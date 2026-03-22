@@ -68,7 +68,7 @@ export function HeroSection() {
 
         {/* Subtitle */}
         <p className="max-w-2xl mx-auto text-lg md:text-xl text-white/80 font-medium leading-relaxed mb-14">
-          Annex.lk connects you with verified homeowners across Sri Lanka.
+          RENTR connects you with verified homeowners across Sri Lanka.
           Simple, transparent, and completely free to start.
         </p>
 
