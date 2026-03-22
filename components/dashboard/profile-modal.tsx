@@ -1,6 +1,7 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
+import Image from "next/image"
 import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -27,6 +28,7 @@ interface ProfileModalProps {
 export function ProfileModal({ isOpen, onClose, profile, onUpdate }: ProfileModalProps) {
   const supabase = createClient()
   const [saving, setSaving] = useState(false)
+  const submitLockRef = useRef(false)
   const [form, setForm] = useState({ full_name: "", phone: "", avatar_url: "" })
 
   useEffect(() => {
@@ -41,31 +43,36 @@ export function ProfileModal({ isOpen, onClose, profile, onUpdate }: ProfileModa
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!profile) return
+    if (!profile || submitLockRef.current) return
 
+    submitLockRef.current = true
     setSaving(true)
-    const { error } = await supabase
-      .from("profiles")
-      .update({
-        full_name: form.full_name,
-        phone: form.phone,
-        avatar_url: form.avatar_url,
-      })
-      .eq("id", profile.id)
+    try {
+      const { error } = await supabase
+        .from("profiles")
+        .update({
+          full_name: form.full_name,
+          phone: form.phone,
+          avatar_url: form.avatar_url,
+        })
+        .eq("id", profile.id)
 
-    if (error) {
-      toast.error("Failed to update profile")
-    } else {
-      toast.success("Profile updated successfully")
-      onUpdate({
-        ...profile,
-        full_name: form.full_name,
-        phone: form.phone,
-        avatar_url: form.avatar_url,
-      })
-      onClose()
+      if (error) {
+        toast.error("Failed to update profile")
+      } else {
+        toast.success("Profile updated successfully")
+        onUpdate({
+          ...profile,
+          full_name: form.full_name,
+          phone: form.phone,
+          avatar_url: form.avatar_url,
+        })
+        onClose()
+      }
+    } finally {
+      submitLockRef.current = false
+      setSaving(false)
     }
-    setSaving(false)
   }
 
   return (
@@ -84,9 +91,9 @@ export function ProfileModal({ isOpen, onClose, profile, onUpdate }: ProfileModa
         <form onSubmit={handleSave} className="space-y-6 pt-4">
           <div className="flex flex-col items-center justify-center mb-6">
             <div className="relative group">
-              <div className="h-24 w-24 rounded-[2rem] bg-primary flex items-center justify-center text-white text-3xl font-black shadow-xl shadow-primary/20 overflow-hidden">
+              <div className="relative h-24 w-24 rounded-[2rem] bg-primary flex items-center justify-center text-white text-3xl font-black shadow-xl shadow-primary/20 overflow-hidden">
                 {form.avatar_url ? (
-                  <img src={form.avatar_url} alt="Avatar" className="h-full w-full object-cover" />
+                  <Image src={form.avatar_url} alt="Avatar" fill sizes="96px" className="object-cover" />
                 ) : (
                   form.full_name?.charAt(0)?.toUpperCase() || <User size={40} />
                 )}
