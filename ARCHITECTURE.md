@@ -1,4 +1,4 @@
-# Annex.lk Architecture
+# RENTR Architecture
 
 ## High-Level Overview
 
