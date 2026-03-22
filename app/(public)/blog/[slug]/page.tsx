@@ -38,7 +38,7 @@ export async function generateMetadata({ params }: BlogArticlePageProps): Promis
       title: post.title,
       description: post.excerpt,
       url: `${SITE_URL}/blog/${post.slug}`,
-      siteName: "Annex.lk",
+      siteName: "RENTR",
       publishedTime: post.date,
       images: [{ url: post.image, width: 1200, height: 630, alt: post.title }],
     },
