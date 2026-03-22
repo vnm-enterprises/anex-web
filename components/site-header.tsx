@@ -3,11 +3,10 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
+import { useTheme } from "next-themes";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import {
-  Home,
-  Plus,
   Menu,
   X,
   LayoutDashboard,
@@ -15,9 +14,14 @@ import {
   Shield,
   ChevronDown,
   Settings,
+  Monitor,
+  Moon,
+  Sun,
 } from "lucide-react";
 import type { Profile } from "@/lib/types";
 import {
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -29,6 +33,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ProfileModal } from "./dashboard/profile-modal";
 import { Separator } from "@/components/ui/separator";
 import Logo from "./logo";
+import { useThemeStore, type ThemePreference } from "@/stores/use-theme-store";
 
 export function SiteHeader() {
   const [user, setUser] = useState<Profile | null>(null);
@@ -37,6 +42,9 @@ export function SiteHeader() {
   const pathname = usePathname();
   const router = useRouter();
   const supabase = createClient();
+  const { setTheme } = useTheme();
+  const theme = useThemeStore((state) => state.theme);
+  const isThemeHydrated = useThemeStore((state) => state.isHydrated);
 
   useEffect(() => {
     async function getUser() {
@@ -63,6 +71,19 @@ export function SiteHeader() {
     setUser(null);
     router.push("/");
     router.refresh();
+  };
+
+  const handleThemeChange = (nextTheme: string) => {
+    if (nextTheme !== "light" && nextTheme !== "dark" && nextTheme !== "system") {
+      return;
+    }
+    setTheme(nextTheme);
+  };
+
+  const getThemeIcon = (value: ThemePreference) => {
+    if (value === "light") return <Sun className="h-4 w-4" />;
+    if (value === "dark") return <Moon className="h-4 w-4" />;
+    return <Monitor className="h-4 w-4" />;
   };
 
   return (
@@ -99,14 +120,50 @@ export function SiteHeader() {
             </div>
 
             <div className="flex items-center gap-3">
+              {isThemeHydrated && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="hidden sm:inline-flex rounded-xl font-bold"
+                      aria-label="Change theme"
+                    >
+                      {getThemeIcon(theme)}
+                      <span className="ml-2 capitalize">{theme}</span>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent
+                    className="w-44 rounded-2xl border-none soft-shadow p-2 mt-2"
+                    align="end"
+                  >
+                    <DropdownMenuLabel className="font-bold">Theme</DropdownMenuLabel>
+                    <DropdownMenuSeparator className="bg-border/50" />
+                    <DropdownMenuRadioGroup value={theme} onValueChange={handleThemeChange}>
+                      <DropdownMenuRadioItem value="system" className="rounded-xl">
+                        <Monitor className="mr-2 h-4 w-4" />
+                        System
+                      </DropdownMenuRadioItem>
+                      <DropdownMenuRadioItem value="light" className="rounded-xl">
+                        <Sun className="mr-2 h-4 w-4" />
+                        Light
+                      </DropdownMenuRadioItem>
+                      <DropdownMenuRadioItem value="dark" className="rounded-xl">
+                        <Moon className="mr-2 h-4 w-4" />
+                        Dark
+                      </DropdownMenuRadioItem>
+                    </DropdownMenuRadioGroup>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
+
               {user ? (
                 <>
                   <Link
                     href="/dashboard/listings/new"
                     className="hidden xs:flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground px-4 sm:px-6 py-2.5 rounded-xl text-sm font-bold transition-all shadow-md hover:shadow-lg active:scale-95"
                   >
-                    <Plus className="h-4 w-4" />
-                    <span className="hidden sm:inline">Post an Ad</span>
+                    <span className="hidden sm:inline">+ Post</span>
                   </Link>
 
                   <DropdownMenu>
@@ -185,10 +242,16 @@ export function SiteHeader() {
 
                   <Link
                     href="/auth/sign-up"
+                    className="hidden md:inline-flex items-center rounded-xl border border-border px-4 py-2.5 text-sm font-semibold text-foreground hover:bg-muted transition-colors"
+                  >
+                    Sign Up
+                  </Link>
+
+                  <Link
+                    href="/auth/sign-up"
                     className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground px-4 sm:px-6 py-2.5 rounded-xl text-sm font-bold transition-all shadow-md hover:shadow-lg active:scale-95"
                   >
-                    <Plus className="h-4 w-4" />
-                    <span className="hidden sm:inline">Post an Ad</span>
+                    <span className="hidden sm:inline">+ Post</span>
                   </Link>
                 </>
               )}
@@ -214,6 +277,38 @@ export function SiteHeader() {
       {/* Mobile Menu */}
       {isMenuOpen && (
         <div className="md:hidden border-t border-border bg-card text-foreground px-4 py-4 space-y-4 animate-in fade-in slide-in-from-top-4">
+          {isThemeHydrated && (
+            <div className="rounded-xl border border-border/60 p-3">
+              <p className="mb-2 text-xs font-black uppercase tracking-wider text-muted-foreground">Theme</p>
+              <div className="grid grid-cols-3 gap-2">
+                <Button
+                  type="button"
+                  variant={theme === "system" ? "default" : "outline"}
+                  className="rounded-lg h-9"
+                  onClick={() => handleThemeChange("system")}
+                >
+                  <Monitor className="h-4 w-4" />
+                </Button>
+                <Button
+                  type="button"
+                  variant={theme === "light" ? "default" : "outline"}
+                  className="rounded-lg h-9"
+                  onClick={() => handleThemeChange("light")}
+                >
+                  <Sun className="h-4 w-4" />
+                </Button>
+                <Button
+                  type="button"
+                  variant={theme === "dark" ? "default" : "outline"}
+                  className="rounded-lg h-9"
+                  onClick={() => handleThemeChange("dark")}
+                >
+                  <Moon className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          )}
+
           <Link
             href="/search"
             className="block text-sm font-bold hover:text-primary transition-colors"
