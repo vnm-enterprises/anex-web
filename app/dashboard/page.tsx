@@ -24,6 +24,8 @@ import {
   TrendingUp,
 } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
+import { unstable_noStore as noStore } from "next/cache";
 import { formatDate } from "@/lib/constants";
 import type { Listing } from "@/lib/types";
 import EditProfileButton from "./profile/EditProfileButton";
@@ -50,6 +52,7 @@ function getBoostTier(weight?: number | null): "Top" | "Premium" | "Featured" {
 }
 
 export default async function DashboardPage({ searchParams }: DashboardPageProps) {
+  noStore();
   const resolvedParams = searchParams ? await searchParams : undefined;
   const activeTab = resolvedParams?.tab === "affiliate" ? "affiliate" : "listings";
 
@@ -427,13 +430,15 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
               {listings.map((listing: Listing) => (
                 <div
                   key={listing.id}
-                  className="group flex flex-col md:flex-row items-center gap-6 rounded-[2rem] border border-border bg-card p-5 transition-all duration-300 soft-shadow hover:shadow-xl hover:border-primary/20"
+                  className="group flex flex-col md:flex-row items-center gap-6 rounded-[2rem] border border-border bg-card p-5 transition-all duration-300 soft-shadow hover:shadow-xl hover:border-primary/20 flex-wrap"
                 >
                   <div className="h-24 w-32 shrink-0 overflow-hidden rounded-2xl bg-muted shadow-inner relative">
                     {listing.listing_images?.[0]?.url ? (
-                      <img
+                      <Image
                         src={listing.listing_images[0].url}
                         alt={listing.title}
+                        fill
+                        sizes="128px"
                         className="h-full w-full object-cover group-hover:scale-110 transition-transform duration-500"
                       />
                     ) : (
