@@ -2,6 +2,8 @@ import type { Metadata, Viewport } from "next";
 import { Inter, Space_Grotesk } from "next/font/google";
 import { Toaster } from "sonner";
 import { AuthStoreProvider } from "@/components/auth/auth-store-provider";
+import { ThemeProvider } from "@/components/theme-provider";
+import { ThemeStoreProvider } from "@/components/theme/theme-store-provider";
 
 import "./globals.css";
 
@@ -83,8 +85,18 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="font-sans antialiased">
-        <AuthStoreProvider>{children}</AuthStoreProvider>
-        <Toaster position="top-right" richColors />
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="light"
+          enableSystem
+          storageKey="theme"
+          disableTransitionOnChange
+        >
+          <ThemeStoreProvider>
+            <AuthStoreProvider>{children}</AuthStoreProvider>
+            <Toaster position="top-right" richColors />
+          </ThemeStoreProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
