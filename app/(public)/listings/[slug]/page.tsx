@@ -8,6 +8,8 @@ import { ListingCard } from "@/components/listing-card";
 import type { Listing } from "@/lib/types";
 import { SITE_URL } from "@/lib/seo";
 
+export const revalidate = 60;
+
 interface Props {
   params: Promise<{ slug: string }>;
 }
