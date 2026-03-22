@@ -9,7 +9,7 @@ export default function robots(): MetadataRoute.Robots {
         disallow: ["/admin", "/dashboard", "/auth"],
       },
     ],
-    sitemap: "https://annex.lk/sitemap.xml",
-    host: "https://annex.lk",
+    sitemap: "https://rentr.lk/sitemap.xml",
+    host: "https://rentr.lk",
   };
 }
