@@ -4,7 +4,7 @@ import { AuthForm } from "@/components/auth/auth-form";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useAuthHook } from "@/hooks/use-auth-hook";
 
 export default function SignUpPage() {
@@ -16,11 +16,14 @@ export default function SignUpPage() {
   const [referredBy, setReferredBy] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const submitLockRef = useRef(false);
   const { validateReferralCode, signUpWithPassword } = useAuthHook();
   const router = useRouter();
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (submitLockRef.current) return;
+    submitLockRef.current = true;
     setIsLoading(true);
     setError(null);
 
@@ -59,6 +62,7 @@ export default function SignUpPage() {
       setError(error instanceof Error ? error.message : "An error occurred");
     } finally {
       setIsLoading(false);
+      submitLockRef.current = false;
     }
   };
 
