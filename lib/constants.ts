@@ -33,6 +33,7 @@ export const BOOST_DURATIONS = [
 ] as const;
 
 export const ITEMS_PER_PAGE = 12;
+export const SEARCH_PRICE_MAX = 500000;
 
 export function formatPrice(price: number): string {
   return `Rs. ${price.toLocaleString()}`;
