@@ -1,6 +1,6 @@
-# 🚀 Annex.lk - START HERE
+# 🚀 RENTR - START HERE
 
-Welcome! This is your entry point to the complete Annex.lk rental marketplace.
+Welcome! This is your entry point to the complete RENTR rental marketplace.
 
 **This project is production-ready and can be deployed TODAY.**
 
@@ -33,7 +33,7 @@ Then decide on Option 1 or 2.
 
 ---
 
-## 📖 What is Annex.lk?
+## 📖 What is RENTR?
 
 A **complete rental marketplace for Sri Lanka** where:
 - 🏠 Renters search for properties (annexes, apartments, boarding, houses)
@@ -412,6 +412,6 @@ Take time to understand it, test it, then deploy it with confidence.
 
 ---
 
-**Annex.lk is ready for you. Let's go! 🎉**
+**RENTR is ready for you. Let's go! 🎉**
 
 → Start with [`PROJECT_SUMMARY.md`](./PROJECT_SUMMARY.md) (5 minutes)
