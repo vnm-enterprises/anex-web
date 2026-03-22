@@ -5,7 +5,7 @@ SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhY
 
 
 # Application
-NEXT_PUBLIC_APP_NAME=Annex.lk
+NEXT_PUBLIC_APP_NAME=RENTR
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 NODE_ENV=development
 # LemonSqueezy Core Config
