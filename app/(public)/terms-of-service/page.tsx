@@ -4,9 +4,9 @@ import { buildPageMetadata } from "@/lib/seo";
 export const metadata: Metadata = buildPageMetadata({
   title: "Terms of Service",
   description:
-    "Review Annex.lk terms for listing policies, payments, user conduct, and liability before using the platform.",
+    "Review RENTR's terms for listing policies, payments, user conduct, and liability before using the platform.",
   path: "/terms-of-service",
-  keywords: ["terms of service", "Annex.lk terms", "rental platform terms"],
+  keywords: ["terms of service", "RENTR terms", "rental platform terms"],
 });
 
 export default function TermsPage() {
@@ -14,7 +14,7 @@ export default function TermsPage() {
     {
       title: "1. Acceptance of Terms",
       content:
-        "By accessing or using Annex.lk, you agree to be bound by these Terms of Service. If you do not agree to all of these terms, do not use our services.",
+        "By accessing or using RENTR, you agree to be bound by these Terms of Service. If you do not agree to all of these terms, do not use our services.",
     },
     {
       title: "2. Listing Policies",
@@ -34,7 +34,7 @@ export default function TermsPage() {
     {
       title: "5. Limitation of Liability",
       content:
-        "Annex.lk is a marketplace platform. We do not own the properties listed and are not responsible for the conditions or legalities of the rental agreements between landlords and tenants.",
+        "RENTR is a marketplace platform. We do not own the properties listed and are not responsible for the conditions or legalities of the rental agreements between landlords and tenants.",
     },
   ];
 
