@@ -1,4 +1,4 @@
-# Annex.lk Documentation Index
+# RENTR Documentation Index
 
 Complete guide to all documentation files in this project.
 
@@ -6,7 +6,7 @@ Complete guide to all documentation files in this project.
 
 ### For First-Time Users
 1. **Start**: [`QUICKSTART.md`](./QUICKSTART.md) - Get running in 15 minutes
-2. **Understand**: [`PROJECT_SUMMARY.md`](./PROJECT_SUMMARY.md) - What is Annex.lk?
+2. **Understand**: [`PROJECT_SUMMARY.md`](./PROJECT_SUMMARY.md) - What is RENTR?
 3. **Verify**: [`VERIFICATION.md`](./VERIFICATION.md) - Confirm everything is set up
 
 ### For Team Members
@@ -342,6 +342,6 @@ All documentation is:
 
 ---
 
-**Happy building with Annex.lk! 🚀**
+**Happy building with RENTR! 🚀**
 
 For quick access, bookmark this file or the [README.md](./README.md).
