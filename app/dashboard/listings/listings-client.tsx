@@ -25,6 +25,7 @@ export function DashboardListingsClient({
   const [selectedListingId, setSelectedListingId] = useState<string | null>(
     null,
   );
+  const [pendingPaymentListingId, setPendingPaymentListingId] = useState<string | null>(null);
   const router = useRouter();
 
   const handleBoostClick = (id: string) => {
@@ -33,6 +34,9 @@ export function DashboardListingsClient({
   };
 
   const handlePaymentClick = async (id: string) => {
+    if (pendingPaymentListingId === id) return;
+
+    setPendingPaymentListingId(id);
     try {
       const response = await fetch("/api/payments/checkout", {
         method: "POST",
@@ -54,6 +58,8 @@ export function DashboardListingsClient({
       window.location.href = url;
     } catch (error) {
       alert(error instanceof Error ? error.message : "An error occurred");
+    } finally {
+      setPendingPaymentListingId(null);
     }
   };
 
@@ -138,9 +144,17 @@ export function DashboardListingsClient({
                 {listing.payment_status === "unpaid" && (
                   <button
                     onClick={() => handlePaymentClick(listing.id)}
-                    className="flex items-center justify-center h-10 px-4 bg-primary text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-primary/20 hover:bg-primary/90 transition-all whitespace-nowrap"
+                    disabled={pendingPaymentListingId === listing.id}
+                    className="flex items-center justify-center h-10 px-4 bg-primary text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-primary/20 hover:bg-primary/90 transition-all whitespace-nowrap disabled:opacity-70 disabled:cursor-not-allowed"
                   >
-                    Complete Payment
+                    {pendingPaymentListingId === listing.id ? (
+                      <>
+                        <Loader2 className="mr-1.5 h-3 w-3 animate-spin" />
+                        Processing...
+                      </>
+                    ) : (
+                      "Complete Payment"
+                    )}
                   </button>
                 )}
               </div>
