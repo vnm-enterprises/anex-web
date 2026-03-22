@@ -2,7 +2,6 @@
 
 import useSWR from "swr";
 
-import { createClient } from "@/lib/supabase/client";
 import type { District, Listing } from "@/lib/types";
 
 export interface DistrictWithCount extends District {
@@ -14,9 +13,6 @@ interface MarketplaceStats {
   listingsCount: number;
   tenantsCount: number;
 }
-
-const LISTING_SELECT =
-  "*, districts(name), cities(name), listing_images(url), listing_amenities(amenities(name))";
 
 const PROMINENT_DISTRICTS = [
   { slug: "colombo", name: "Colombo" },
@@ -46,161 +42,52 @@ const DISTRICT_PLACEHOLDERS: DistrictWithCount[] = PROMINENT_DISTRICTS.map(
   }),
 );
 
-const fetchHeroDistricts = async (): Promise<District[]> => {
-  const supabase = createClient();
-  const { data, error } = await supabase.from("districts").select("*").order("name");
-  if (error) throw error;
-  return data ?? [];
-};
+interface HomePayload {
+  heroDistricts: District[];
+  prominentDistricts: DistrictWithCount[];
+  featuredListings: Listing[];
+  handpickedListings: Listing[];
+  marketplaceStats: MarketplaceStats;
+}
 
-const fetchProminentDistricts = async (): Promise<DistrictWithCount[]> => {
-  const supabase = createClient();
-  const { data: districtsData, error } = await supabase
-    .from("districts")
-    .select("*")
-    .order("name");
+const fetchHomePayload = async (): Promise<HomePayload> => {
+  const response = await fetch("/api/public/home", {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
 
-  if (error) throw error;
-  if (!districtsData) return DISTRICT_PLACEHOLDERS;
-
-  const prominentSlugs = PROMINENT_DISTRICTS.map((district) => district.slug);
-
-  const enriched = await Promise.all(
-    districtsData
-      .map((district) => ({ ...district, slug: district.slug.toLowerCase() }))
-      .filter((district) => prominentSlugs.includes(district.slug))
-      .map(async (district) => {
-        const { count } = await supabase
-          .from("listings")
-          .select("id", { count: "exact", head: true })
-          .eq("district_id", district.id)
-          .eq("status", "approved");
-
-        return {
-          ...district,
-          count: count ?? 0,
-          image:
-            DISTRICT_IMAGES[district.slug] ||
-            "https://images.unsplash.com/photo-1580000000000?auto=format&fit=crop&q=80&w=800",
-        } as DistrictWithCount;
-      }),
-  );
-
-  return enriched;
-};
-
-const fetchFeaturedListings = async (): Promise<Listing[]> => {
-  const supabase = createClient();
-  const nowIso = new Date().toISOString();
-
-  let { data, error } = await supabase
-    .from("listings")
-    .select(LISTING_SELECT)
-    .eq("status", "approved")
-    .gt("boost_weight", 0)
-    .or(`boost_expires_at.is.null,boost_expires_at.gt.${nowIso}`)
-    .order("boost_weight", { ascending: false })
-    .order("boost_expires_at", { ascending: false, nullsFirst: false })
-    .order("created_at", { ascending: false })
-    .limit(6);
-
-  if (error) throw error;
-
-  if (!data || data.length === 0) {
-    const { data: fallbackData, error: fallbackError } = await supabase
-      .from("listings")
-      .select(LISTING_SELECT)
-      .eq("status", "approved")
-      .order("created_at", { ascending: false })
-      .limit(6);
-
-    if (fallbackError) throw fallbackError;
-    data = fallbackData;
+  if (!response.ok) {
+    throw new Error("Failed to load homepage payload");
   }
 
-  return (data ?? []) as Listing[];
-};
-
-const fetchHandpickedListings = async (): Promise<Listing[]> => {
-  const supabase = createClient();
-  const { data, error } = await supabase
-    .from("listings")
-    .select(LISTING_SELECT)
-    .eq("status", "approved")
-    .eq("is_featured", false)
-    .order("created_at", { ascending: false })
-    .limit(8);
-
-  if (error) throw error;
-  return (data ?? []) as Listing[];
-};
-
-const fetchMarketplaceStats = async (): Promise<MarketplaceStats> => {
-  const supabase = createClient();
-
-  const [listingsResult, tenantsResult] = await Promise.all([
-    supabase
-      .from("listings")
-      .select("id", { count: "exact", head: true })
-      .eq("status", "approved"),
-    supabase
-      .from("profiles")
-      .select("id", { count: "exact", head: true })
-      .eq("role", "user"),
-  ]);
-
-  if (listingsResult.error) throw listingsResult.error;
-  if (tenantsResult.error) throw tenantsResult.error;
-
-  return {
-    listingsCount: listingsResult.count ?? 0,
-    tenantsCount: tenantsResult.count ?? 0,
-  };
+  return response.json();
 };
 
 /**
  * Centralized data hook for homepage sections.
  */
 export function useHomeHook() {
-  const heroDistrictsQuery = useSWR("home:hero-districts", fetchHeroDistricts, {
+  const homePayloadQuery = useSWR("home:payload", fetchHomePayload, {
     revalidateOnFocus: false,
-    dedupingInterval: 120000,
+    dedupingInterval: 60000,
+    refreshInterval: 60000,
+    keepPreviousData: true,
   });
 
-  const prominentDistrictsQuery = useSWR(
-    "home:prominent-districts",
-    fetchProminentDistricts,
-    {
-      revalidateOnFocus: false,
-      dedupingInterval: 120000,
-    },
-  );
-
-  const featuredListingsQuery = useSWR("home:featured-listings", fetchFeaturedListings, {
-    revalidateOnFocus: false,
-    dedupingInterval: 120000,
-  });
-
-  const handpickedListingsQuery = useSWR("home:handpicked-listings", fetchHandpickedListings, {
-    revalidateOnFocus: false,
-    dedupingInterval: 120000,
-  });
-
-  const marketplaceStatsQuery = useSWR("home:marketplace-stats", fetchMarketplaceStats, {
-    revalidateOnFocus: false,
-    dedupingInterval: 120000,
-  });
+  const payload = homePayloadQuery.data;
 
   return {
-    heroDistricts: heroDistrictsQuery.data ?? [],
-    isHeroDistrictsLoading: heroDistrictsQuery.isLoading,
-    prominentDistricts: prominentDistrictsQuery.data ?? DISTRICT_PLACEHOLDERS,
-    isProminentDistrictsLoading: prominentDistrictsQuery.isLoading,
-    featuredListings: featuredListingsQuery.data ?? [],
-    isFeaturedListingsLoading: featuredListingsQuery.isLoading,
-    handpickedListings: handpickedListingsQuery.data ?? [],
-    isHandpickedListingsLoading: handpickedListingsQuery.isLoading,
-    marketplaceStats: marketplaceStatsQuery.data,
-    isMarketplaceStatsLoading: marketplaceStatsQuery.isLoading,
+    heroDistricts: payload?.heroDistricts ?? [],
+    isHeroDistrictsLoading: homePayloadQuery.isLoading,
+    prominentDistricts: payload?.prominentDistricts ?? DISTRICT_PLACEHOLDERS,
+    isProminentDistrictsLoading: homePayloadQuery.isLoading,
+    featuredListings: payload?.featuredListings ?? [],
+    isFeaturedListingsLoading: homePayloadQuery.isLoading,
+    handpickedListings: payload?.handpickedListings ?? [],
+    isHandpickedListingsLoading: homePayloadQuery.isLoading,
+    marketplaceStats: payload?.marketplaceStats,
+    isMarketplaceStatsLoading: homePayloadQuery.isLoading,
   };
 }
