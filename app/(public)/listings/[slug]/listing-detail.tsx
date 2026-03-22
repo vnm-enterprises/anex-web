@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -54,6 +54,7 @@ export function ListingDetail({ listing }: { listing: Listing }) {
   });
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
+  const submitLockRef = useRef(false);
 
 
   const images = listing.listing_images || [];
@@ -75,22 +76,29 @@ export function ListingDetail({ listing }: { listing: Listing }) {
 
   const handleInquiry = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (submitLockRef.current) return;
+
+    submitLockRef.current = true;
     setSending(true);
 
-    const supabase = createClient();
-    const { error } = await supabase.from("inquiries").insert({
-      listing_id: listing.id,
-      ...inquiryForm,
-    });
+    try {
+      const supabase = createClient();
+      const { error } = await supabase.from("inquiries").insert({
+        listing_id: listing.id,
+        ...inquiryForm,
+      });
 
-    if (error) {
-      toast.error("Failed to send inquiry. Please try again.");
-    } else {
-      toast.success("Inquiry sent successfully!");
-      setSent(true);
-      //TODO implement sms notification feature
+      if (error) {
+        toast.error("Failed to send inquiry. Please try again.");
+      } else {
+        toast.success("Inquiry sent successfully!");
+        setSent(true);
+        //TODO implement sms notification feature
+      }
+    } finally {
+      submitLockRef.current = false;
+      setSending(false);
     }
-    setSending(false);
   };
 
   const handleShare = () => {
