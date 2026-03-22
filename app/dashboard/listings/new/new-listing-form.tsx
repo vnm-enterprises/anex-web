@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -41,6 +41,7 @@ export function NewListingForm() {
   const [freeLimit, setFreeLimit] = useState(3);
   const [showPayment, setShowPayment] = useState(false);
   const [paymentLoading, setPaymentLoading] = useState(false);
+  const submitLockRef = useRef(false);
   const DESCRIPTION_MAX_LENGTH = 4000;
 
   const [form, setForm] = useState({
@@ -159,6 +160,7 @@ export function NewListingForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (submitLockRef.current) return;
 
     if (imageFiles.length === 0) {
       toast.error("Please upload at least one image");
@@ -170,6 +172,7 @@ export function NewListingForm() {
       return;
     }
 
+    submitLockRef.current = true;
     setLoading(true);
 
     try {
@@ -291,6 +294,7 @@ export function NewListingForm() {
       );
     } finally {
       setLoading(false);
+      submitLockRef.current = false;
     }
   };
 
