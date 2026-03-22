@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { unstable_noStore as noStore } from "next/cache";
 import type { Listing, Profile } from "@/lib/types";
 
 interface ReferredUserSummary {
@@ -113,6 +114,7 @@ function calculateAffiliateEarnings(
  * Server-side dashboard data hook to keep page components focused on rendering.
  */
 export async function useDashboardHook(): Promise<DashboardData> {
+  noStore();
   const supabase = await createClient();
 
   const {
