@@ -42,19 +42,19 @@ export function HeroSection() {
       {/* Background */}
       <div className="absolute inset-0 z-0">
         <img
-          src="https://images.pexels.com/photos/323780/pexels-photo-323780.jpeg?auto=compress&cs=tinysrgb&w=2200"
+          src="https://images.pexels.com/photos/439391/pexels-photo-439391.jpeg?auto=compress&cs=tinysrgb&w=2200"
           alt="Modern urban apartment complex"
           className="w-full h-full object-cover"
         />
 
         {/* Dark overlay for readability */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/60 to-black/80" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-primary/35 to-black/80" />
       </div>
 
       {/* Content */}
       <div className="relative z-10 max-w-7xl mx-auto px-6 w-full text-center text-white">
         {/* Badge */}
-        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/20 text-white text-[10px] font-black uppercase tracking-[0.2em] mb-10 backdrop-blur-md">
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/15 border border-primary/40 text-white text-[10px] font-black uppercase tracking-[0.2em] mb-10 backdrop-blur-md shadow-lg shadow-black/20">
           <Sparkles className="h-3 w-3" />
           Sri Lanka's Smartest Rental Platform
         </div>
@@ -74,7 +74,7 @@ export function HeroSection() {
         <div className="max-w-4xl mx-auto">
           <form
             onSubmit={handleSearch}
-            className="relative bg-white/10 backdrop-blur-2xl border border-white/20 p-2 md:p-3 rounded-3xl md:rounded-[2.5rem] shadow-[0_20px_60px_rgba(0,0,0,0.5)]"
+            className="relative bg-white/15 backdrop-blur-2xl border border-primary/25 p-2 md:p-3 rounded-3xl md:rounded-[2.5rem] shadow-[0_20px_60px_rgba(0,0,0,0.45)]"
           >
             <div className="flex flex-col md:flex-row items-center gap-2">
               {/* Keyword */}

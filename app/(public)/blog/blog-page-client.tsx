@@ -92,11 +92,11 @@ export default function BlogPageClient() {
     <main className="bg-background">
       <section className="relative pt-32 pb-20 border-b border-border overflow-hidden">
         <img
-          src="https://images.pexels.com/photos/271624/pexels-photo-271624.jpeg?auto=compress&cs=tinysrgb&w=2200"
+          src="https://images.pexels.com/photos/4246120/pexels-photo-4246120.jpeg?auto=compress&cs=tinysrgb&w=2200"
           alt="Modern apartment interior"
           className="absolute inset-0 h-full w-full object-cover"
         />
-        <div className="absolute inset-0 bg-background/75 backdrop-blur-[2px]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/55 to-background/80 backdrop-blur-[2px]" />
         <div className="max-w-7xl mx-auto px-6">
           <span className="relative inline-block py-1 px-4 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] font-black uppercase tracking-widest mb-6">
             RENTR Insights
@@ -111,7 +111,7 @@ export default function BlogPageClient() {
         </div>
       </section>
 
-      <section className="py-24">
+      <section className="py-24 bg-muted/20">
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid md:grid-cols-2 gap-12">
             {BLOG_POSTS.map((post) => (
@@ -156,7 +156,7 @@ export default function BlogPageClient() {
             ))}
           </div>
 
-          <div className="mt-32 p-16 rounded-[3rem] bg-zinc-900 text-white overflow-hidden relative">
+          <div className="mt-32 p-16 rounded-[3rem] bg-gradient-to-br from-foreground via-foreground to-primary text-white overflow-hidden relative border border-white/5">
             <div className="relative z-10 max-w-2xl">
               <h3 className="text-4xl font-black tracking-tighter mb-6 leading-none">
                 Get rental tips and new listings{" "}
@@ -190,7 +190,7 @@ export default function BlogPageClient() {
                 </button>
               </form>
             </div>
-            <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/4 w-96 h-96 bg-primary/20 blur-[120px] rounded-full" />
+            <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/4 w-96 h-96 bg-accent/25 blur-[120px] rounded-full" />
           </div>
         </div>
       </section>

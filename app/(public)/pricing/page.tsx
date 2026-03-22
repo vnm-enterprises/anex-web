@@ -55,11 +55,11 @@ export default function PricingPage() {
       {/* ================= HERO ================= */}
       <section className="relative overflow-hidden py-28">
         <img
-          src="https://images.pexels.com/photos/259588/pexels-photo-259588.jpeg?auto=compress&cs=tinysrgb&w=2200"
+          src="https://images.pexels.com/photos/439391/pexels-photo-439391.jpeg?auto=compress&cs=tinysrgb&w=2200"
           alt="Modern apartment exterior"
           className="absolute inset-0 h-full w-full object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/75 via-black/80 to-black/15" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/75 via-primary/35 to-black/35" />
         <div className="absolute -top-20 right-10 h-72 w-72 rounded-full bg-primary/20 blur-3xl" />
         <div className="absolute -bottom-20 left-10 h-72 w-72 rounded-full bg-accent/15 blur-3xl" />
 

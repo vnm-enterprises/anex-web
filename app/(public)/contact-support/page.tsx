@@ -24,11 +24,11 @@ export default function ContactPage() {
       {/* ================= HERO ================= */}
       <section className="relative pt-32 pb-20 overflow-hidden">
         <img
-          src="https://images.pexels.com/photos/3183150/pexels-photo-3183150.jpeg?auto=compress&cs=tinysrgb&w=2200"
+          src="https://images.pexels.com/photos/3184465/pexels-photo-3184465.jpeg?auto=compress&cs=tinysrgb&w=2200"
           alt="Customer support team helping clients"
           className="absolute inset-0 h-full w-full object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-background/45 via-background/30 to-background/70" />
+        <div className="absolute inset-0 bg-gradient-to-b from-background/55 via-background/35 to-background/75" />
 
         <div className="relative max-w-7xl mx-auto px-6 text-center">
           <span className="inline-block py-1 px-4 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] font-black uppercase tracking-widest mb-6">
@@ -45,7 +45,7 @@ export default function ContactPage() {
       </section>
 
       {/* ================= CONTACT GRID ================= */}
-      <section className="py-24">
+      <section className="py-24 bg-muted/20">
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid lg:grid-cols-3 gap-8 mb-20">
             {[
@@ -74,7 +74,7 @@ export default function ContactPage() {
               <a
                 key={i}
                 href={item.href}
-                className="group p-10 rounded-[2.5rem] bg-card border border-border/50 soft-shadow hover:border-primary/30 transition-all duration-500"
+                className="group p-10 rounded-[2.5rem] bg-card border border-border/50 soft-shadow hover:border-primary/30 hover:-translate-y-1 transition-all duration-500"
               >
                 <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center text-primary mb-8 group-hover:scale-110 transition-transform">
                   <item.icon size={32} />

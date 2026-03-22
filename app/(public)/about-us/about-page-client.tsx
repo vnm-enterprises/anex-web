@@ -35,7 +35,7 @@ export default function AboutPageClient() {
   ];
 
   return (
-    <main className="bg-background-light dark:bg-background-dark text-slate-800 dark:text-slate-200">
+    <main className="bg-background text-foreground">
       <JobApplicationModal
         jobTitle={isApplying}
         onClose={() => setIsApplying(null)}
@@ -43,11 +43,11 @@ export default function AboutPageClient() {
       <section className="relative min-h-[600px] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0">
           <img
-            src="https://images.pexels.com/photos/1743227/pexels-photo-1743227.jpeg?auto=compress&cs=tinysrgb&w=2200"
+            src="https://images.pexels.com/photos/259588/pexels-photo-259588.jpeg?auto=compress&cs=tinysrgb&w=2200"
             className="w-full h-full object-cover"
             alt="Modern Sri Lanka urban skyline"
           />
-          <div className="absolute inset-0 bg-slate-900/70" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-primary/35 to-black/80" />
         </div>
 
         <div className="relative z-10 max-w-4xl mx-auto px-6 text-center">
@@ -84,7 +84,7 @@ export default function AboutPageClient() {
       </section>
 
       <section className="-mt-12 relative z-20 max-w-6xl mx-auto px-6">
-        <div className="bg-white dark:bg-slate-800 rounded-xl shadow-xl p-8 grid grid-cols-2 md:grid-cols-4 gap-8">
+        <div className="bg-card rounded-2xl border border-border/60 soft-shadow p-8 grid grid-cols-2 md:grid-cols-4 gap-8">
           {stats.map((stat) => (
             <div key={stat.label} className="text-center">
               <p className="text-3xl font-bold text-primary">{stat.value}</p>
@@ -96,7 +96,7 @@ export default function AboutPageClient() {
         </div>
       </section>
 
-      <section id="mission" className="py-24">
+      <section id="mission" className="py-24 bg-muted/20">
         <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-16 items-center">
           <div>
             <img
@@ -148,7 +148,7 @@ export default function AboutPageClient() {
         </div>
       </section>
 
-      <section className="py-24 bg-white dark:bg-slate-900/40">
+      <section className="py-24 bg-card border-y border-border/50">
         <div className="max-w-4xl mx-auto px-6 text-center">
           <span className="text-primary uppercase text-sm font-semibold">
             The Visionary Behind RENTR
@@ -186,7 +186,7 @@ export default function AboutPageClient() {
         </div>
       </section>
 
-      <section id="careers" className="py-24 relative">
+      <section id="careers" className="py-24 relative bg-background">
         <div className="max-w-5xl mx-auto px-6 text-center mb-16">
           <span className="bg-primary/10 text-primary px-4 py-1 rounded-full text-xs font-bold uppercase">
             We Are Hiring
@@ -228,7 +228,7 @@ export default function AboutPageClient() {
         </div>
       </section>
 
-      <section className="py-24 bg-primary/5">
+      <section className="py-24 bg-primary/5 border-t border-border/40">
         <div className="max-w-5xl mx-auto px-6 text-center">
           <h2 className="text-4xl font-bold mb-6">Why RENTR?</h2>
           <p className="text-lg text-slate-600 dark:text-slate-400 mb-12 max-w-3xl mx-auto">
