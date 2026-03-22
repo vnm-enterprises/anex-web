@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import Image from "next/image"
 import { CheckCircle, Sparkles, Rocket, TrendingUp, Zap } from "lucide-react"
 import { PostAdButton } from "@/components/home/post-ad-button"
 import { buildPageMetadata } from "@/lib/seo"
@@ -54,9 +55,12 @@ export default function PricingPage() {
     <div className="animate-fade-in">
       {/* ================= HERO ================= */}
       <section className="relative overflow-hidden py-28">
-        <img
+        <Image
           src="https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg?auto=compress&cs=tinysrgb&w=2200"
           alt="Modern apartment exterior"
+          fill
+          priority
+          sizes="100vw"
           className="absolute inset-0 h-full w-full object-cover"
         />
   <div className="absolute inset-0 bg-gradient-to-b from-slate-950/70 via-slate-900/62 to-black/68" />
