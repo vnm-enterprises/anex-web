@@ -1,6 +1,6 @@
-# Annex.lk Deployment Guide
+# RENTR Deployment Guide
 
-This guide covers deploying Annex.lk to production using Vercel and Supabase.
+This guide covers deploying RENTR to production using Vercel and Supabase.
 
 ## Prerequisites
 
