@@ -75,7 +75,7 @@ export function SiteHeader() {
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-20 items-center">
-          <Logo />
+          <Logo tone={pathname === "/" ? "light" : "dark"} />
           <div className="flex items-center gap-4 md:gap-6">
             {/* Desktop Navigation */}
             <div className="hidden md:flex space-x-1 items-center">
