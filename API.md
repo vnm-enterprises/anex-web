@@ -1,6 +1,6 @@
-# Annex.lk API Documentation
+# RENTR API Documentation
 
-Complete API reference for Annex.lk endpoints.
+Complete API reference for RENTR endpoints.
 
 ## Authentication
 
