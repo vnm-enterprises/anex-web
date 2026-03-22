@@ -8,8 +8,9 @@ import {
   Loader2,
   Star,
 } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { toast } from "sonner";
 import { BLOG_POSTS } from "@/lib/blog-posts";
 
@@ -17,9 +18,13 @@ export default function BlogPageClient() {
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [subscribed, setSubscribed] = useState(false);
+  const submitLockRef = useRef(false);
 
   const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (submitLockRef.current) return;
+
+    submitLockRef.current = true;
     setLoading(true);
 
     try {
@@ -37,6 +42,7 @@ export default function BlogPageClient() {
     } catch {
       toast.error("Something went wrong. Please try again.");
     } finally {
+      submitLockRef.current = false;
       setLoading(false);
     }
   };
@@ -91,9 +97,12 @@ export default function BlogPageClient() {
   return (
     <main className="bg-background">
       <section className="relative pt-32 pb-20 border-b border-border overflow-hidden">
-        <img
+        <Image
           src="https://images.pexels.com/photos/323705/pexels-photo-323705.jpeg?auto=compress&cs=tinysrgb&w=2200"
           alt="Modern apartment interior"
+          fill
+          priority
+          sizes="100vw"
           className="absolute inset-0 h-full w-full object-cover"
         />
      <div className="absolute inset-0 bg-gradient-to-b from-black/45 via-slate-900/30 to-black/60" />
@@ -119,9 +128,11 @@ export default function BlogPageClient() {
             {BLOG_POSTS.map((post) => (
               <article key={post.slug} className="group cursor-pointer">
                 <div className="aspect-[16/9] rounded-[2.5rem] overflow-hidden mb-8 relative">
-                  <img
+                  <Image
                     src={post.image}
                     alt={post.title}
+                    fill
+                    sizes="(max-width: 768px) 100vw, 50vw"
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                   />
                   <div className="absolute top-6 left-6">
