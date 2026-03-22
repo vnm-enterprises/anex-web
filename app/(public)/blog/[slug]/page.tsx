@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowLeft, CalendarDays, Clock, Tag } from "lucide-react";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
@@ -74,9 +75,12 @@ export default async function BlogArticlePage({ params }: BlogArticlePageProps) 
   return (
     <main className="bg-background pb-20">
       <section className="relative h-[40vh] min-h-[320px] overflow-hidden">
-        <img
+        <Image
           src={post.image}
           alt={post.title}
+          fill
+          priority
+          sizes="100vw"
           className="absolute inset-0 h-full w-full object-cover"
         />
         <div className="absolute inset-0 bg-black/45" />
