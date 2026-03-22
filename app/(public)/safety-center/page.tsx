@@ -12,7 +12,7 @@ import { buildPageMetadata } from "@/lib/seo";
 export const metadata: Metadata = buildPageMetadata({
   title: "Safety Center",
   description:
-    "Learn tenant and landlord safety practices, scam prevention tips, and fraud reporting guidelines on Annex.lk.",
+    "Learn tenant and landlord safety practices, scam prevention tips, and fraud reporting guidelines on RENTR.",
   path: "/safety-center",
   keywords: ["rental safety", "avoid rental scams", "tenant safety Sri Lanka"],
 });
@@ -31,7 +31,7 @@ export default function SafetyCenterPage() {
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto font-medium">
             Your safety is our priority. Learn how to protect yourself while
-            searching for or renting out properties on Annex.lk.
+            searching for or renting out properties on RENTR.
           </p>
         </div>
       </section>

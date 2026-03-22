@@ -12,7 +12,7 @@ export function CtaSection() {
             Have a property to rent?
           </h2>
           <p className="text-white/80 text-lg md:text-xl font-medium leading-relaxed">
-            Join thousands of landlords finding verified tenants on Annex.lk.
+            Join thousands of landlords finding verified tenants on RENTR.
             Post your ad for free today.
           </p>
         </div>
