@@ -22,7 +22,7 @@ export async function sendPaymentSuccessEmail({
   if (!resend) {
     console.log("Mock Email Sending (RESEND_API_KEY missing):", {
       to: email,
-      subject: "Payment Success - Annex.lk",
+      subject: "Payment Success - RENTR",
       body: `Hello ${customerName}, your payment of LKR ${amount} for "${listingTitle}" was successful. Order ID: ${orderId}`,
     });
     return { success: true, mocked: true };
@@ -30,21 +30,21 @@ export async function sendPaymentSuccessEmail({
 
   try {
     const { data, error } = await resend.emails.send({
-      from: "Annex.lk ", // Replace with your verified domain
+      from: "RENTR ", // Replace with your verified domain
       to: [email],
       subject: "Payment Confirmed - Your Listing is Now Pending Review",
       html: `
         <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
           <h1 style="color: #3b82f6;">Payment Successful!</h1>
           <p>Hello <strong>${customerName}</strong>,</p>
-          <p>Thank you for choosing Annex.lk. Your payment for the listing "<strong>${listingTitle}</strong>" has been received.</p>
+          <p>Thank you for choosing RENTR. Your payment for the listing "<strong>${listingTitle}</strong>" has been received.</p>
           <div style="background: #f9fafb; padding: 15px; border-radius: 8px; margin: 20px 0;">
             <p style="margin: 0; font-size: 14px; color: #6b7280;">Order ID: ${orderId}</p>
             <p style="margin: 5px 0 0; font-size: 18px; font-weight: bold; color: #111827;">Amount Paid: LKR ${amount.toLocaleString()}</p>
           </div>
           <p>Your listing has been moved to <strong>Pending Review</strong> status. Our team will review and approve it shortly.</p>
           <p style="font-size: 12px; color: #9ca3af; margin-top: 30px;">
-            This is an automated email. Please do not reply. For support, contact <a href="mailto:support@annex.lk">support@annex.lk</a>.
+            This is an automated email. Please do not reply. For support, contact <a href="mailto:support@rentr.lk">support@rentr.lk</a>.
           </p>
         </div>
       `,
@@ -84,7 +84,7 @@ export async function sendJobApplicationEmail({
 
   try {
     const { data, error } = await resend.emails.send({
-      from: "Annex.lk Careers <onboarding@resend.dev>",
+      from: "RENTR Careers <onboarding@resend.dev>",
       to: ["vihanganethusara00@gmail.com"],
       subject: `New Job Application: ${jobTitle} - ${fullName}`,
       attachments: attachment ? [attachment] : [],
@@ -132,7 +132,7 @@ export async function sendContactInquiryEmail({
 
   try {
     const { data, error } = await resend.emails.send({
-      from: "Annex.lk Support <no-reply@annex.lk>",
+      from: "RENTR Support <no-reply@rentr.lk>",
       to: ["annexlk1@gmail.com"],
       subject: `New Contact Inquiry: ${subject}`,
       html: `
@@ -173,7 +173,7 @@ export async function sendListingExpirationEmail({
 
   try {
     const { data, error } = await resend.emails.send({
-      from: "Annex.lk <no-reply@annex.lk>",
+      from: "RENTR <no-reply@rentr.lk>",
       to: [email],
       subject: `Your Listing "${listingTitle}" Has Expired`,
       html: `
@@ -183,7 +183,7 @@ export async function sendListingExpirationEmail({
           <p>Your listing "<strong>${listingTitle}</strong>" has expired and is no longer visible to the public.</p>
           <p>You can renew your listing from your dashboard to make it active again.</p>
           <div style="margin: 30px 0;">
-            <a href="https://annex.lk/dashboard" style="background: #3b82f6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold;">Go to Dashboard</a>
+            <a href="https://rentr.lk/dashboard" style="background: #3b82f6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold;">Go to Dashboard</a>
           </div>
           <p style="font-size: 12px; color: #9ca3af;">Note: Expired listings that are not renewed within 30 days will be permanently deleted.</p>
         </div>
