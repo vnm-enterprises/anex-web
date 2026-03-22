@@ -92,20 +92,22 @@ export default function BlogPageClient() {
     <main className="bg-background">
       <section className="relative pt-32 pb-20 border-b border-border overflow-hidden">
         <img
-          src="https://images.pexels.com/photos/4246120/pexels-photo-4246120.jpeg?auto=compress&cs=tinysrgb&w=2200"
+          src="https://images.pexels.com/photos/323705/pexels-photo-323705.jpeg?auto=compress&cs=tinysrgb&w=2200"
           alt="Modern apartment interior"
           className="absolute inset-0 h-full w-full object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/55 to-background/80 backdrop-blur-[2px]" />
+     <div className="absolute inset-0 bg-gradient-to-b from-black/45 via-slate-900/30 to-black/60" />
+        <div className="absolute -top-24 -right-12 h-72 w-72 rounded-full bg-primary/20 blur-3xl" />
+        <div className="absolute -bottom-24 -left-12 h-72 w-72 rounded-full bg-accent/20 blur-3xl" />
         <div className="max-w-7xl mx-auto px-6">
-          <span className="relative inline-block py-1 px-4 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] font-black uppercase tracking-widest mb-6">
+          <span className="relative inline-block py-1 px-4 rounded-full bg-primary/10 border border-primary/20 text-white text-[10px] font-black uppercase tracking-widest mb-6">
             RENTR Insights
           </span>
-          <h1 className="relative text-4xl md:text-7xl font-black text-foreground tracking-tighter mb-8 max-w-4xl">
+          <h1 className="relative text-4xl md:text-7xl font-black text-white tracking-tighter mb-8 max-w-4xl">
             Everything you need to know about{" "}
             <span className="text-primary italic">Rental Living</span>.
           </h1>
-          <p className="relative max-w-2xl text-muted-foreground font-semibold">
+          <p className="relative max-w-2xl text-white/85 font-semibold">
             Expert advice for tenants and landlords, from safe renting practices to listing growth strategies.
           </p>
         </div>
@@ -156,11 +158,12 @@ export default function BlogPageClient() {
             ))}
           </div>
 
-          <div className="mt-32 p-16 rounded-[3rem] bg-gradient-to-br from-foreground via-foreground to-primary text-white overflow-hidden relative border border-white/5">
+          <div className="mt-32 p-16 rounded-[3rem] bg-gradient-to-br from-slate-900 via-slate-800 to-primary text-white overflow-hidden relative border border-primary/20 shadow-2xl shadow-slate-900/30">
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.16),transparent_45%)]" />
             <div className="relative z-10 max-w-2xl">
               <h3 className="text-4xl font-black tracking-tighter mb-6 leading-none">
                 Get rental tips and new listings{" "}
-                <span className="text-primary">straight to your inbox</span>.
+                <span className="text-accent">straight to your inbox</span>.
               </h3>
               <form
                 onSubmit={handleSubscribe}
@@ -177,7 +180,7 @@ export default function BlogPageClient() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="h-16 px-10 rounded-2xl bg-primary text-white font-black text-lg shadow-xl shadow-primary/40 hover:scale-105 active:scale-95 transition-all"
+                  className="h-16 px-10 rounded-2xl bg-accent text-accent-foreground font-black text-lg shadow-xl shadow-accent/40 hover:scale-105 active:scale-95 transition-all"
                 >
                   {loading ? (
                     <>
