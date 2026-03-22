@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowRight, MapPin, Sparkles } from "lucide-react";
 import { useHomeHook } from "@/hooks/use-home-hook";
 
@@ -37,10 +38,12 @@ export function DistrictsSection() {
           >
             {/* Background Placeholder/Simulated Image */}
             <div className="absolute inset-0 bg-muted">
-              <img
+              <Image
                 src={district.image}
                 alt={district.name}
-                className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110 grayscale-[30%] group-hover:grayscale-0"
+                fill
+                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                className="object-cover transition-transform duration-1000 group-hover:scale-110 grayscale-[30%] group-hover:grayscale-0"
               />
             </div>
 
