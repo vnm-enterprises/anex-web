@@ -11,11 +11,11 @@ import { ContactForm } from "@/components/contact-form";
 import { buildPageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = buildPageMetadata({
-  title: "Contact Annex.lk Support",
+  title: "Contact RENTR Support",
   description:
-    "Get help with listings, payments, account issues, and platform safety from the Annex.lk support team.",
+    "Get help with listings, payments, account issues, and platform safety from the RENTR support team.",
   path: "/contact-support",
-  keywords: ["Annex.lk support", "contact rental support", "Sri Lanka rental help"],
+  keywords: ["RENTR support", "contact rental support", "Sri Lanka rental help"],
 });
 
 export default function ContactPage() {
@@ -145,7 +145,7 @@ export default function ContactPage() {
                 </h4>
                 <p className="text-sm text-muted-foreground leading-relaxed mb-6 font-medium">
                   Never share your password or payment details over email or
-                  chat. Annex.lk support will never ask for your private payment
+                  chat. RENTR support will never ask for your private payment
                   credentials.
                 </p>
                 <a
