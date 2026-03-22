@@ -8,7 +8,7 @@ export const metadata: Metadata = buildPageMetadata({
   description:
     "Post 3 listings free. After that, pay per listing and optionally boost for stronger visibility.",
   path: "/pricing",
-  keywords: ["listing pricing", "boost pricing", "Annex.lk pricing"],
+  keywords: ["listing pricing", "boost pricing", "RENTR pricing"],
 })
 
 interface BoostPlan {
