@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -25,13 +25,23 @@ export function AffiliateWithdrawalButton({
   availableAmount,
 }: AffiliateWithdrawalButtonProps) {
   const [open, setOpen] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const submitLockRef = useRef(false);
 
   const defaultAmount = useMemo(() => {
     return availableAmount > 0 ? availableAmount.toFixed(2) : "";
   }, [availableAmount]);
 
+  const handleOpenChange = (nextOpen: boolean) => {
+    setOpen(nextOpen);
+    if (!nextOpen) {
+      submitLockRef.current = false;
+      setSubmitting(false);
+    }
+  };
+
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <Button
           type="button"
@@ -52,7 +62,18 @@ export function AffiliateWithdrawalButton({
           </DialogDescription>
         </DialogHeader>
 
-        <form action={requestAction} className="space-y-4">
+        <form
+          action={requestAction}
+          className="space-y-4"
+          onSubmit={(event) => {
+            if (submitLockRef.current) {
+              event.preventDefault();
+              return;
+            }
+            submitLockRef.current = true;
+            setSubmitting(true);
+          }}
+        >
           <div className="grid gap-2">
             <Label htmlFor="amount_lkr">Amount (LKR)</Label>
             <Input
@@ -122,8 +143,8 @@ export function AffiliateWithdrawalButton({
           </div>
 
           <DialogFooter>
-            <Button type="submit" className="rounded-2xl">
-              Submit Request
+            <Button type="submit" className="rounded-2xl" disabled={submitting}>
+              {submitting ? "Submitting..." : "Submit Request"}
             </Button>
           </DialogFooter>
         </form>
