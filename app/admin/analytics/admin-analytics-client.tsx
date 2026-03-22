@@ -370,7 +370,7 @@ export function AdminAnalyticsClient() {
         <Card className="border-none soft-shadow-xl overflow-hidden bg-card/50 backdrop-blur-xl rounded-[2.5rem]">
           <CardHeader className="p-8">
             <CardTitle className="text-xl font-black tracking-tight flex items-center gap-3">
-              <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-500">
+              <div className="p-2 rounded-xl bg-accent/100/10 text-accent">
                 <TrendingUp size={20} />
               </div>
               Revenue Trend (30d)
@@ -551,7 +551,7 @@ export function AdminAnalyticsClient() {
         <Card className="border-none soft-shadow-xl overflow-hidden bg-card/50 backdrop-blur-xl rounded-[2.5rem]">
           <CardHeader className="p-8">
             <CardTitle className="text-xl font-black tracking-tight flex items-center gap-3">
-              <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-500">
+              <div className="p-2 rounded-xl bg-accent/100/10 text-accent">
                 <DollarSign size={20} />
               </div>
               Revenue Mix
@@ -587,7 +587,7 @@ export function AdminAnalyticsClient() {
         <Card className="border-none soft-shadow-xl overflow-hidden bg-card/50 backdrop-blur-xl rounded-[2.5rem] lg:col-span-1">
           <CardHeader className="p-8">
             <CardTitle className="text-xl font-black tracking-tight flex items-center gap-3">
-              <div className="p-2 rounded-xl bg-indigo-500/10 text-indigo-500">
+              <div className="p-2 rounded-xl bg-primary/10 text-primary">
                 <MapPin size={20} />
               </div>
               Top Performing Districts
@@ -627,13 +627,13 @@ export function AdminAnalyticsClient() {
         Boost Performance <span className="text-primary">Analysis</span>
       </h3>
       <div className="grid gap-8 md:grid-cols-2">
-        <div className="p-8 rounded-[2.5rem] bg-indigo-600/5 border border-indigo-600/10 space-y-6">
+        <div className="p-8 rounded-[2.5rem] bg-primary/5 border border-primary/10 space-y-6">
           <div className="flex justify-between items-center">
-            <div className="p-3 rounded-2xl bg-indigo-600 text-white">
+            <div className="p-3 rounded-2xl bg-primary text-white">
               <TrendingUp size={24} />
             </div>
             <div className="text-right">
-              <p className="text-xs font-black uppercase tracking-widest text-indigo-600 mb-1">
+              <p className="text-xs font-black uppercase tracking-widest text-primary mb-1">
                 Boosted Listings
               </p>
               <h4 className="text-2xl font-black tracking-tight">
@@ -646,7 +646,7 @@ export function AdminAnalyticsClient() {
               <p className="text-[10px] font-black text-muted-foreground uppercase tracking-wider mb-2">
                 Avg. Views
               </p>
-              <p className="text-3xl font-black text-indigo-600">
+              <p className="text-3xl font-black text-primary">
                 {performanceStats?.boosted.views.toFixed(1)}
               </p>
             </div>
@@ -654,7 +654,7 @@ export function AdminAnalyticsClient() {
               <p className="text-[10px] font-black text-muted-foreground uppercase tracking-wider mb-2">
                 Avg. Inquiries
               </p>
-              <p className="text-3xl font-black text-indigo-600">
+              <p className="text-3xl font-black text-primary">
                 {performanceStats?.boosted.inq.toFixed(1)}
               </p>
             </div>
@@ -720,7 +720,7 @@ function MetricCard({
             {icon}
           </div>
           {trend && (
-            <span className="text-[10px] font-black py-1 px-2 rounded-full bg-emerald-500/10 text-emerald-500 group-hover:bg-white/20 group-hover:text-white transition-colors duration-500">
+            <span className="text-[10px] font-black py-1 px-2 rounded-full bg-accent/100/10 text-accent group-hover:bg-white/20 group-hover:text-white transition-colors duration-500">
               {trend}
             </span>
           )}

@@ -89,7 +89,7 @@ export default async function DashboardListingPage({
     pending: "bg-accent/10 text-accent",
     rejected: "bg-destructive/10 text-destructive",
     expired: "bg-muted text-muted-foreground",
-    pending_payment: "bg-amber-500/10 text-amber-500",
+    pending_payment: "bg-primary/10 text-primary",
   } as Record<string, string>;
 
   return (
@@ -303,7 +303,7 @@ export default async function DashboardListingPage({
                     disabled={inq.is_read}
                     className={`rounded-xl font-black text-[10px] uppercase tracking-widest px-4 ${
                       inq.is_read
-                        ? "text-emerald-500 cursor-default hover:bg-transparent"
+                        ? "text-accent cursor-default hover:bg-transparent"
                         : "border-primary text-primary hover:bg-primary hover:text-white"
                     }`}
                   >

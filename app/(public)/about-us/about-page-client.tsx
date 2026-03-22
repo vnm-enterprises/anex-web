@@ -43,9 +43,9 @@ export default function AboutPageClient() {
       <section className="relative min-h-[600px] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0">
           <img
-            src="/media/images/about.png"
+            src="https://images.pexels.com/photos/1743227/pexels-photo-1743227.jpeg?auto=compress&cs=tinysrgb&w=2200"
             className="w-full h-full object-cover"
-            alt="Modern tropical villa in Sri Lanka"
+            alt="Modern Sri Lanka urban skyline"
           />
           <div className="absolute inset-0 bg-slate-900/70" />
         </div>
@@ -56,12 +56,12 @@ export default function AboutPageClient() {
           </span>
 
           <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight">
-            Reimagining Rental Living in{" "}
-            <span className="text-primary">Sri Lanka</span>.
+            Building Sri Lanka's <br />
+            <span className="text-primary">Rental Future</span>.
           </h1>
 
           <p className="text-lg text-slate-200 mb-10 max-w-2xl mx-auto">
-            We are building the digital infrastructure for long-term stays —
+            RENTR is the digital home for Sri Lanka's long-term rental market —
             from Colombo's skyline to the southern coast.
           </p>
 
@@ -100,15 +100,15 @@ export default function AboutPageClient() {
         <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-16 items-center">
           <div>
             <img
-              src="/media/images/mission.png"
+              src="https://images.pexels.com/photos/1571458/pexels-photo-1571458.jpeg?auto=compress&cs=tinysrgb&w=1600"
               className="rounded-2xl shadow-2xl h-[500px] w-full object-cover"
-              alt="Mission"
+              alt="Modern home interior"
             />
           </div>
 
           <div>
             <h2 className="text-3xl md:text-4xl font-bold mb-6">
-              Simplifying the search for a home away from home.
+              Making renting simple, honest, and accessible for everyone.
             </h2>
 
             <p className="text-slate-600 dark:text-slate-400 text-lg mb-8">

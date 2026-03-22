@@ -173,19 +173,19 @@ export function ListingDetail({ listing }: { listing: Listing }) {
 
               <div className="absolute left-6 top-6 flex flex-col gap-2 z-10">
                 {activeTier === "featured" && (
-                  <Badge className="bg-amber-500 text-white border-none font-black uppercase tracking-widest text-[10px] px-3 py-1 shadow-lg backdrop-blur-sm">
+                  <Badge className="bg-primary text-white border-none font-black uppercase tracking-widest text-[10px] px-3 py-1 shadow-lg backdrop-blur-sm">
                     <Sparkles className="h-3 w-3 mr-1 fill-current" />
                     Featured
                   </Badge>
                 )}
                 {activeTier === "premium" && (
-                  <Badge className="bg-violet-600 text-white border-none font-black uppercase tracking-widest text-[10px] px-3 py-1 shadow-lg backdrop-blur-sm">
+                  <Badge className="bg-accent text-white border-none font-black uppercase tracking-widest text-[10px] px-3 py-1 shadow-lg backdrop-blur-sm">
                     <Star className="h-3 w-3 mr-1 fill-current" />
                     Premium
                   </Badge>
                 )}
                 {activeTier === "quick" && (
-                  <Badge className="bg-cyan-500 text-white border-none font-black uppercase tracking-widest text-[10px] px-3 py-1 shadow-lg backdrop-blur-sm">
+                  <Badge className="bg-accent text-white border-none font-black uppercase tracking-widest text-[10px] px-3 py-1 shadow-lg backdrop-blur-sm">
                     <Zap className="h-3 w-3 mr-1 fill-current" />
                     Top
                   </Badge>
@@ -296,7 +296,7 @@ export function ListingDetail({ listing }: { listing: Listing }) {
                   Security
                 </span>
                 <div className="flex items-center gap-2 text-foreground font-black text-lg">
-                  <Check className="h-4 w-4 text-emerald-500" />
+                  <Check className="h-4 w-4 text-accent" />
                   Verified
                 </div>
               </div>
@@ -413,14 +413,14 @@ export function ListingDetail({ listing }: { listing: Listing }) {
               </div>
 
               {sent ? (
-                <div className="rounded-[2.5rem] bg-emerald-50 p-10 text-center border border-emerald-100 animate-fade-in">
-                  <div className="w-20 h-20 rounded-full bg-emerald-500 text-white flex items-center justify-center mx-auto mb-6 shadow-xl shadow-emerald-200">
+                <div className="rounded-[2.5rem] bg-accent/10 p-10 text-center border border-accent/20 animate-fade-in">
+                  <div className="w-20 h-20 rounded-full bg-accent/100 text-white flex items-center justify-center mx-auto mb-6 shadow-xl shadow-accent/20">
                     <Check className="h-10 w-10 stroke-[3]" />
                   </div>
-                  <h3 className="text-2xl font-black text-emerald-900 tracking-tighter mb-2">
+                  <h3 className="text-2xl font-black text-foreground tracking-tighter mb-2">
                     Message Sent!
                   </h3>
-                  <p className="text-emerald-700/80 font-bold leading-relaxed">
+                  <p className="text-muted-foreground font-bold leading-relaxed">
                     The owner has been notified. Expect a quick response.
                   </p>
                 </div>

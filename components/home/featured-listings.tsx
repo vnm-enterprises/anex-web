@@ -15,16 +15,15 @@ export function FeaturedListings() {
     <section className="animate-fade-in [animation-delay:600ms] ">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-rose-500/10 border border-rose-500/20 text-rose-500 text-[10px] font-black uppercase tracking-widest">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] font-black uppercase tracking-widest">
             <Heart className="h-3 w-3 fill-current" />
             Featured Listings
           </div>
           <h2 className="text-4xl md:text-5xl font-black text-foreground tracking-tighter">
-            Featured <span className="text-rose-500 italic">listings</span>
+            Featured <span className="text-primary italic">listings</span>
           </h2>
           <p className="text-muted-foreground font-medium max-w-xl">
-            A curated selection of high-quality annexes and rooms based on
-            tenant feedback and property standards.
+            Handpicked premium rentals verified for quality, comfort, and value across Sri Lanka.
           </p>
         </div>
         <Button

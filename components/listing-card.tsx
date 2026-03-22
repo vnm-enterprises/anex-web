@@ -46,25 +46,25 @@ export function ListingCard({ listing }: { listing: Listing }) {
         {/* Badges */}
         <div className="absolute top-5 left-5 flex flex-col gap-2">
           {activeTier === "featured" && (
-            <Badge className="bg-amber-500 text-white border-none font-black uppercase tracking-widest text-[9px] px-3 py-1.5 shadow-xl backdrop-blur-md">
+            <Badge className="bg-primary text-white border-none font-black uppercase tracking-widest text-[9px] px-3 py-1.5 shadow-xl backdrop-blur-md">
               <Sparkles className="h-3 w-3 mr-1 fill-current" />
               Featured
             </Badge>
           )}
           {activeTier === "premium" && (
-            <Badge className="bg-violet-600 text-white border-none font-black uppercase tracking-widest text-[9px] px-3 py-1.5 shadow-xl backdrop-blur-md">
+            <Badge className="bg-accent text-white border-none font-black uppercase tracking-widest text-[9px] px-3 py-1.5 shadow-xl backdrop-blur-md">
               <Star className="h-3 w-3 mr-1 fill-current" />
               Premium
             </Badge>
           )}
           {activeTier === "quick" && (
-            <Badge className="bg-cyan-500 text-white border-none font-black uppercase tracking-widest text-[9px] px-3 py-1.5 shadow-xl backdrop-blur-md">
+            <Badge className="bg-accent text-white border-none font-black uppercase tracking-widest text-[9px] px-3 py-1.5 shadow-xl backdrop-blur-md">
               <Zap className="h-3 w-3 mr-1 fill-current" />
               Top
             </Badge>
           )}
           {listing.status === "pending_payment" && (
-            <Badge className="bg-amber-500 text-white border-none font-black uppercase tracking-widest text-[9px] px-3 py-1.5 shadow-xl backdrop-blur-md">
+            <Badge className="bg-primary text-white border-none font-black uppercase tracking-widest text-[9px] px-3 py-1.5 shadow-xl backdrop-blur-md">
               <CreditCard className="h-3 w-3 mr-1 fill-current" />
               Pending Payment
             </Badge>

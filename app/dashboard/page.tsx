@@ -228,22 +228,22 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
             label: "Total Listings",
             value: totalListings || 0,
             icon: Home,
-            color: "text-blue-500",
-            bg: "bg-blue-500/10",
+            color: "text-primary",
+            bg: "bg-primary/10",
           },
           {
             label: "Total Views",
             value: totalViews,
             icon: Eye,
-            color: "text-emerald-500",
-            bg: "bg-emerald-500/10",
+            color: "text-accent",
+            bg: "bg-accent/100/10",
           },
           {
             label: "Active Inquiries",
             value: totalInquiries || 0,
             icon: MessageCircle,
-            color: "text-amber-500",
-            bg: "bg-amber-500/10",
+            color: "text-primary",
+            bg: "bg-primary/10",
             unread: unreadInquiries,
           },
           {
@@ -456,7 +456,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
                         </span>
                       )}
                       {listing.is_boosted && (
-                        <span className="bg-amber-500/10 text-amber-600 text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full">
+                        <span className="bg-primary/10 text-primary text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full">
                           {getBoostTier(listing.boost_weight)}
                         </span>
                       )}
@@ -500,7 +500,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
                         listing.status === "approved"
                           ? "bg-primary/10 text-primary"
                           : listing.status === "pending"
-                            ? "bg-amber-500/10 text-amber-500"
+                            ? "bg-primary/10 text-primary"
                             : "bg-destructive/10 text-destructive"
                       }`}
                     >
@@ -564,7 +564,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
                     </div>
                     <div className="rounded-2xl bg-muted/40 p-4">
                       <p className="text-xs font-black uppercase tracking-widest text-muted-foreground">Available to Withdraw</p>
-                      <p className="text-2xl font-black text-emerald-600">Rs {affiliate.available_for_withdrawal.toLocaleString(undefined, { maximumFractionDigits: 2 })}</p>
+                      <p className="text-2xl font-black text-primary">Rs {affiliate.available_for_withdrawal.toLocaleString(undefined, { maximumFractionDigits: 2 })}</p>
                     </div>
                     <div className="rounded-2xl bg-muted/40 p-4">
                       <p className="text-xs font-black uppercase tracking-widest text-muted-foreground">Qualifying Purchases</p>
@@ -622,11 +622,11 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
                             <span
                               className={`inline-flex rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-widest ${
                                 requestItem.status === "deposited"
-                                  ? "bg-emerald-500/10 text-emerald-600"
+                                  ? "bg-accent/100/10 text-accent"
                                   : requestItem.status === "rejected"
                                     ? "bg-destructive/10 text-destructive"
                                     : requestItem.status === "processing"
-                                      ? "bg-amber-500/10 text-amber-600"
+                                      ? "bg-primary/10 text-primary"
                                       : "bg-primary/10 text-primary"
                               }`}
                             >
@@ -742,7 +742,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
             </CardContent>
           </Card>
 
-          <Card className="hidden md:block border-none soft-shadow bg-gradient-to-br from-primary to-emerald-600 rounded-3xl overflow-hidden text-white">
+          <Card className="hidden md:block border-none soft-shadow bg-gradient-to-br from-primary to-accent rounded-3xl overflow-hidden text-white">
             <CardContent className="p-8">
               <h3 className="text-2xl font-black tracking-tighter mb-4">
                 Grow your business

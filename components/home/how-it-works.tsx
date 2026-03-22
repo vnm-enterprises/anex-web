@@ -9,7 +9,7 @@ const HowItWorks = () => {
               Simple Process
             </span>
             <h2 className="text-4xl md:text-5xl font-black text-foreground tracking-tighter">
-              Rent with <span className="text-primary">Confidence</span>
+              Find your home with <span className="text-primary">Confidence</span>
             </h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12 lg:gap-20">
@@ -17,17 +17,17 @@ const HowItWorks = () => {
               {
                 icon: Search,
                 title: "1. Search & Filter",
-                desc: "Use our advanced filters to find the perfect annex, room, or house that fits your budget and location needs.",
+                desc: "Use smart filters to find the perfect rental — by district, type, price, and more. Results update instantly.",
               },
               {
                 icon: MessageCircle,
-                title: "2. Connect with Owners",
-                desc: "Chat directly with verified landlords. No middleman fees for basic listings, transparency guaranteed.",
+                title: "2. Connect Directly",
+                desc: "Message verified landlords directly — no middlemen, no hidden fees. Get answers fast.",
               },
               {
                 icon: Key,
-                title: "3. Move in Securely",
-                desc: "Finalize your agreement and move into your new home. We support you until you are settled in.",
+                title: "3. Move In Secure",
+                desc: "Finalise your agreement and settle into your new home confidently. We're with you every step.",
               },
             ].map((item, i) => (
               <div

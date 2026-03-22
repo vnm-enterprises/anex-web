@@ -113,7 +113,7 @@ export function DashboardListingsClient({
             <div key={listing.id} className="relative group">
               <ListingCard listing={listing} />
               {listing.is_boosted && (
-                <span className="absolute top-6 left-6 z-20 bg-amber-500 text-white text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full shadow-xl">
+                <span className="absolute top-6 left-6 z-20 bg-primary text-white text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full shadow-xl">
                   {getBoostTier(listing.boost_weight)} Boost
                 </span>
               )}
@@ -138,7 +138,7 @@ export function DashboardListingsClient({
                 {listing.payment_status === "unpaid" && (
                   <button
                     onClick={() => handlePaymentClick(listing.id)}
-                    className="flex items-center justify-center h-10 px-4 bg-amber-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-amber-500/20 hover:bg-amber-600 transition-all whitespace-nowrap"
+                    className="flex items-center justify-center h-10 px-4 bg-primary text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-primary/20 hover:bg-primary/90 transition-all whitespace-nowrap"
                   >
                     Complete Payment
                   </button>

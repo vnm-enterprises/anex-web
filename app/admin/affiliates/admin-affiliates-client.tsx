@@ -222,7 +222,7 @@ export function AdminAffiliatesClient() {
                     </TableCell>
                     <TableCell>
                       {(!aff.expires_at || new Date(aff.expires_at) > new Date()) ? (
-                        <Badge className="bg-emerald-500/10 text-emerald-500 border-emerald-500/20 shadow-none">
+                        <Badge className="bg-accent/100/10 text-accent border-accent/20 shadow-none">
                           Active
                         </Badge>
                       ) : (
@@ -319,11 +319,11 @@ export function AdminAffiliatesClient() {
                         <Badge
                           className={
                             requestItem.status === "deposited"
-                              ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20 shadow-none"
+                              ? "bg-accent/100/10 text-accent border-accent/20 shadow-none"
                               : requestItem.status === "rejected"
                                 ? "bg-destructive/10 text-destructive border-destructive/20 shadow-none"
                                 : requestItem.status === "processing"
-                                  ? "bg-amber-500/10 text-amber-500 border-amber-500/20 shadow-none"
+                                  ? "bg-primary/10 text-primary border-primary/20 shadow-none"
                                   : "bg-primary/10 text-primary border-primary/20 shadow-none"
                           }
                         >

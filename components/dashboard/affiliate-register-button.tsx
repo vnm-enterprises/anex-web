@@ -47,7 +47,7 @@ export function AffiliateRegisterButton({ registerAction }: AffiliateRegisterBut
             <p>You are responsible for complying with local advertising and disclosure regulations when promoting your code.</p>
           </div>
 
-          <div className="flex items-start gap-3 rounded-2xl border border-amber-500/30 bg-amber-500/10 p-3 text-xs font-bold text-amber-700">
+          <div className="flex items-start gap-3 rounded-2xl border border-primary/30 bg-primary/10 p-3 text-xs font-bold text-primary">
             <AlertTriangle className="h-4 w-4 mt-0.5 shrink-0" />
             <p>
               By proceeding, you agree to the affiliate terms, commission rules, and platform anti-abuse policies.

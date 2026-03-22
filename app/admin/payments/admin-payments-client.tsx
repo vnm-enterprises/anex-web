@@ -182,9 +182,9 @@ export function AdminPaymentsClient({
                       <Badge
                         className={`rounded-lg font-black uppercase text-[9px] border-none ${
                           payment.status === "paid"
-                            ? "bg-emerald-500/10 text-emerald-500"
+                            ? "bg-accent/100/10 text-accent"
                             : payment.status === "pending"
-                              ? "bg-amber-500/10 text-amber-500"
+                              ? "bg-primary/10 text-primary"
                               : "bg-destructive/10 text-destructive"
                         }`}
                       >

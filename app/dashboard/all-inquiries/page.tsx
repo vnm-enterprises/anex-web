@@ -118,7 +118,7 @@ export default async function AllInquiriesPage() {
                       variant={inq.is_read ? "ghost" : "default"}
                       className={`h-14 px-8 rounded-2xl font-black shadow-lg transition-all ${
                         inq.is_read
-                          ? 'text-emerald-500 bg-emerald-50/50 hover:bg-emerald-50 cursor-default'
+                          ? 'text-accent bg-accent/10 hover:bg-accent/10 cursor-default'
                           : 'bg-primary hover:bg-primary/90 shadow-primary/20'
                       }`}
                     >

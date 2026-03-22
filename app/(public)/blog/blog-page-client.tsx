@@ -64,7 +64,7 @@ export default function BlogPageClient() {
               {[1, 2, 3, 4, 5].map((i) => (
                 <Star
                   key={i}
-                  className="h-4 w-4 fill-amber-400 text-amber-400"
+                  className="h-4 w-4 fill-accent text-accent"
                 />
               ))}
             </div>
@@ -92,7 +92,7 @@ export default function BlogPageClient() {
     <main className="bg-background">
       <section className="relative pt-32 pb-20 border-b border-border overflow-hidden">
         <img
-          src="https://images.pexels.com/photos/1643383/pexels-photo-1643383.jpeg?auto=compress&cs=tinysrgb&w=2200"
+          src="https://images.pexels.com/photos/271624/pexels-photo-271624.jpeg?auto=compress&cs=tinysrgb&w=2200"
           alt="Modern apartment interior"
           className="absolute inset-0 h-full w-full object-cover"
         />

@@ -22,7 +22,7 @@ export function ListingCarousel({
   accentColor = "primary",
 }: ListingCarouselProps) {
   const hoverClass =
-    accentColor === "rose" ? "hover:bg-rose-500" : "hover:bg-primary";
+    accentColor === "rose" ? "hover:bg-primary" : "hover:bg-primary";
 
   return (
     <Carousel

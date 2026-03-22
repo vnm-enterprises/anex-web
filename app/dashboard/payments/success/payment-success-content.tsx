@@ -63,7 +63,7 @@ export default function PaymentSuccessContent() {
       <Card className="max-w-md w-full border-none soft-shadow-2xl rounded-[2.5rem] p-8">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-6">
-            <div className="p-4 rounded-[2rem] bg-emerald-500/10 text-emerald-500">
+            <div className="p-4 rounded-[2rem] bg-accent/100/10 text-accent">
               <CheckCircle size={64} />
             </div>
           </div>

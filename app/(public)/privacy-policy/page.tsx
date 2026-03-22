@@ -50,8 +50,8 @@ export default function PrivacyPage() {
         </h1>
 
         <div className="prose prose-slate max-w-none space-y-16">
-          <div className="p-8 rounded-[2rem] bg-emerald-50/50 border border-emerald-100 flex items-start gap-4">
-            <div className="w-12 h-12 rounded-xl bg-emerald-500 text-white flex items-center justify-center shrink-0 shadow-lg">
+          <div className="p-8 rounded-[2rem] bg-primary/5 border border-primary/20 flex items-start gap-4">
+            <div className="w-12 h-12 rounded-xl bg-primary text-white flex items-center justify-center shrink-0 shadow-lg">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="24"
@@ -67,10 +67,10 @@ export default function PrivacyPage() {
               </svg>
             </div>
             <div>
-              <p className="text-lg font-bold text-emerald-900 leading-tight mb-1">
+              <p className="text-lg font-bold text-foreground leading-tight mb-1">
                 We protect your data.
               </p>
-              <p className="text-emerald-700/80 font-medium">
+              <p className="text-muted-foreground font-medium">
                 RENTR does not sell your personal information to third-party
                 advertisers. Ever.
               </p>

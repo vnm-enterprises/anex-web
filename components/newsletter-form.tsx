@@ -57,7 +57,7 @@ export function NewsletterForm() {
           <div className="flex flex-col items-center gap-1 p-4 rounded-2xl bg-muted/50 border border-border mb-4">
             <div className="flex gap-1 mb-1">
               {[1, 2, 3, 4, 5].map((i) => (
-                <Star key={i} className="h-4 w-4 fill-amber-400 text-amber-400" />
+                <Star key={i} className="h-4 w-4 fill-accent text-accent" />
               ))}
             </div>
             <p className="text-[10px] font-bold text-foreground italic">
@@ -91,12 +91,12 @@ export function NewsletterForm() {
           placeholder="Enter your email address"
           className="w-full px-5 py-4 rounded-2xl bg-card border border-border focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all text-sm shadow-sm placeholder:text-muted-foreground/50"
         />
-        <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-primary/5 to-emerald-500/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+        <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-primary/5 to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
       </div>
       <button
         type="submit"
         disabled={loading}
-        className="w-full bg-gradient-to-r from-primary to-primary/90 hover:from-primary hover:to-emerald-600 text-white font-black py-4 px-6 rounded-2xl transition-all shadow-lg shadow-primary/20 active:scale-[0.98] text-sm flex items-center justify-center gap-2"
+        className="w-full bg-gradient-to-r from-primary to-primary/90 hover:from-primary hover:to-accent text-white font-black py-4 px-6 rounded-2xl transition-all shadow-lg shadow-primary/20 active:scale-[0.98] text-sm flex items-center justify-center gap-2"
       >
         {loading ? (
           <>

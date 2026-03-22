@@ -43,11 +43,11 @@ export default function SafetyCenterPage() {
             {/* For Tenants */}
             <div className="space-y-10">
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-emerald-500">
+                <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
                   <ShieldCheck size={28} />
                 </div>
                 <h2 className="text-3xl font-black tracking-tight">
-                  For <span className="text-emerald-500">Tenants</span>
+                  For <span className="text-primary">Tenants</span>
                 </h2>
               </div>
 

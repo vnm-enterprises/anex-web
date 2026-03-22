@@ -24,7 +24,7 @@ export default function ContactPage() {
       {/* ================= HERO ================= */}
       <section className="relative pt-32 pb-20 overflow-hidden">
         <img
-          src="https://images.pexels.com/photos/3184465/pexels-photo-3184465.jpeg?auto=compress&cs=tinysrgb&w=2200"
+          src="https://images.pexels.com/photos/3183150/pexels-photo-3183150.jpeg?auto=compress&cs=tinysrgb&w=2200"
           alt="Customer support team helping clients"
           className="absolute inset-0 h-full w-full object-cover"
         />
@@ -132,7 +132,7 @@ export default function ContactPage() {
                   </div>
                   <div className="flex justify-between">
                     <span>Sunday</span>
-                    <span className="text-emerald-500">
+                    <span className="text-accent">
                       Online Support Only
                     </span>
                   </div>

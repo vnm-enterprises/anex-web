@@ -71,7 +71,7 @@ export function BoostModal({
         <DialogHeader>
           <div className="flex justify-center mb-6">
             <div
-              className={`p-4 rounded-[2rem] ${step === "success" ? "bg-emerald-500/10 text-emerald-500" : "bg-primary/10 text-primary"}`}
+              className={`p-4 rounded-[2rem] ${step === "success" ? "bg-primary/10 text-primary" : "bg-primary/10 text-primary"}`}
             >
               {step === "success" ? (
                 <CheckCircle size={48} />
@@ -113,16 +113,16 @@ export function BoostModal({
 
             <div
               onClick={() => setSelectedPlan("premium")}
-              className={`p-5 rounded-2xl border-2 cursor-pointer transition-all ${selectedPlan === "premium" ? "border-indigo-600 bg-indigo-600/5" : "border-border/50 hover:border-indigo-600/30"}`}
+              className={`p-5 rounded-2xl border-2 cursor-pointer transition-all ${selectedPlan === "premium" ? "border-primary bg-primary/5" : "border-border/50 hover:border-primary/30"}`}
             >
               <div className="flex justify-between items-start mb-2">
                 <div className="flex items-center gap-2">
                   <h4 className="font-black text-foreground">Premium Boost</h4>
-                  <Badge className="bg-indigo-600 border-none text-[8px] font-black uppercase">
+                  <Badge className="bg-primary border-none text-[8px] font-black uppercase">
                     Popular
                   </Badge>
                 </div>
-                <span className="font-black text-indigo-600">Rs 900</span>
+                <span className="font-black text-primary">Rs 900</span>
               </div>
               <p className="text-xs text-muted-foreground font-medium">
                 Top Priority placement for 14 days.
@@ -131,18 +131,18 @@ export function BoostModal({
 
             <div
               onClick={() => setSelectedPlan("featured")}
-              className={`p-5 rounded-2xl border-2 cursor-pointer transition-all ${selectedPlan === "featured" ? "border-amber-500 bg-amber-500/5" : "border-border/50 hover:border-amber-500/30"}`}
+              className={`p-5 rounded-2xl border-2 cursor-pointer transition-all ${selectedPlan === "featured" ? "border-primary bg-primary/5" : "border-border/50 hover:border-primary/30"}`}
             >
               <div className="flex justify-between items-start mb-2">
                 <div className="flex items-center gap-2">
                   <h4 className="font-black text-foreground">
                     Featured Spotlight
                   </h4>
-                  <Badge className="bg-amber-500 border-none text-[8px] font-black uppercase">
+                  <Badge className="bg-primary border-none text-[8px] font-black uppercase">
                     Ultimate Reach
                   </Badge>
                 </div>
-                <span className="font-black text-amber-500">Rs 1,500</span>
+                <span className="font-black text-primary">Rs 1,500</span>
               </div>
               <p className="text-xs text-muted-foreground font-medium">
                 Featured badge + Maximum exposure for 30 days.

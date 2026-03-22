@@ -42,8 +42,8 @@ export function HeroSection() {
       {/* Background */}
       <div className="absolute inset-0 z-0">
         <img
-          src="/media/images/hero.png"
-          alt="Modern Architecture"
+          src="https://images.pexels.com/photos/323780/pexels-photo-323780.jpeg?auto=compress&cs=tinysrgb&w=2200"
+          alt="Modern urban apartment complex"
           className="w-full h-full object-cover"
         />
 
@@ -56,14 +56,12 @@ export function HeroSection() {
         {/* Badge */}
         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/20 text-white text-[10px] font-black uppercase tracking-[0.2em] mb-10 backdrop-blur-md">
           <Sparkles className="h-3 w-3" />
-          The Future of Rental Search
+          Sri Lanka's Smartest Rental Platform
         </div>
 
         {/* Headline */}
         <h1 className="text-5xl md:text-7xl lg:text-8xl font-black leading-none md:leading-[0.95] tracking-normal md:tracking-[-0.04em] mb-8">
-          Find your <span className="text-primary italic">next</span>{" "}
-          <br className="hidden md:block" />
-          living space.
+          Discover. Rent. <span className="text-primary italic">Move In.</span>
         </h1>
 
         {/* Subtitle */}
@@ -145,7 +143,7 @@ export function HeroSection() {
 
       {/* Decorative Blur Effects */}
       <div className="absolute top-1/4 -left-20 w-64 h-64 bg-primary/20 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-1/4 -right-20 w-96 h-96 bg-emerald-500/20 rounded-full blur-[150px] pointer-events-none" />
+      <div className="absolute bottom-1/4 -right-20 w-96 h-96 bg-accent/20 rounded-full blur-[150px] pointer-events-none" />
     </section>
   );
 }

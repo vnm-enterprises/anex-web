@@ -139,9 +139,9 @@ export default async function AdminPage() {
 
       {/* Pending Alerts Banner */}
       {(pendingListings || 0) > 0 && (
-        <Card className="border-none bg-gradient-to-r from-amber-500/10 via-amber-200/5 to-transparent soft-shadow rounded-[2rem] overflow-hidden group">
+        <Card className="border-none bg-gradient-to-r from-primary/10 via-primary/5 to-transparent soft-shadow rounded-[2rem] overflow-hidden group">
           <CardContent className="flex flex-col md:flex-row items-center gap-6 py-8 px-10">
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-500 text-white shadow-lg shadow-amber-500/30 animate-pulse">
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary text-white shadow-lg shadow-primary/30 animate-pulse">
               <Eye className="h-7 w-7" />
             </div>
             <div className="flex-1 text-center md:text-left">
@@ -155,7 +155,7 @@ export default async function AdminPage() {
             </div>
             <Button
               asChild
-              className="rounded-2xl h-12 px-8 bg-amber-500 hover:bg-amber-600 text-white shadow-xl shadow-amber-500/20"
+              className="rounded-2xl h-12 px-8 bg-primary hover:bg-primary/90 text-white shadow-xl shadow-primary/20"
             >
               <a href="/admin/listings?status=pending">
                 Review Now <ArrowRight className="ml-2 h-4 w-4" />

@@ -55,13 +55,13 @@ export default function PricingPage() {
       {/* ================= HERO ================= */}
       <section className="relative overflow-hidden py-28">
         <img
-          src="https://images.pexels.com/photos/439391/pexels-photo-439391.jpeg?auto=compress&cs=tinysrgb&w=2200"
+          src="https://images.pexels.com/photos/259588/pexels-photo-259588.jpeg?auto=compress&cs=tinysrgb&w=2200"
           alt="Modern apartment exterior"
           className="absolute inset-0 h-full w-full object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black/75 via-black/80 to-black/15" />
         <div className="absolute -top-20 right-10 h-72 w-72 rounded-full bg-primary/20 blur-3xl" />
-        <div className="absolute -bottom-20 left-10 h-72 w-72 rounded-full bg-emerald-500/15 blur-3xl" />
+        <div className="absolute -bottom-20 left-10 h-72 w-72 rounded-full bg-accent/15 blur-3xl" />
 
         <div className="relative z-10 mx-auto max-w-4xl px-6 text-center">
           <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/15 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-primary">
@@ -107,7 +107,7 @@ export default function PricingPage() {
           </div>
 
           <div className="relative overflow-hidden rounded-[2.5rem] border border-primary/20 bg-primary/5 p-10 soft-shadow">
-            <div className="absolute -left-10 -top-10 h-36 w-36 rounded-full bg-emerald-500/20 blur-2xl" />
+            <div className="absolute -left-10 -top-10 h-36 w-36 rounded-full bg-accent/20 blur-2xl" />
 
             <h2 className="mb-3 text-3xl font-black tracking-tighter text-foreground">Pay Per Listing</h2>
             <p className="mb-8 text-sm font-medium uppercase tracking-widest text-muted-foreground">Scale Without Subscriptions</p>
@@ -159,7 +159,7 @@ export default function PricingPage() {
       {/* ================= CTA ================= */}
       <section className="mx-auto max-w-7xl px-6 pb-24">
         <div className="relative rounded-[3rem] overflow-hidden group">
-          <div className="absolute inset-0 bg-gradient-to-r from-primary to-emerald-600" />
+          <div className="absolute inset-0 bg-gradient-to-r from-primary to-accent" />
           <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] group-hover:scale-110 transition-transform duration-[10s]" />
 
           <div className="relative z-10 py-20 px-10 md:px-20 text-center">

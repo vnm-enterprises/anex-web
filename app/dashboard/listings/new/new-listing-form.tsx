@@ -605,12 +605,12 @@ export function NewListingForm() {
             <div className="mt-4 h-px bg-border" />
             {listingCount >= freeLimit ? (
               <div className="space-y-4">
-                <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-500 text-xs font-bold">
+                <div className="p-4 rounded-xl bg-primary/10 border border-primary/20 text-primary text-xs font-bold">
                   You have reached your free limit of {freeLimit} ads. A one-time payment of Rs. 750 is required for this listing.
                 </div>
                 <Button
                   type="submit"
-                  className="w-full text-white bg-amber-500 hover:bg-amber-600"
+                  className="w-full text-white bg-primary hover:bg-primary/90"
                   disabled={loading || paymentLoading}
                 >
                   {paymentLoading ? (
