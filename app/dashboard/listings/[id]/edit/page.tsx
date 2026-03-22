@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect, notFound } from "next/navigation";
+import { unstable_noStore as noStore } from "next/cache";
 import { EditListingForm } from "./edit-listing-form";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
@@ -9,6 +10,7 @@ export default async function EditListingPage({
 }: {
   params: { id: string };
 }) {
+  noStore();
   const supabase = await createClient();
   const { id } = await params;
 
