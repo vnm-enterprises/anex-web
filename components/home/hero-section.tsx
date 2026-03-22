@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
@@ -41,10 +42,13 @@ export function HeroSection() {
     <section className="relative w-full min-h-[95vh] flex items-center justify-center overflow-hidden pt-20">
       {/* Background */}
       <div className="absolute inset-0 z-0">
-        <img
+        <Image
           src="https://images.pexels.com/photos/323780/pexels-photo-323780.jpeg?auto=compress&cs=tinysrgb&w=2200"
           alt="Modern urban apartment complex"
-          className="w-full h-full object-cover"
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover"
         />
 
         {/* Balanced overlay for readability without flattening the image */}
