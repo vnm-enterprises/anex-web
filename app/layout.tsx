@@ -12,10 +12,10 @@ const spaceGrotesk = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://annex.lk"),
+  metadataBase: new URL("https://rentr.lk"),
   title: {
-    default: "Annex.lk - Find Your Perfect Rental in Sri Lanka",
-    template: "%s | Annex.lk",
+    default: "RENTR - Find Your Perfect Rental in Sri Lanka",
+    template: "%s | RENTR",
   },
   description:
     "Sri Lanka's premier rental marketplace. Find annexes, boarding places, apartments, and houses for long-term rent across all 25 districts.",
@@ -29,9 +29,9 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://annex.lk",
-    siteName: "Annex.lk",
-    title: "Annex.lk - Find Your Perfect Rental in Sri Lanka",
+    url: "https://rentr.lk",
+    siteName: "RENTR",
+    title: "RENTR - Find Your Perfect Rental in Sri Lanka",
     description:
       "Sri Lanka's premier rental marketplace for annexes, boarding places, apartments, and houses.",
     images: [
@@ -39,13 +39,13 @@ export const metadata: Metadata = {
         url: "/media/images/og-default.jpg",
         width: 1200,
         height: 630,
-        alt: "Annex.lk rental marketplace",
+        alt: "RENTR rental marketplace",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Annex.lk - Find Your Perfect Rental in Sri Lanka",
+    title: "RENTR - Find Your Perfect Rental in Sri Lanka",
     description:
       "Sri Lanka's premier rental marketplace for annexes, boarding places, apartments, and houses.",
     images: ["/media/images/og-default.jpg"],
