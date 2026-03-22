@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { AlertTriangle, ShieldCheck } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -21,6 +21,16 @@ interface AffiliateRegisterButtonProps {
 export function AffiliateRegisterButton({ registerAction }: AffiliateRegisterButtonProps) {
   const [open, setOpen] = useState(false);
   const [agreed, setAgreed] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const submitLockRef = useRef(false);
+
+  const handleOpenChange = (nextOpen: boolean) => {
+    setOpen(nextOpen);
+    if (!nextOpen) {
+      submitLockRef.current = false;
+      setSubmitting(false);
+    }
+  };
 
   return (
     <>
@@ -28,7 +38,7 @@ export function AffiliateRegisterButton({ registerAction }: AffiliateRegisterBut
         Register as Affiliate User
       </Button>
 
-      <Dialog open={open} onOpenChange={setOpen}>
+      <Dialog open={open} onOpenChange={handleOpenChange}>
         <DialogContent className="sm:max-w-lg rounded-[2rem]">
           <DialogHeader>
             <DialogTitle className="text-2xl font-black tracking-tight flex items-center gap-2">
@@ -63,9 +73,19 @@ export function AffiliateRegisterButton({ registerAction }: AffiliateRegisterBut
           </label>
 
           <DialogFooter>
-            <form action={registerAction}>
-              <Button type="submit" className="rounded-2xl" disabled={!agreed}>
-                Confirm & Register
+            <form
+              action={registerAction}
+              onSubmit={(event) => {
+                if (submitLockRef.current) {
+                  event.preventDefault();
+                  return;
+                }
+                submitLockRef.current = true;
+                setSubmitting(true);
+              }}
+            >
+              <Button type="submit" className="rounded-2xl" disabled={!agreed || submitting}>
+                {submitting ? "Registering..." : "Confirm & Register"}
               </Button>
             </form>
           </DialogFooter>
