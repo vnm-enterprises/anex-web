@@ -1,4 +1,4 @@
-# Annex.lk Performance and Scaling Plan
+# RENTR Performance and Scaling Plan
 
 ## Scope
 This document covers the production-grade search and affiliate/admin paths that drive the highest traffic and query volume.
