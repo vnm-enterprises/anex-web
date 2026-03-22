@@ -148,7 +148,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const description = `${listing.title} for Rs. ${listing.price?.toLocaleString()}/month in ${data.cities?.name ?? data.custom_city}, ${data.districts?.name}. ${listing.description?.slice(0, 140)}`;
 
   return {
-    title: `${listing.title} | Annex.lk`,
+    title: `${listing.title} | RENTR`,
     description,
     alternates: {
       canonical: `${SITE_URL}/listings/${slug}`,
@@ -161,7 +161,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title: listing.title,
       description,
       url: `${SITE_URL}/listings/${slug}`,
-      siteName: "Annex.lk",
+      siteName: "RENTR",
       images: imageUrl
         ? [{ url: imageUrl, width: 1200, height: 630, alt: listing.title }]
         : [],
