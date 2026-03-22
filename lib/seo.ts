@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
-export const SITE_URL = "https://annex.lk";
-export const SITE_NAME = "Annex.lk";
+export const SITE_URL = "https://rentr.lk";
+export const SITE_NAME = "RENTR";
 
 interface PageSeoInput {
   title: string;

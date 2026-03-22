@@ -15,7 +15,7 @@ export function SiteFooter() {
                 <Home className="h-5 w-5" />
               </div>
               <span className="font-extrabold text-2xl tracking-tighter text-foreground">
-                Annex<span className="text-primary italic">.lk</span>
+                RENTR
               </span>
             </Link>
 
@@ -117,7 +117,7 @@ export function SiteFooter() {
         {/* ================= BOTTOM BAR ================= */}
         <div className="border-t border-border pt-8 flex flex-col md:flex-row justify-between items-center gap-6">
           <p className="text-muted-foreground text-[10px] uppercase tracking-widest">
-            © {new Date().getFullYear()} Annex.lk — Crafted in Sri Lanka
+            © {new Date().getFullYear()} RENTR — Crafted in Sri Lanka
           </p>
 
           <div className="flex gap-8 text-[10px] items-center uppercase tracking-widest text-muted-foreground font-semibold">
