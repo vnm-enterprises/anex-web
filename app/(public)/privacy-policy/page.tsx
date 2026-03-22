@@ -4,9 +4,9 @@ import { buildPageMetadata } from "@/lib/seo";
 export const metadata: Metadata = buildPageMetadata({
   title: "Privacy Policy",
   description:
-    "Read how Annex.lk collects, uses, and protects personal data for tenants and landlords in Sri Lanka.",
+    "Read how RENTR collects, uses, and protects personal data for tenants and landlords in Sri Lanka.",
   path: "/privacy-policy",
-  keywords: ["privacy policy", "Annex.lk privacy", "data protection Sri Lanka"],
+  keywords: ["privacy policy", "RENTR privacy", "data protection Sri Lanka"],
 });
 
 export default function PrivacyPage() {
@@ -71,7 +71,7 @@ export default function PrivacyPage() {
                 We protect your data.
               </p>
               <p className="text-emerald-700/80 font-medium">
-                Annex.lk does not sell your personal information to third-party
+                RENTR does not sell your personal information to third-party
                 advertisers. Ever.
               </p>
             </div>
@@ -100,7 +100,7 @@ export default function PrivacyPage() {
 
           <div className="mt-20 pt-10 border-t border-border">
             <p className="text-sm text-muted-foreground text-center italic">
-              Annex.lk, Colombo 01, Sri Lanka. Last Updated: February 22, 2026.
+              RENTR, Colombo 01, Sri Lanka. Last Updated: February 22, 2026.
             </p>
           </div>
         </div>
