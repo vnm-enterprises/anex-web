@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import {
   ArrowDown,
@@ -42,10 +43,13 @@ export default function AboutPageClient() {
       />
       <section className="relative min-h-[600px] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0">
-          <img
+          <Image
             src="https://images.pexels.com/photos/186077/pexels-photo-186077.jpeg?auto=compress&cs=tinysrgb&w=2200"
-            className="w-full h-full object-cover"
             alt="Modern Sri Lanka urban skyline"
+            fill
+            priority
+            sizes="100vw"
+            className="w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-slate-900/70 to-black/80" />
         </div>
@@ -99,10 +103,13 @@ export default function AboutPageClient() {
       <section id="mission" className="py-24 bg-muted/20">
         <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-16 items-center">
           <div>
-            <img
+            <Image
               src="https://images.pexels.com/photos/1571463/pexels-photo-1571463.jpeg?auto=compress&cs=tinysrgb&w=1600"
-              className="rounded-2xl shadow-2xl h-[500px] w-full object-cover"
               alt="Modern home interior"
+              width={1200}
+              height={750}
+              sizes="(max-width: 768px) 100vw, 50vw"
+              className="rounded-2xl shadow-2xl h-[500px] w-full object-cover"
             />
           </div>
 
