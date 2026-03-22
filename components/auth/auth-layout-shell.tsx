@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { Home } from "lucide-react";
 import { formatAtLeastHundred, useMarketplaceStats } from "@/hooks/use-marketplace-stats";
@@ -117,9 +118,12 @@ export function AuthLayoutShell({ children }: { children: React.ReactNode }) {
       </div>
 
       <div className="hidden lg:flex lg:w-1/2 relative bg-neutral-900 overflow-hidden">
-        <img
+        <Image
           src={routeConfig.heroImage}
           alt={routeConfig.heroAlt}
+          fill
+          priority
+          sizes="50vw"
           className="absolute inset-0 w-full h-full object-cover opacity-80"
         />
 
