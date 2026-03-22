@@ -46,7 +46,7 @@ export function AdminListingsClient({
   const searchParams = useSearchParams();
 
   const [listings, setListings] = useState<any[]>(initialListings);
-  const [loading, setLoading] = useState(false);
+  const [pendingActionId, setPendingActionId] = useState<string | null>(null);
 
   // Update internal state if props change (e.g., on navigation)
   useEffect(() => {
@@ -64,35 +64,49 @@ export function AdminListingsClient({
   };
 
   const updateStatus = async (id: string, newStatus: string) => {
-    setLoading(true);
+    if (pendingActionId === id) return;
+    setPendingActionId(id);
+
+    const previousListings = listings;
+    setListings((prev) =>
+      prev.map((item) => (item.id === id ? { ...item, status: newStatus } : item)),
+    );
+
     const { error } = await supabase
       .from("listings")
       .update({ status: newStatus })
       .eq("id", id);
 
     if (error) {
+      setListings(previousListings);
       toast.error(error.message);
     } else {
       toast.success(`Status changed to ${newStatus}`);
       router.refresh();
     }
-    setLoading(false);
+    setPendingActionId(null);
   };
 
   const deleteListing = async (id: string) => {
     const confirmed = confirm("Are you sure you want to delete this listing?");
     if (!confirmed) return;
 
-    setLoading(true);
+    if (pendingActionId === id) return;
+    setPendingActionId(id);
+
+    const previousListings = listings;
+    setListings((prev) => prev.filter((item) => item.id !== id));
+
     const { error } = await supabase.from("listings").delete().eq("id", id);
 
     if (error) {
+      setListings(previousListings);
       toast.error(error.message);
     } else {
       toast.success("Listing deleted");
       router.refresh();
     }
-    setLoading(false);
+    setPendingActionId(null);
   };
 
   const statusBadge = (status: string) => {
@@ -144,7 +158,7 @@ export function AdminListingsClient({
         </Select>
       </div>
 
-      {loading && listings.length === 0 ? (
+      {pendingActionId && listings.length === 0 ? (
         <div className="flex h-64 items-center justify-center">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
@@ -207,10 +221,10 @@ export function AdminListingsClient({
                     <Select
                       value={listing.status}
                       onValueChange={(value) => updateStatus(listing.id, value)}
-                      disabled={loading}
+                      disabled={pendingActionId === listing.id}
                     >
                       <SelectTrigger className="w-32 h-8 text-xs">
-                        {loading ? (
+                        {pendingActionId === listing.id ? (
                           <Loader2 className="h-3 w-3 animate-spin mx-auto" />
                         ) : (
                           <SelectValue />
@@ -230,9 +244,13 @@ export function AdminListingsClient({
                       variant="ghost"
                       className="text-destructive hover:text-destructive"
                       onClick={() => deleteListing(listing.id)}
-                      disabled={loading}
+                      disabled={pendingActionId === listing.id}
                     >
-                      <Trash2 className="h-4 w-4" />
+                      {pendingActionId === listing.id ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Trash2 className="h-4 w-4" />
+                      )}
                     </Button>
                   </TableCell>
                 </TableRow>
