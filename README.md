@@ -1,4 +1,4 @@
-# Annex.lk - Sri Lankan Rental Marketplace
+# RENTR - Sri Lankan Rental Marketplace
 
 A production-ready, monetized rental marketplace for Sri Lanka built with Next.js, Supabase, and modern web technologies.
 
@@ -252,9 +252,9 @@ Quick summary:
 
 ## License
 
-Proprietary - Annex.lk
+Proprietary - RENTR
 
 ## Support
 
-For issues or questions, contact support@annex.lk
+For issues or questions, contact support@rentr.lk
 : )
