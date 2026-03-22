@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -39,6 +39,7 @@ export function EditListingForm({ listing }: { listing: any }) {
     listing.listing_images || [],
   );
   const [deletedImageIds, setDeletedImageIds] = useState<string[]>([]);
+  const submitLockRef = useRef(false);
 
   const [form, setForm] = useState({
     title: listing.title,
@@ -113,6 +114,8 @@ export function EditListingForm({ listing }: { listing: any }) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (submitLockRef.current) return;
+    submitLockRef.current = true;
     setLoading(true);
 
     try {
@@ -193,6 +196,7 @@ export function EditListingForm({ listing }: { listing: any }) {
       );
     } finally {
       setLoading(false);
+      submitLockRef.current = false;
     }
   };
 
@@ -486,7 +490,10 @@ export function EditListingForm({ listing }: { listing: any }) {
               disabled={loading}
             >
               {loading ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Saving...
+                </>
               ) : (
                 "Save Changes"
               )}
